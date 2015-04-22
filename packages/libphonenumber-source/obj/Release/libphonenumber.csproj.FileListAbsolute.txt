@@ -1,0 +1,9 @@
+I:\samuel_photobookmark\packages\libphonenumber-source\bin\Release\libphonenumber.dll
+I:\samuel_photobookmark\packages\libphonenumber-source\bin\Release\libphonenumber.pdb
+I:\samuel_photobookmark\packages\libphonenumber-source\obj\Release\libphonenumber.dll
+I:\samuel_photobookmark\packages\libphonenumber-source\obj\Release\libphonenumber.pdb
+G:\NPSoft_HTQLNHCS\packages\libphonenumber-source\bin\Release\libphonenumber.dll
+G:\NPSoft_HTQLNHCS\packages\libphonenumber-source\bin\Release\libphonenumber.pdb
+G:\NPSoft_HTQLNHCS\packages\libphonenumber-source\obj\Release\libphonenumber.dll
+G:\NPSoft_HTQLNHCS\packages\libphonenumber-source\obj\Release\libphonenumber.pdb
+G:\NPSoft_HTQLNHCS\packages\libphonenumber-source\obj\Release\libphonenumber.csprojResolveAssemblyReference.cache
