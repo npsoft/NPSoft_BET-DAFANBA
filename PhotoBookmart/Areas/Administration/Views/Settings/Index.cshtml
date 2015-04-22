@@ -1,0 +1,32 @@
+﻿@{
+    ViewBag.Title = "Settings Management";
+    
+    int currPage = (int)ViewData["CurrPage"];
+}
+
+<link rel="stylesheet" type="text/css" href="@Url.ContentArea("~/Content/admin_template/plugins/datatables/colvis.css")">
+<script src="@Url.ContentArea("~/Content/admin_template/plugins/datatables/ColVis.js")"></script>
+<style></style>
+<script></script>
+
+<div class="head">
+    <h3>@ViewBag.Title</h3>
+    <div class="mws-panel no_shadow"></div>
+</div>
+<div class="mws-panel grid_8">
+    <div class="mws-panel-header">
+        <span><i class="icon-table"></i>@ViewBag.Title</span>
+    </div>
+    <div class="mws-panel-toolbar">
+        <div class="btn-toolbar">
+            <div class="btn-group">
+                <a href="@Url.Action("Add", "Settings", new { })" id="add-rb-setting" class="btn">
+                    <i class="icol-add"></i>Add
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="mws-panel-body no-padding WDTB_RB_Settings">
+        @Html.Action("List", "Settings", new { page = currPage })
+    </div>
+</div>

@@ -1,0 +1,42 @@
+<?php
+
+if (session_id() == "") session_start();
+$selected_radio = $_SESSION['OS'];
+
+if ($selected_radio == 'Windows') {
+	$file = 'windows.zip';
+
+	if (file_exists($file)) {
+		header('Content-Description: File Transfer');
+		header('Content-Type: application/zip');
+		header('Content-Disposition: attachment; filename='.basename($file));
+		header('Content-Transfer-Encoding: binary');
+		header('Expires: 0');
+		header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+		header('Pragma: public');
+		header('Content-Length: ' . filesize($file));
+		ob_clean();
+		flush();
+		readfile($file);
+		exit;
+	}
+} else if ($selected_radio == 'Macintosh') {
+	$file = 'mac.zip';
+
+	if (file_exists($file)) {
+		header('Content-Description: File Transfer');
+		header('Content-Type: application/zip');
+		header('Content-Disposition: attachment; filename='.basename($file));
+		header('Content-Transfer-Encoding: binary');
+		header('Expires: 0');
+		header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+		header('Pragma: public');
+		header('Content-Length: ' . filesize($file));
+		ob_clean();
+		flush();
+		readfile($file);
+		exit;
+	}
+}
+
+?>

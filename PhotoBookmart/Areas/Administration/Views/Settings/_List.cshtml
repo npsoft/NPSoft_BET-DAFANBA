@@ -1,0 +1,115 @@
+﻿@model List<Settings>
+@{  
+    int distance = 5;
+    
+    int currPage = (int)ViewData["CurrPage"];
+
+    int pageSize = (int)ViewData["PageSize"];
+
+    int totalItem = (int)ViewData["TotalItem"];
+
+    int totalPage = (int)ViewData["TotalPage"];
+}
+
+<style>
+    table#ListTable tr > *:nth-child(100) {
+        display: none;
+    }
+</style>
+<script type="text/javascript">
+    function Paging(page) {
+
+        show_loading();
+
+        $.get("@Url.Action("List", "Settings")?page=" + page, function (data) {
+
+            $(".WDTB_RB_Settings").html("");
+
+            $(".WDTB_RB_Settings").html(data);
+
+            hide_loading();
+        });
+    };
+
+    $(document).ready(function () {
+
+        $("a.ab-delete-rb-settings").click(function () {
+
+            var $this = $(this);
+
+            var NameItem = $this.attr("item_name");
+
+            var item_id = $this.attr("item_id");
+
+            if (confirm("Are you sure to delete » " + NameItem + "?")) {
+
+                show_loading();
+
+                $.post("@Url.Action("Delete", "Settings")?id=" + item_id, function () {
+
+                    jQuery("a.paginate_active").trigger("click");
+                });
+            }
+        });
+    });
+</script>
+
+<table class="mws-table" id="ListTable">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Key</th>
+            <th>Value</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model ?? Enumerable.Empty<Settings>())
+    {
+        <tr>
+            <td style="text-align: center;">
+                <span>@item.Id</span>
+            </td>
+            <td style="text-align: left;">
+                <span>@item.Key</span>
+            </td>
+            <td style="text-align: left;">
+                <span>@item.Value</span>
+            </td>
+            <td style="text-align: center;" class="no_padding">
+                <span class="btn-group">
+                    <a href="#" class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
+                    <ul class="dropdown-menu pull-right" style="text-align: left;">
+                        <li>
+                            <a href="@Url.Action("Edit", "Settings", new { id = item.Id })" title="Edit for &raquo; @item.Key" target="_parent">
+                                <i class="icon-pencil"></i>&nbsp;Edit for &raquo; @item.Key
+                            </a>
+                        </li>
+                        <li>
+                            <a href="javascript:void(0);" class="ab-delete-rb-settings" item_id="@item.Id" item_name="@item.Key" title="Delete for &raquo; @item.Key">
+                                <i class="icon-trash"></i>&nbsp;&nbsp;Delete for &raquo; @item.Key
+                            </a>
+                        </li>
+                    </ul>
+                </span>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@{
+    var viewData = new ViewDataDictionary();
+    
+    viewData.Add("Distance", distance);
+    
+    viewData.Add("CurrPage", currPage);
+    
+    viewData.Add("PageSize", pageSize);
+    
+    viewData.Add("TotalItem", totalItem);
+    
+    viewData.Add("TotalPage", totalPage);
+    
+    @Html.Partial("_PagerTable", viewData);
+}

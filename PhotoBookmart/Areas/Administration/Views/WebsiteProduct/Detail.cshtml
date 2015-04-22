@@ -1,0 +1,19 @@
+﻿@model Product
+@{
+    ViewBag.Title = Model.Name + " product detail";
+}
+<div class="head">
+    <h3>@Model.Name product detail</h3>
+    <div>
+        <a type="button" class="btn" href="@Url.Action("Index", "ProductCategory")">
+            <i class="icol-arrow-left"></i>Product Categories</a>
+         <a type="button" class="btn  btn-primary" href="@Url.Action("Edit", new { id= Model.Id })">
+            <i class="icon-pencil"></i>&nbsp;Edit</a>
+           @* <a type="button" class="btn " href="@Url.Action("Index", "Price", new { type = Enum_Price_MasterType.ProductShippingPrice, id = Model.Id })">
+           &nbsp;Set shipping price</a>*@
+    </div>
+</div>
+
+@Html.Partial("Detail_Option", Model)
+@*@Html.Partial("Detail_Image", Model)*@
+@*@Html.Partial("Detail_Sheet", Model)*@

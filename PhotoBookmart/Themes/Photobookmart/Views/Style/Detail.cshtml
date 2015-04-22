@@ -1,0 +1,82 @@
+﻿@model Product_Category
+@{
+    var prev = ViewData["Prev"] != null ? (Product_Category)ViewData["Prev"] : null;
+    
+    var next = ViewData["Next"] != null ? (Product_Category)ViewData["Next"] : null;
+    
+    var images = (List<ProductCategoryImage>)ViewData["Images"];
+}
+@{
+    Layout = "~/Themes/Photobookmart/Views/Shared/_Layout.Navigation.cshtml";
+    
+    ViewBag.Title = Model.Name;
+}
+
+@section _ClassWrapper {
+    class="container_wrap main_color fullwidth single-portfolio-entry"
+}
+
+@section _TitleMain {
+    <a href='@Url.Action("Detail", "Style", new { id = Model.SeoName })' rel='@Model.SeoName' title='Permanent Link: @Model.Name'>@Model.Name</a>
+}
+
+@section _TrailLink {
+    <a href="/" rel="home" title="Home" class="trail-begin">Home</a>
+    <span class="sep">&raquo;</span>
+    <span class="trail-end">@Model.Name</span>
+}
+
+<div class='post-entry post-entry-type-portfolio post-entry-46'>
+    <span class='entry-border-overflow extralight-border'></span>	
+	<div class="eight units alpha min_height_1">
+		<div class='slideshow_container slide_container_small'>
+            <ul class='slideshow preloading fx_slider' data-autorotation='true' data-autorotation-timer='3' data-transition='fx' >
+                @foreach (var e in images ?? Enumerable.Empty<ProductCategoryImage>())
+                {
+                    string path = !string.IsNullOrEmpty(e.Thumbnail) ? "/" + e.Thumbnail : Url.Content("~/Content/img/noimage.gif");
+                    <li data-animation='random' class='featured featured_container1 caption_right caption_right_framed caption_framed  ' >
+                    <div class='slideshow_media_wrap'>
+                        <a  href='@path'>
+                            <img src='@path' title='@e.Name' alt='' data-imgw='930' data-imgh='930' />
+                        </a>
+                    </div>
+                </li>
+                }
+            </ul>
+		</div>		        					
+	</div>
+	<div class="four units entry-content">
+		<ul class='portfolio-meta-list'>
+            <li><strong class='portfolio-meta-key'>Cover:</strong> <div class='portfolio-meta-value'>@Model.Cover</div></li>
+            <li><strong class='portfolio-meta-key'>Paper Type:</strong> <div class='portfolio-meta-value'>@Model.PaperType</div></li>
+            <li><strong class='portfolio-meta-key'>No of Pages:</strong> <div class='portfolio-meta-value'>@Model.NoOfPages</div></li>
+            <li><strong class='portfolio-meta-key'>Binding Type:</strong> <div class='portfolio-meta-value'>@Model.BindingType</div></li>
+            <li><strong class='portfolio-meta-key'>Printing:</strong> <div class='portfolio-meta-value'>@Model.Printing</div></li>
+            <li><strong class='portfolio-meta-key'>End Sheets:</strong> <div class='portfolio-meta-value'>@Model.EndSheets</div></li>
+		</ul>
+        <div class='hr small'> <span class='hr_inner'></span></div>
+        <a href="@Url.Action("Pricing", "Style", new { })" class="avia-button  grey xl" ><span class="avia-">Sizes and Prices</span></a>
+		<div class='blog-inner-meta extralight-border'><div class='post-meta-infos'></div></div>
+	</div>
+</div>
+<div class='post_nav_container stretch_full'>
+    <div class='post_nav'>
+        <div class='previous_post_link_align'>
+            @if (prev != null)
+            {
+                <span class="previous_post_link">&larr;
+                    <a href="@Url.Action("Detail", "Style", new { id = prev.SeoName })" rel="prev">@prev.Name</a>
+                </span><span class="post_link_text">(previous entry)</span>
+            }
+        </div>
+        <div class='next_post_link_align'>
+            @if (next != null)
+            {
+                <span class="next_post_link">
+                    <span class="post_link_text">(next entry)</span>
+                    <a href="@Url.Action("Detail", "Style", new { id = next.SeoName })" rel="next">@next.Name</a> &rarr;
+                </span>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,31 @@
+﻿@model List<Product_Category>
+@{
+    Layout = "~/Themes/Photobookmart/Views/Shared/_Layout.cshtml";
+    
+    ViewBag.Title = "Photobook Styles";
+}
+
+@section _ClassBody
+{
+    class="page page-id-832 page-template-default stretched open_sans open_sans  dynamic-template"
+}
+
+<div class='container_wrap  main_color fullsize'>
+	<div class='container'>
+		<div class='content twelve alpha units template-dynamic template-dynamic-prices'>
+            @Html.Action("Widget_BigBanner", "Product")
+            <div class='post-entry post-entry-dynamic dynamic_element dynamic_el_2'>
+                <div class='entry-content'>
+                    <h1 class='post-title dynamic-post-title'>Photobook Styles</h1>
+                    @foreach (var e in Model ?? Enumerable.Empty<Product_Category>())
+                    {
+                        <h1>@e.Name</h1>
+                        @Html.Raw(e.Description)
+                        @Html.Action("Material", "Style", new { styleId = e.Id })
+                    }
+                    <p>&nbsp;</p>
+                </div>
+            </div>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,13 @@
+H:\samuel_photobookmark\Common\abScripting\bin\Debug\abScripting.dll
+H:\samuel_photobookmark\Common\abScripting\bin\Debug\abScripting.pdb
+H:\samuel_photobookmark\Common\abScripting\obj\Debug\abScripting.dll
+H:\samuel_photobookmark\Common\abScripting\obj\Debug\abScripting.pdb
+I:\samuel_photobookmark\Common\abScripting\bin\Debug\abScripting.dll
+I:\samuel_photobookmark\Common\abScripting\bin\Debug\abScripting.pdb
+I:\samuel_photobookmark\Common\abScripting\obj\Debug\abScripting.dll
+I:\samuel_photobookmark\Common\abScripting\obj\Debug\abScripting.pdb
+I:\samuel_photobookmark\Common\abScripting\obj\Debug\abScripting.csprojResolveAssemblyReference.cache
+G:\NPSoft_HTQLNHCS\Common\abScripting\bin\Debug\abScripting.dll
+G:\NPSoft_HTQLNHCS\Common\abScripting\bin\Debug\abScripting.pdb
+G:\NPSoft_HTQLNHCS\Common\abScripting\obj\Debug\abScripting.dll
+G:\NPSoft_HTQLNHCS\Common\abScripting\obj\Debug\abScripting.pdb

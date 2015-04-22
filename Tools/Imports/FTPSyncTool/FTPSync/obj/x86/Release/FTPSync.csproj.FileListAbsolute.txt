@@ -1,0 +1,2 @@
+G:\samuel_photobookmark\Tools\Imports\FTPSyncTool\FTPSync\bin\Release\FTPSync.exe.config
+I:\samuel_photobookmark\Tools\Imports\FTPSyncTool\FTPSync\bin\Release\FTPSync.exe.config

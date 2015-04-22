@@ -1,0 +1,41 @@
+﻿@model List<ProductCategoryMaterialDetail>
+@{
+    Layout = null;
+    
+    int numRow = (int)Math.Ceiling((double)Model.Count / 6);
+}
+
+@for (int i = 0; i < numRow; i++)
+{
+    for (int j = 0; j < 2; j++)
+    {
+        <tr>
+            @for (int k = 0; k < 6; k++)
+            {
+                var index = i * 6 + k;
+                
+                if (j == 0)
+                {
+                    <td>
+                        @if(index < Model.Count)
+                        {
+                            @Model[i * 6 + k].Name
+                        }
+                    </td>
+                }
+                else if (j == 1)
+                {
+                    <td width="90">
+                        @if (index < Model.Count)
+                        {
+                            string path = !string.IsNullOrEmpty(Model[index].Thumbnail) ? Model[index].Thumbnail : Url.Content("~/Content/img/noimage.gif");
+                            <a href="@path">
+                                <img alt="@Model[index].Name" src="@path" width="80" height="80" />
+                            </a>
+                        }
+                    </td>
+                }
+            }
+        </tr>
+    }
+}

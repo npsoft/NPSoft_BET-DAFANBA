@@ -1,0 +1,145 @@
+﻿@model OptionInProduct
+@{  
+    if (Model.Id > 0)
+    {
+        ViewBag.Title = "Edit option " + Model.Option_Name + " in product " + Model.Product_Name;
+    }
+    else
+    {
+        ViewBag.Title = "Add option into product " + Model.Product_Name;
+    }
+
+    var options = Db.Where<Product_Option>(x => x.Status);
+}
+<script type="text/javascript">
+
+    jQuery(document).ready(function () {
+
+        $(".integer-than-or-equal-zero").spinner({
+            min: 0,
+            step: 1,
+            numberFormat: "n"
+        });
+
+        $(".float-than-or-equal-zero").spinner({
+            min: 0.00,
+            step: 0.01,
+            numberFormat: "n"
+        });
+
+        jQuery("#UserForm").submit(function () {
+            if (jQuery("#MinQuantity").spinner("value") > jQuery("#MaxQuantity").spinner("value")) {
+                alert("Max quantity should be bigger than min quantity");
+                return false;
+            }
+
+            show_loading();
+
+            // and post
+            jQuery.post(jQuery(this).attr("action"), jQuery("#UserForm").serialize(), function (returnObj) {
+
+                if (returnObj.Status == "success") {
+                    if (returnObj.Message != null) {
+                        notify_success("Success", returnObj.Message);
+                    }
+                    else
+                        if (returnObj.RedirectUrl != null) {
+                            window.location.href = returnObj.RedirectUrl;
+                        }
+                } else {
+                    $.pnotify({
+                        title: 'Error',
+                        text: returnObj.Message,
+                        type: 'error',
+                        opacity: .8
+                    });
+                }
+
+                hide_loading();
+            });
+            return false;
+        });
+    });
+</script>
+<div class="head">
+    <h3>
+        @ViewBag.Title
+    </h3>
+</div>
+<div class="mws-panel grid_8">
+    <div class="mws-panel-header">
+        <span>@ViewBag.Title</span>
+    </div>
+    <div class="mws-panel-body no-padding">
+        @using (Html.BeginForm("Detail_Option_Update", "WebsiteProduct", FormMethod.Post, new { enctype = "multipart/form-data", @id = "UserForm", @class = "mws-form" }))
+        {
+            @Html.HiddenFor(m => m.Id)
+            @Html.HiddenFor(m => m.ProductId)
+            <div class="mws-form-inline">
+                <div class="mws-form-row">
+                    <label class="mws-form-label">
+                        Product</label>
+                    <div class="mws-form-item">
+                        <span>@Model.Product_Name</span>
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">
+                        Product Option</label>
+                    <div class="mws-form-item">
+                        <select name="ProductOptionId" id="ProductOptionId" class="large mws-select2">
+                            @foreach (var item in options)
+                            {
+                                <option value="@item.Id" @if (item.Id == Model.ProductOptionId)
+                                                         { <text> selected</text> }>@if (item.Name == item.InternalName)
+                                                                                    { @item.Name }
+                                                                                    else { @item.InternalName <text>-</text> @item.Name}</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">
+                        Is Require</label>
+                    <div class="mws-form-item">
+                        <input class="ibutton" name="isRequire" value="true" type="checkbox" data-label-on="Yes" data-label-off="No" @if (Model.isRequire)
+                                                                                                                                     {<text>checked="checked"</text>}>
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">
+                        DefaultQuantity</label>
+                    <div class="mws-form-item">
+                        @Html.TextBoxFor(model => Model.DefaultQuantity, new { @class = "mws-spinner-decimal integer-than-or-equal-zero large" })
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">
+                        Max Quantity</label>
+                    <div class="mws-form-item">
+                        @Html.TextBoxFor(model => Model.MaxQuantity, new { @class = "mws-spinner-decimal integer-than-or-equal-zero large" })
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">
+                        Min Quantity</label>
+                    <div class="mws-form-item">
+                        @Html.TextBoxFor(model => Model.MinQuantity, new { @class = "mws-spinner-decimal integer-than-or-equal-zero large" })
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">
+                        Can Apply Coupon?</label>
+                    <div class="mws-form-item">
+                        <input class="ibutton" name="CanApplyCoupon" value="true" type="checkbox" data-label-on="Yes" data-label-off="No" @if (Model.CanApplyCoupon)
+                                                                                                                                          {<text>checked="checked"</text>}>
+                    </div>
+                </div>
+            </div>
+            <div class="mws-button-row">
+                <input type="submit" value="Submit" class="btn btn-danger">
+                <input type="reset" value="Reset" class="btn ">
+            </div>
+        }
+    </div>
+</div>

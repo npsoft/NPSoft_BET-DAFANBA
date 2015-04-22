@@ -1,0 +1,6 @@
+========== ACCOUNT ==========
+Link		: http://localhost:8083/ :: http://churchrealty.com.192-185-7-166.secure9.win.hostgator.com/
+FTP		: 192.185.7.166 :: tiendv :: angular@2015
+User/Pass(Admin)	: immanuel.dang@gmail.com :: 123absoft.vn
+User/Pass(Province)	: diving :: 123456
+User/Pass(District)	: eric@ipo.com.my :: 123456

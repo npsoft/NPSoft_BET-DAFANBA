@@ -1,0 +1,73 @@
+﻿@model LoginModel
+@{
+    Layout = "~/Themes/Photobookmart/Views/Shared/_Layout.Navigation.Sidebar.cshtml";
+
+    ViewBag.Title = "Sign In";
+}
+@section _TitleMain {
+    <a href='@Url.Action("SignIn", "Home", new { })' rel='signin' title='Permanent Link: Sign In'>
+        Sign In</a>
+}
+@section _TrailLink {
+    <a href="/" rel="/" title="Home" class="trail-begin">Home</a> <span class="sep">&raquo;</span>
+    <span class="trail-end">Sign In</span>
+}
+@using (Html.BeginForm("SignInSubmit", "Home", FormMethod.Post, new { @id = "frmSignIn", @class = "ab-form ab-signin" }))
+{
+    <div class="ab-title display-none">
+        <h2>
+            Sign In - @CurrentWebsite.Name</h2>
+    </div>
+    <div class="ab-hidden">
+        @Html.HiddenFor(m => m.RedirectTo)
+    </div>
+    <div>
+        <label>
+            Email<span class="ab-required">*</span></label>
+        @Html.TextBoxFor(m => m.UserName, new { @class = "ab-textbox" })
+    </div>
+    <div>
+        <label>
+            Password<span class="ab-required">*</span></label>
+        @Html.PasswordFor(m => m.Pass, new { @class = "ab-textbox" })
+    </div>
+    <div>
+        <input type="checkbox" name="CheckRemember" @{ if (Model != null && Model.CheckRemember)
+                                                       { <text>checked="checked"</text> }
+                                                       else { } } value="true" />
+        <span>&nbsp;Remember me!</span>
+    </div>
+    <div>
+        <a rel="forgot-password" href="@Url.Action("ForgotPassword", "Home", new { })">Forgot
+            password?</a> <a rel="register" href="@Url.Action("Register", "Home", new { redirectTo = Model.RedirectTo })">
+                Create new account?</a>
+    </div>
+    <div class="ab-action align-right">
+        <input type="submit" value="Login" class="ab-submit" />
+        <input type="reset" value="Reset" class="ab-reset" />
+    </div>
+}
+<script type="text/javascript">
+    jQuery(document).ready(function ($) {
+
+        if ($("#frmSignIn").length != 0) {
+
+            $("#frmSignIn").on("submit", function (e) {
+
+                if ($(this).find("input[name='UserName']").val() == "") {
+
+                    alert("Please enter your username");
+                    $(this).find("input[name='UserName']").focus();
+                    return false;
+                }
+
+                if ($(this).find("input[name='Pass']").val() == "") {
+
+                    alert("Please enter your password");
+                    $(this).find("input[name='Pass']").focus();
+                    return false;
+                }
+            });
+        }
+    });
+</script>

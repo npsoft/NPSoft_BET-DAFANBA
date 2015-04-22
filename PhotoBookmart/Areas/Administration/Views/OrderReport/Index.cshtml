@@ -1,0 +1,103 @@
+﻿@model OrderReportFilterModel
+@{
+    ViewBag.Title = "Sale Report";
+}
+<link rel="stylesheet" type="text/css" href="@Url.ContentArea("~/Content/admin_template/plugins/datatables/colvis.css")">
+<script src="@Url.ContentArea("~/Content/admin_template/plugins/datatables/ColVis.js")"></script>
+<div class="head">
+    <h3>@ViewBag.Title</h3>
+</div>
+<div class="mws-panel grid_8">
+    <div class="mws-panel-header">
+        <span><i class="icon-calendar"></i>Select the date range for report</span>
+    </div>
+    <div class="mws-panel-body no-padding">
+        @using (Html.BeginForm("List", "OrderReport", FormMethod.Post, new { enctype = "multipart/form-data", @id = "UserForm", @class = "mws-form" }))
+        {
+            <input type="hidden" value="0" name="MaxRows" />
+            <div class="mws-form-inline">
+                <div class="mws-form-row">
+                    <label class="mws-form-label">
+                        Date(From/To)</label>
+                    <div class="mws-form-item">
+                        <div class="mws-form-cols">
+                            <div class="mws-form-col-4-8">
+                                <div class="mws-form-item">
+                                    @Html.TextBoxFor(m => m.FromDate, new { @id = "date_begin" })
+                                </div>
+                            </div>
+                            <div class="mws-form-col-4-8">
+                                <div class="mws-form-item">
+                                    @Html.TextBoxFor(m => m.ToDate, new { @id = "date_end" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+               @* <div class="mws-form-row">
+                    <label class="mws-form-label">
+                        Max rows for display</label>
+                    <div class="mws-form-item">
+                        @Html.TextBoxFor(m => m.MaxRows, new { @class = "large" })
+                    </div>
+                </div>*@
+            </div>
+            <div class="mws-button-row">
+                <input type="submit" value="Submit" class="btn btn-danger">
+                <input type="reset" value="Reset" class="btn ">
+            </div>
+        }
+    </div>
+</div>
+<div class="mws-panel grid_8">
+    <div class="mws-panel-header">
+        <span><i class="icon-table"></i>@ViewBag.Title</span>
+    </div>
+    <div class="mws-panel-body no-padding listuser">
+    </div>
+</div>
+<div id="mws-jui-dialog">
+    <div class="mws-dialog-inner">
+        <p>
+        </p>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+
+        $('#date_begin,#date_end').datetimepicker({
+            stepMinute: 5,
+            onSelect: function (selectedDate, instance) {
+                if (jQuery(this).attr("id") == "date_begin") {
+                    $('#date_end').datetimepicker("option", "minDate", selectedDate);
+                }
+                else {
+                    $('#date_begin').datetimepicker("option", "maxDate", selectedDate);
+                }
+            }
+        });
+
+        $("#mws-jui-dialog").dialog({
+            autoOpen: false,
+            title: "Order Report Detail",
+            modal: true,
+            width: "900"
+        });
+
+        jQuery("#UserForm").submit(function () {
+            show_loading();
+            jQuery.post(jQuery(this).attr("action"), jQuery(this).serialize(), function (returnObj) {
+                $.pnotify({
+                    title: 'Success',
+                    text: returnObj.Message,
+                    type: 'info',
+                    opacity: .8
+                });
+                $(".listuser").html("");
+                $(".listuser").html(returnObj);
+                hide_loading();
+            }, "html");
+            return false;
+        });
+    });
+</script>

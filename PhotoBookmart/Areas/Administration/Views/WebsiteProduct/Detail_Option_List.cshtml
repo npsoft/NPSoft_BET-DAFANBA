@@ -1,0 +1,109 @@
+﻿@model List<OptionInProduct>
+<script option="javascript">
+    jQuery(document).ready(function () {
+        $("a.option_delete").click(function () {
+            var $this = $(this);
+            var NameItem = $this.attr("item_name");
+            var item_id = $this.attr("item_id");
+            if (confirm("Are you sure to delete " + NameItem + "")) {
+                show_loading();
+                $.get("@Url.Action("Detail_Option_Delete")?id=" + item_id, function () {
+                    option_reload();
+                });
+            }
+        });
+
+        // build table layout
+        if ($.fn.dataTable) {
+            $("#WDoption").dataTable({
+                sPaginationType: "full_numbers",
+                "aLengthMenu": [30, 50, 100]
+            });
+        }
+    });
+</script>
+<table class="mws-table" id="WDoption">
+    <thead>
+        <tr>
+            <th>
+                Name
+            </th>
+            <th>
+                Is Require
+            </th>
+            <th>
+                Default Quantity
+            </th>
+            <th>
+                Min Quantity
+            </th>
+            <th>
+                Max Quantity
+            </th>
+            <th>
+                Can Apply Coupon
+            </th>
+            <th>
+                Created By
+            </th>
+            <th id="date_Create_column">
+                Created On
+            </th>
+            <th width="100px">
+                Actions
+            </th>
+        </tr>
+    </thead>
+    @if (Model.Count() > 0)
+    {
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <span>
+                            @item.Option_Name
+                        </span>
+                    </td>
+                    <td>
+                        <span>
+                            @item.isRequire
+                        </span>
+                    </td>
+                    <td>
+                        <span>
+                            @item.DefaultQuantity
+                        </span>
+                    </td>
+                    <td>
+                        <span>
+                            @item.MinQuantity
+                        </span>
+                    </td>
+                    <td>
+                        <span>
+                            @item.MaxQuantity
+                        </span>
+                    </td>
+                    <td>
+                        <span>
+                            @item.CanApplyCoupon
+                        </span>
+                    </td>
+                    <td>
+                        <span>@item.CreatedByUsername</span>
+                    </td>
+                    <td>
+                        <span>@string.Format("{0:MM/dd/yyyy HH:mm:ss}", item.CreatedOn) </span>
+                    </td>
+                    <td>
+                        <span class="btn-group">
+                        <a  href="@Url.Action("Detail_Option_Edit", new {id = item.Id})" class="btn btn-small option_edit" title="Edit @item.Option_Name">
+                            <i class="icon-pencil"></i></a><a  href="javascript:void(0)" class="btn btn-small option_delete" item_id="@item.Id" item_name="@item.Option_Name" title="Delete @item.Option_Name" >
+                                <i class="icon-trash"></i></a></span>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    }
+</table>

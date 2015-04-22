@@ -1,0 +1,29 @@
+﻿@model List<Product>
+@{
+    Layout = null;
+    var country = CurrentCountry;
+    Db.Close();
+}
+@foreach (var e in Model ?? Enumerable.Empty<Product>())
+{
+    var ship_price = e.getPrice(Enum_Price_MasterType.ProductShippingPrice,country.Code);
+    var product_price = e.getPrice(Enum_Price_MasterType.Product, country.Code);
+    <tr valign="top">
+        <td valign="top">@e.Name
+        </td>
+        <td valign="top">@e.Size
+        </td>
+        <td valign="top">@e.Pages Pages
+        </td>
+        <td valign="top">
+            @if (e.isFreeShip)
+            {
+                <span>Free</span>
+            }
+            else
+            {
+                @ship_price.Value.ToMoneyFormated(country.CurrencyCode)
+            }
+        </td>
+    </tr>
+}

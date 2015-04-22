@@ -1,0 +1,46 @@
+﻿@model List<Product>
+@{
+    Layout = null;
+    var country = CurrentCountry;
+    var additional_fieldname = (string)Settings.Get(Enum_Settings_Key.WEBSITE_ADDITIONAL_PAGE_NAME, "Additional Page", Enum_Settings_DataType.String);
+}
+@foreach (var e in Model ?? Enumerable.Empty<Product>())
+{
+    var ship_price = e.getPrice(Enum_Price_MasterType.ProductShippingPrice,country.Code);
+    var product_price = e.getPrice(Enum_Price_MasterType.Product, country.Code);
+    
+    // get the additional field
+    JoinSqlBuilder<Product_Option, Product_Option> jn = new JoinSqlBuilder<Product_Option, Product_Option>();
+    jn = jn.Join<Product_Option, OptionInProduct>(m => m.Id, k => k.ProductOptionId);
+    jn = jn.Where<OptionInProduct>(m => m.ProductId == e.Id);
+    jn = jn.Where<Product_Option>(m => m.Status);
+    jn = jn.Where<Product_Option>(m => m.Name == additional_fieldname);
+    var sql = jn.ToSql();
+    var additional_opt = Db.Select<Product_Option>(sql).FirstOrDefault();
+    
+    <tr valign="top">
+        <td valign="top">@e.Name
+        </td>
+        <td valign="top">@e.Size
+        </td>
+        <td valign="top">@e.Pages Pages
+        </td>
+        <td valign="top">
+            @product_price.Value.ToMoneyFormated(country.CurrencyCode)
+        </td>
+        <td valign="top">
+            @if (additional_opt == null)
+            {
+                <span></span>
+            }
+            else
+            {
+                @additional_opt.getPrice(Enum_Price_MasterType.ProductOption, country.Code).Value.ToMoneyFormated(country.CurrencyCode)
+                @*@ship_price.Value.ToMoneyFormated(country.CurrencyCode)*@
+            }
+        </td>
+    </tr>
+}
+@{
+    Db.Close();
+}

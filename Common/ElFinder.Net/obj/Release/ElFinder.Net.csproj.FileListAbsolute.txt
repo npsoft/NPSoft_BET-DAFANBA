@@ -1,0 +1,14 @@
+I:\samuel_photobookmark\Common\ElFinder.Net\bin\Release\ElFinder.Net.dll
+I:\samuel_photobookmark\Common\ElFinder.Net\bin\Release\ElFinder.Net.pdb
+I:\samuel_photobookmark\Common\ElFinder.Net\bin\Release\Newtonsoft.Json.dll
+I:\samuel_photobookmark\Common\ElFinder.Net\bin\Release\Newtonsoft.Json.xml
+I:\samuel_photobookmark\Common\ElFinder.Net\obj\Release\ElFinder.Net.csprojResolveAssemblyReference.cache
+I:\samuel_photobookmark\Common\ElFinder.Net\obj\Release\ElFinder.Net.dll
+I:\samuel_photobookmark\Common\ElFinder.Net\obj\Release\ElFinder.Net.pdb
+G:\NPSoft_HTQLNHCS\Common\ElFinder.Net\bin\Release\ElFinder.Net.dll
+G:\NPSoft_HTQLNHCS\Common\ElFinder.Net\bin\Release\ElFinder.Net.pdb
+G:\NPSoft_HTQLNHCS\Common\ElFinder.Net\bin\Release\Newtonsoft.Json.dll
+G:\NPSoft_HTQLNHCS\Common\ElFinder.Net\bin\Release\Newtonsoft.Json.xml
+G:\NPSoft_HTQLNHCS\Common\ElFinder.Net\obj\Release\ElFinder.Net.dll
+G:\NPSoft_HTQLNHCS\Common\ElFinder.Net\obj\Release\ElFinder.Net.pdb
+G:\NPSoft_HTQLNHCS\Common\ElFinder.Net\obj\Release\ElFinder.Net.csprojResolveAssemblyReference.cache

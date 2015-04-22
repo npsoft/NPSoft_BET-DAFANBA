@@ -1,0 +1,86 @@
+﻿@model Settings
+@{
+    if (Model.Id > 0)
+    {
+        ViewBag.Title = "Edit Settings - " + Model.Key;
+    }
+    else
+    {
+        ViewBag.Title = "Create Settings";
+    }
+}
+<script>
+    jQuery(document).ready(function () {
+
+        jQuery(".ab-save").click(function () {
+
+            jQuery("#isContinue").val(false);
+        });
+
+        jQuery(".ab-save-add-new").click(function () {
+
+            jQuery("#isContinue").val(true);
+        });
+
+        jQuery("#UserForm").submit(function () {
+
+            if (jQuery.trim(jQuery("#Key").val()) == "NONE") {
+
+                alert("Please select field » Key");
+
+                jQuery("#Key").focus();
+
+                return false;
+            }
+
+            if (jQuery("#Value").val() == "") {
+
+                alert("Please enter field » Value");
+
+                jQuery("#Value").focus();
+
+                return false;
+            }
+        });
+    });
+</script>
+<div class="head">
+    <h3>@ViewBag.Title</h3>
+</div>
+<div class="mws-panel grid_8">
+    <div class="mws-panel-header">
+        <span>@ViewBag.Title</span>
+    </div>
+    <div class="mws-panel-body no-padding">
+        @using (Html.BeginForm("CreateOrUpdate", "Settings", FormMethod.Post, new { enctype = "multipart/form-data", @id = "UserForm", @class = "mws-form" }))
+        {
+            if (ViewBag.Error != null)
+            {
+                <div class="mws-form-message error">
+                    @ViewBag.Error
+                </div>
+            }
+            <div class="mws-form-inline">
+                @Html.HiddenFor(m => m.Id)
+                <input type="hidden" id="isContinue" name="isContinue" value="false" />
+                <div class="mws-form-row">
+                    <label class="mws-form-label">Key</label>
+                    <div class="mws-form-item">
+                        @Html.DropDownListFor(m => m.Key, new SelectList(PhotoBookmart.Areas.Administration.Controllers.SettingsController.Settings_Key_GetAll(), "Id", "Name", "NONE"), new { @class = "large mws-select2" })
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">Value</label>
+                    <div class="mws-form-item">
+                        @Html.TextBoxFor(m => m.Value, new { @class = "large" })
+                    </div>
+                </div>
+            </div>
+            <div class="mws-button-row">
+                <input type="submit" value="Save" class="btn btn-danger ab-save" />
+                <input type="submit" value="Save & Add New" class="btn btn-danger ab-save-add-new" />
+                <input type="reset" value="Reset" class="btn btn-default ab-reset" />
+            </div>
+        }
+    </div>
+</div>

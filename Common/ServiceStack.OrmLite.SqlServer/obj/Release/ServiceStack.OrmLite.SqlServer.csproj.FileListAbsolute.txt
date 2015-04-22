@@ -1,0 +1,15 @@
+I:\samuel_photobookmark\Common\ServiceStack.OrmLite.SqlServer\bin\Release\ServiceStack.OrmLite.SqlServer.dll
+I:\samuel_photobookmark\Common\ServiceStack.OrmLite.SqlServer\bin\Release\ServiceStack.OrmLite.SqlServer.pdb
+I:\samuel_photobookmark\Common\ServiceStack.OrmLite.SqlServer\bin\Release\ServiceStack.OrmLite.dll
+I:\samuel_photobookmark\Common\ServiceStack.OrmLite.SqlServer\bin\Release\ServiceStack.Text.dll
+I:\samuel_photobookmark\Common\ServiceStack.OrmLite.SqlServer\bin\Release\ServiceStack.Text.xml
+I:\samuel_photobookmark\Common\ServiceStack.OrmLite.SqlServer\obj\Release\ServiceStack.OrmLite.SqlServer.dll
+I:\samuel_photobookmark\Common\ServiceStack.OrmLite.SqlServer\obj\Release\ServiceStack.OrmLite.SqlServer.pdb
+G:\NPSoft_HTQLNHCS\Common\ServiceStack.OrmLite.SqlServer\bin\Release\ServiceStack.OrmLite.SqlServer.dll
+G:\NPSoft_HTQLNHCS\Common\ServiceStack.OrmLite.SqlServer\bin\Release\ServiceStack.OrmLite.SqlServer.pdb
+G:\NPSoft_HTQLNHCS\Common\ServiceStack.OrmLite.SqlServer\bin\Release\ServiceStack.OrmLite.dll
+G:\NPSoft_HTQLNHCS\Common\ServiceStack.OrmLite.SqlServer\bin\Release\ServiceStack.Text.dll
+G:\NPSoft_HTQLNHCS\Common\ServiceStack.OrmLite.SqlServer\bin\Release\ServiceStack.Text.xml
+G:\NPSoft_HTQLNHCS\Common\ServiceStack.OrmLite.SqlServer\obj\Release\ServiceStack.OrmLite.SqlServer.dll
+G:\NPSoft_HTQLNHCS\Common\ServiceStack.OrmLite.SqlServer\obj\Release\ServiceStack.OrmLite.SqlServer.pdb
+G:\NPSoft_HTQLNHCS\Common\ServiceStack.OrmLite.SqlServer\obj\Release\ServiceStack.OrmLite.SqlServer.csprojResolveAssemblyReference.cache

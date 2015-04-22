@@ -1,0 +1,202 @@
+﻿@model Product
+@{  
+    var cat = Db.Where<Product_Category>(m => m.Id == Model.CatId).FirstOrDefault();
+    if (Model.Id > 0)
+    {
+        ViewBag.Title = "Edit Product - " + Model.Name;
+        if (Model.Id == 0 && cat != null)
+        {
+            ViewBag.Title += " / " + Model.Category_Name;
+        }
+    }
+    else
+    {
+        ViewBag.Title = "Create Product";
+        if (Model.Id == 0 && cat != null)
+        {
+            ViewBag.Title += " / " + Model.Category_Name;
+        }
+    }
+
+    // get list of Category recurrsive
+    List<Product_Category> Category = Db.Select<Product_Category>();
+
+    if (Model.Tag == null)
+    {
+        Model.Tag = new List<string>();
+    }
+}
+<script type="text/javascript">
+
+    jQuery(document).ready(function () {
+
+        $(".integer-than-or-equal-zero").spinner({
+            min: 0,
+            step: 1,
+            numberFormat: "n"
+        });
+
+        $(".float-than-or-equal-zero").spinner({
+            min: 0.00,
+            step: 0.01,
+            numberFormat: "n"
+        });
+
+        jQuery("#UserForm").submit(function () {
+
+            show_loading();
+
+            // and post
+            jQuery.post(jQuery(this).attr("action"), jQuery("#UserForm").serialize(), function (returnObj) {
+
+                if (returnObj.Status == "success") {
+                    if (returnObj.Message != null) {
+                        notify_success("Success", returnObj.Message);
+                    }
+                    else
+                        if (returnObj.RedirectUrl != null) {
+                            window.location.href = returnObj.RedirectUrl;
+                        }
+                } else {
+                    $.pnotify({
+                        title: 'Error',
+                        text: returnObj.Message,
+                        type: 'error',
+                        opacity: .8
+                    });
+                }
+
+                hide_loading();
+            });
+            return false;
+        });
+    });
+</script>
+<div class="head">
+    <h3>
+        @ViewBag.Title
+    </h3>
+</div>
+<div class="mws-panel grid_8">
+    <div class="mws-panel-header">
+        <span>@ViewBag.Title</span>
+    </div>
+    <div class="mws-panel-body no-padding">
+        @using (Html.BeginForm("Update", "WebsiteProduct", FormMethod.Post, new { enctype = "multipart/form-data", @id = "UserForm", @class = "mws-form" }))
+        {
+            @Html.HiddenFor(m => m.Id);
+            <div class="mws-form-inline">
+                <div class="mws-form-row">
+                    <label class="mws-form-label">
+                        Name</label>
+                    <div class="mws-form-item">
+                        @Html.TextBoxFor(model => Model.Name, new { @class = "large" })
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">
+                        SEO</label>
+                    <div class="mws-form-item">
+                        @Html.TextBoxFor(model => Model.SeoName, new { @class = "large" })
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">
+                        Size</label>
+                    <div class="mws-form-item">
+                        @Html.TextBoxFor(model => Model.Size, new { @class = "large" })
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">
+                        Paper</label>
+                    <div class="mws-form-item">
+                        @Html.TextBoxFor(model => Model.Paper, new { @class = "large" })
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">
+                        Orientation</label>
+                    <div class="mws-form-item">
+                        @Html.TextBoxFor(model => Model.Orientation, new { @class = "large" })
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">
+                        Pages</label>
+                    <div class="mws-form-item">
+                        @Html.TextBoxFor(model => Model.Pages, new { @class = "mws-spinner-decimal integer-than-or-equal-zero large" })
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">
+                        My Photo Creation Id</label>
+                    <div class="mws-form-item">
+                        @Html.TextBoxFor(model => Model.MyPhotoCreationId, new { @class = "large" })
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">
+                        Is Free Ship</label>
+                    <div class="mws-form-item">
+                        <input class="ibutton" name="isFreeShip" value="true" type="checkbox" data-label-on="Yes" data-label-off="No" @if (Model.isFreeShip)
+                                                                                                                                      {<text>checked="checked"</text>}>
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">
+                        Price (RM)</label>
+                    <div class="mws-form-item">
+                        @Html.TextBoxFor(model => Model.Price, new { @class = "mws-spinner-decimal float-than-or-equal-zero large" })
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">
+                        Weight (gram)</label>
+                    <div class="mws-form-item">
+                        @Html.TextBoxFor(model => Model.Weight, new { @class = "mws-spinner-decimal float-than-or-equal-zero large" })
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">
+                        Category</label>
+                    <div class="mws-form-item">
+                        <select name="CatId" id="CatId" class="large mws-select2">
+                            @foreach (var item in Category.Where(m => m.ParentId == 0).OrderBy(m => m.OrderIndex))
+                            {
+                                <option value="@item.Id" @if (item.Id == Model.CatId)
+                                                         { <text> selected</text> }>@item.Name</option>
+                                                         var vd = new ViewDataDictionary();
+                                                         vd.Add("ItemId", Model.Id);
+                                                         vd.Add("ParentId", item.Id);
+                                                         vd.Add("deep", 1);
+                                @Html.Partial("_ParentIdSubNavigation", Category, vd);
+
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">
+                        Allow Cover Style Select</label>
+                    <div class="mws-form-item">
+                        <input class="ibutton" name="IsAllowCoverMaterialSelect" value="true" type="checkbox" data-label-on="Yes" data-label-off="No" @if (Model.IsAllowCoverMaterialSelect)
+                                                                                                                                                      {<text>checked="checked"</text>}>
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">
+                        Is Active</label>
+                    <div class="mws-form-item">
+                        <input class="ibutton" name="Status" value="true" type="checkbox" data-label-on="Yes" data-label-off="No" @if (Model.Status)
+                                                                                                                                  {<text>checked="checked"</text>}>
+                    </div>
+                </div>
+            </div>
+            <div class="mws-button-row">
+                <input type="submit" value="Submit" class="btn btn-danger">
+                <input type="reset" value="Reset" class="btn ">
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,9 @@
+I:\samuel_photobookmark\Common\GeoIPSharp\bin\Release\MaxMind.GeoIP.dll
+I:\samuel_photobookmark\Common\GeoIPSharp\bin\Release\MaxMind.GeoIP.pdb
+I:\samuel_photobookmark\Common\GeoIPSharp\obj\Release\MaxMind.GeoIP.dll
+I:\samuel_photobookmark\Common\GeoIPSharp\obj\Release\MaxMind.GeoIP.pdb
+G:\NPSoft_HTQLNHCS\Common\GeoIPSharp\bin\Release\MaxMind.GeoIP.dll
+G:\NPSoft_HTQLNHCS\Common\GeoIPSharp\bin\Release\MaxMind.GeoIP.pdb
+G:\NPSoft_HTQLNHCS\Common\GeoIPSharp\obj\Release\MaxMind.GeoIP.dll
+G:\NPSoft_HTQLNHCS\Common\GeoIPSharp\obj\Release\MaxMind.GeoIP.pdb
+G:\NPSoft_HTQLNHCS\Common\GeoIPSharp\obj\Release\MaxMind.GeoIP.csprojResolveAssemblyReference.cache

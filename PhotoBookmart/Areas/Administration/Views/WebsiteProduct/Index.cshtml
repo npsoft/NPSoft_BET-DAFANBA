@@ -1,0 +1,73 @@
+﻿@{
+    var Cat = (Product_Category)ViewData["Cat"];
+
+    if (Cat.Id > 0)
+    {
+        ViewBag.Title = "Manage Products for " + Cat.Name;
+    }
+    else
+    {
+        ViewBag.Title = "Manage Products";
+    }
+    var Cats = Db.Where<Product_Category>(m => m.Status);
+
+    //int currPage = (int)ViewData["CurrPage"];
+}
+<link rel="stylesheet" type="text/css" href="@Url.ContentArea("~/Content/admin_template/plugins/datatables/colvis.css")">
+<script src="@Url.ContentArea("~/Content/admin_template/plugins/datatables/ColVis.js")"></script>
+<script language="javascript">
+
+    jQuery(document).ready(function () {
+        jQuery("#CategorySelector").change(function () {
+            var cat_id = jQuery("#CategorySelector").val();
+            var url = "@Url.Action("Index")";
+            if (cat_id>0){
+                url+="?cat_id="+ cat_id;
+            }
+            window.location.href=url;
+        });
+    });
+</script>
+<div class="head">
+    <h3>
+        @ViewBag.Title</h3>
+    <div>
+        <div class="grid_4">
+            <a type="button" class="btn" href="@Url.Action("Index", "ProductCategory")">
+                <i class="icol-arrow-left"></i>Categories Management
+            </a>
+            <a type="button" class="btn" href="@Url.Action("ExportExcel", "WebsiteProduct", new { })">
+                <i class="icol-page-white-excel"></i>Export To Excel
+            </a>
+            <a type="button" class="btn btn-primary" href="@Url.Action("Add", new { cat_id = Cat.Id })">
+                New product
+            </a>
+        </div>
+        <div class="grid_4">
+            Filter By Style
+            <select class="mws-select2 large" id="CategorySelector" style="width: 60%;">
+                <option value="0">--- All Categories ---</option>
+                @foreach (var item in Cats.Where(m => m.ParentId == 0).OrderBy(m => m.OrderIndex))
+                {
+                    var vd = new ViewDataDictionary();
+                    vd.Add("ItemId", Cat.Id);
+                    vd.Add("ParentId", item.Id);
+                    vd.Add("deep", 1);
+                    <option value="@item.Id" @if (item.Id == Cat.Id)
+                                             { <text> selected</text> }>@item.Name</option>
+                    @Html.Partial("_ParentIdSubNavigation", Cats, vd);
+                }
+            </select>
+        </div>
+        <div class="clear">
+        </div>
+    </div>
+</div>
+<div class="mws-panel grid_8">
+    <div class="mws-panel-header">
+        <span><i class="icon-table"></i>@ViewBag.Title</span>
+    </div>
+    <div class="mws-panel-body no-padding listuser">
+        @Html.Action("List", new { cat_id = Cat.Id })
+    </div>
+</div>
