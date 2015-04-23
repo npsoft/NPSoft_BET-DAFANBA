@@ -468,7 +468,7 @@ namespace PhotoBookmart.Controllers
 
         bool _PhotoBook_ProcessPhotobookFolder(string photobook_code, bool rename = false, string new_name = "")
         {
-            var path = Settings.Get(Enum_Settings_Key.SERVER_DATA_FTP_LOCATION, System.IO.Path.GetTempPath(), Enum_Settings_DataType.String).ToString();
+            var path = Settings.Get("Enum_Settings_Key.SERVER_DATA_FTP_LOCATION", System.IO.Path.GetTempPath(), Enum_Settings_DataType.String).ToString();
             if (!path.EndsWith("\\"))
             {
                 path += "\\";
@@ -1242,7 +1242,7 @@ namespace PhotoBookmart.Controllers
         /// <param name="p_id"></param>
         bool MyPhotoCreation_ParsePagesAndPID(string job_id, out int pages, out int p_id)
         {
-            var path = Settings.Get(Enum_Settings_Key.SERVER_DATA_FTP_LOCATION, System.IO.Path.GetTempPath(), Enum_Settings_DataType.String).ToString();
+            var path = Settings.Get("Enum_Settings_Key.SERVER_DATA_FTP_LOCATION", System.IO.Path.GetTempPath(), Enum_Settings_DataType.String).ToString();
             if (!path.EndsWith("\\"))
             {
                 path += "\\";

@@ -1,6 +1,5 @@
 ﻿@{
-    ViewBag.Title = "Settings Management";
-    
+    ViewBag.Title = "QL Thiết lập";
     int currPage = (int)ViewData["CurrPage"];
 }
 
@@ -10,18 +9,18 @@
 <script></script>
 
 <div class="head">
-    <h3>@ViewBag.Title</h3>
+    <h3>Quản lý thiết lập</h3>
     <div class="mws-panel no_shadow"></div>
 </div>
 <div class="mws-panel grid_8">
     <div class="mws-panel-header">
-        <span><i class="icon-table"></i>@ViewBag.Title</span>
+        <span><i class="icon-table"></i>Danh sách thiết lập</span>
     </div>
     <div class="mws-panel-toolbar">
         <div class="btn-toolbar">
             <div class="btn-group">
                 <a href="@Url.Action("Add", "Settings", new { })" id="add-rb-setting" class="btn">
-                    <i class="icol-add"></i>Add
+                    <i class="icol-add"></i>Thêm mới
                 </a>
             </div>
         </div>

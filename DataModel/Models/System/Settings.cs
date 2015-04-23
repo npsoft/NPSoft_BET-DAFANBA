@@ -25,6 +25,19 @@ namespace PhotoBookmart.DataLayer.Models.System
     public enum Enum_Settings_Key
     {
         NONE,
+        
+        #region Thiết lập chung
+        TL01,
+        TL02,
+        TL03,
+        TL04,
+        TL06,
+        TL07,
+        TL08,
+        TL09,
+        TL10,
+        TL11,
+        #endregion
 
         #region SMS
         SMS_SERVICE_ENABLE,
@@ -38,17 +51,6 @@ namespace PhotoBookmart.DataLayer.Models.System
         WEBSITE_CURRENCY_FORMAT,
         WEBSITE_ADDITIONAL_PAGE_NAME,
         WEBSITE_GST_ENABLE,
-        #endregion
-
-        #region FTP Settings
-        /// <summary>
-        /// Location of the directory to keep all uploaded photobook by FTP (before submit order)
-        /// </summary>
-        SERVER_DATA_FTP_LOCATION,
-        SERVER_DATA_FTP_HOST,
-        SERVER_DATA_FTP_USERNAME,
-        SERVER_DATA_FTP_PASSWORD,
-        SERVER_DATA_FTP_STARTUP_PATH,
         #endregion
 
         #region File Settings
@@ -88,14 +90,13 @@ namespace PhotoBookmart.DataLayer.Models.System
     [Schema("System")]
     public partial class Settings
     {
-
         [PrimaryKey]
         [AutoIncrement]
+        [IgnoreWhenGenerateList]
         public int Id { get; set; }
-
         public string Key { get; set; }
-
         public string Value { get; set; }
+        public string Desc { get; set; }
 
         /// <summary>
         /// Get a setting by name
