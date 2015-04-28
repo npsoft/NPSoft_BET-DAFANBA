@@ -83,6 +83,7 @@ I:\samuel_photobookmark\PhotoBookmart\bin\ServiceStack.Interfaces.xml
 I:\samuel_photobookmark\PhotoBookmart\bin\ServiceStack.Redis.xml
 I:\samuel_photobookmark\PhotoBookmart\bin\ServiceStack.Text.xml
 I:\samuel_photobookmark\PhotoBookmart\bin\MaxMind.GeoIP.pdb
+G:\NPSoft_HTQLNHCS\PhotoBookmart\obj\Debug\PTBM.csprojResolveAssemblyReference.cache
 G:\NPSoft_HTQLNHCS\PhotoBookmart\bin\PhotoBookmart.dll.config
 G:\NPSoft_HTQLNHCS\PhotoBookmart\bin\PhotoBookmart.dll
 G:\NPSoft_HTQLNHCS\PhotoBookmart\bin\PhotoBookmart.pdb
@@ -123,6 +124,5 @@ G:\NPSoft_HTQLNHCS\PhotoBookmart\bin\ServiceStack.Interfaces.xml
 G:\NPSoft_HTQLNHCS\PhotoBookmart\bin\ServiceStack.Redis.xml
 G:\NPSoft_HTQLNHCS\PhotoBookmart\bin\ServiceStack.Text.xml
 G:\NPSoft_HTQLNHCS\PhotoBookmart\bin\MaxMind.GeoIP.pdb
-G:\NPSoft_HTQLNHCS\PhotoBookmart\obj\Debug\PTBM.csprojResolveAssemblyReference.cache
 G:\NPSoft_HTQLNHCS\PhotoBookmart\obj\Debug\PhotoBookmart.dll
 G:\NPSoft_HTQLNHCS\PhotoBookmart\obj\Debug\PhotoBookmart.pdb

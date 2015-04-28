@@ -1,40 +1,65 @@
 ﻿@model Settings
 @{
     ViewBag.Title = Model.Id > 0 ? "CS Thiết lập" : "TM Thiết lập";
+
 }
 <script>
+    var Name_HC, SettingScope;
+    var $txt_hc, $ddl_setting;
+    var url_GetSettingsForFilter = "@Url.Action("GetSettingsForFilter", "Settings")";
+    var url_GetDanhMucHanhChinhByMaHC = "@Url.Action("GetDanhMucHanhChinhByMaHC", "Settings")";
+
     jQuery(document).ready(function ($) {
+        $ddl_setting = $("#Key");
+        $txt_hc = $("#name-mahc");
+
+        @if ((RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0]) == RoleEnum.Admin) {
+            @: SettingScope = "@Enum_Settings_Scope.Country.ToString()";
+            @: Name_HC = "Cả nước";
+            @: $txt_hc.val(Name_HC);
+        } else {
+            if ((RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0]) == RoleEnum.Province) {
+                @: SettingScope = "@Enum_Settings_Scope.Province.ToString()";
+            } else {
+                @: SettingScope = "@Enum_Settings_Scope.District.ToString()";
+            }
+            @: $.post(url_GetDanhMucHanhChinhByMaHC, { MaHC: "@CurrentUser.MaHC" }, function (data) {
+            @:      Name_HC = data.TenDayDu;
+            @:      $txt_hc.val(Name_HC);
+            @: });
+        }
+        $.post(url_GetSettingsForFilter, { Scope: SettingScope }, function (data) {
+            var opt = "";
+            data.forEach(function (element, index, array) {
+                opt += "<option value='" + element.Id + "'>" + element.Name + "</option>";
+            });
+            $ddl_setting.append(opt);
+            $ddl_setting.select2().select2("val", "@Model.Key");
+        });
+
         $(".ab-save").click(function () {
             $("#isContinue").val(false);
         });
-
         $(".ab-save-add-new").click(function () {
             $("#isContinue").val(true);
         });
-
         $("[type='reset']").on("click", function (e) {
             setTimeout(function () {
-                $("#Key").trigger("change");
+                $txt_hc.val(Name_HC);
+                $ddl_setting.select2().select2("val", "@Model.Key");
             }, 100);
         });
-
         $("#UserForm").submit(function () {
-            if ($.trim($("#Key").val()) == "NONE") {
-                notify_error("Lỗi", "Vui lòng chọn mã.");
-                $("#Key").focus();
-                return false;
-            }
-
-            if ($("#Value").val() == "") {
-                notify_error("Lỗi", "Vui lòng nhập giá trị.");
-                $("#Value").focus();
+            if ($.trim($ddl_setting.val()) == "") {
+                notify_error("Lỗi", "Vui lòng chọn thiết lập.");
+                $ddl_setting.focus();
                 return false;
             }
         });
     });
 </script>
 <div class="head">
-    <h3>@{ if (Model.Id > 0) { <text>Chỉnh sửa thiết lập - @Model.Key</text> } else { <text>Thêm mới thiết lập</text> }}</h3>
+    <h3>@{ if (Model.Id > 0) { <text>Chỉnh sửa thiết lập</text> } else { <text>Thêm mới thiết lập</text> }}</h3>
 </div>
 <div class="mws-panel grid_8">
     <div class="mws-panel-header">
@@ -51,9 +76,17 @@
                 @Html.HiddenFor(m => m.Id)
                 <input type="hidden" id="isContinue" name="isContinue" value="false" />
                 <div class="mws-form-row">
-                    <label class="mws-form-label">Mã</label>
+                    <label class="mws-form-label">Phạm vi</label>
                     <div class="mws-form-item">
-                        @Html.DropDownListFor(m => m.Key, new SelectList(PhotoBookmart.Areas.Administration.Controllers.SettingsController.Settings_Key_GetAll(), "Id", "Name", "NONE"), new { @class = "large mws-select2" })
+                        <input type="text" id="name-mahc" class="large" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">Thiết lập</label>
+                    <div class="mws-form-item">
+                        <select id="Key" name="Key" class="mws-select2 large" @if (Model.Id > 0) { <text>disabled="disabled"</text>}>
+                            <option value="">- - Chọn - -</option>
+                        </select>
                     </div>
                 </div>
                 <div class="mws-form-row">

@@ -1,11 +1,12 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data;
+using System.Linq;
+using System.Net;
 using ServiceStack.OrmLite;
 using ServiceStack.DataAnnotations;
 using PhotoBookmart.DataLayer.Models.Sites;
-using System.Net;
-using System.Data;
 
 namespace PhotoBookmart.DataLayer.Models.System
 {
@@ -19,6 +20,16 @@ namespace PhotoBookmart.DataLayer.Models.System
         DateTime
     }
 
+    public enum Enum_Settings_Scope
+    {
+        [Display(Name = "Cả nước")]
+        Country,
+        [Display(Name = "Cấp tỉnh")]
+        Province,
+        [Display(Name = "Cấp huyện")]
+        District
+    }
+
     /// <summary>
     /// Define keys to be use to store the settings
     /// </summary>
@@ -26,19 +37,25 @@ namespace PhotoBookmart.DataLayer.Models.System
     {
         NONE,
         
-        #region Thiết lập chung
+        [Display(Name = "Người ký các quyết định")]
         TL01,
+        [Display(Name = "Mức trợ cấp cơ bản")]
         TL02,
+        [Display(Name = "Mức đóng BHYT")]
         TL03,
+        [Display(Name = "Lương cơ bản")]
         TL04,
+        [Display(Name = "Ngày áp dụng mức trợ cấp")]
+        TL05,
+        [Display(Name = "Chức danh người ký")]
         TL06,
+        [Display(Name = "Mức trợ cấp mai táng phí")]
         TL07,
-        TL08,
-        TL09,
+        [Display(Name = "Hiển thị ngày/tháng sinh trong DS chi trả")]
         TL10,
+        [Display(Name = "Mức trợ cấp cho người nghèo")]
         TL11,
-        #endregion
-
+        
         #region SMS
         SMS_SERVICE_ENABLE,
         SMS_SERVICE_URL,
@@ -94,10 +111,23 @@ namespace PhotoBookmart.DataLayer.Models.System
         [AutoIncrement]
         [IgnoreWhenGenerateList]
         public int Id { get; set; }
+        [Default(typeof(string), "")]
+        public string MaHC { get; set; }
         public string Key { get; set; }
         public string Value { get; set; }
         public string Desc { get; set; }
-
+        [Ignore]
+        public string Code_Province { get; set; }
+        [Ignore]
+        public string Code_District { get; set; }
+        [Ignore]
+        public string Name_Province { get; set; }
+        [Ignore]
+        public string Name_District { get; set; }
+        [Ignore]
+        public bool CanEdit { get; set; }
+        [Ignore]
+        public bool CanDelete { get; set; }
         /// <summary>
         /// Get a setting by name
         /// </summary>

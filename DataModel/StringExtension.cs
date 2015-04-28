@@ -100,5 +100,20 @@ namespace PhotoBookmart.DataLayer
                           .ToArray());
             return result;
         }
+
+        public static string GetCodeProvince(this string text)
+        {
+            return string.IsNullOrEmpty(text) || text.Length < 2 ? "" : text.Substring(0, 2);
+        }
+
+        public static string GetCodeDistrict(this string text)
+        {
+            return string.IsNullOrEmpty(text) || text.Length < 5 ? "" : text.Substring(0, 5);
+        }
+
+        public static string GetCodeVillage(this string text)
+        {
+            return string.IsNullOrEmpty(text) || text.Length < 10 ? "" : text.Substring(0, 10);
+        }
     }
 }

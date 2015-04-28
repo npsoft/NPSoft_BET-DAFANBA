@@ -7,39 +7,12 @@
     int totalPage = (int)ViewData["TotalPage"];
 }
 
-<style>
-    table#ListTable tr > *:nth-child(100) {
-        display: none;
-    }
-</style>
-<script type="text/javascript">
-    function Paging(page) {
-        show_loading();
-        $.get("@Url.Action("List", "Settings")?page=" + page, function (data) {
-            $(".WDTB_RB_Settings").html(data);
-            hide_loading();
-        });
-    };
-
-    jQuery(document).ready(function ($) {
-        $("a.ab-delete-rb-settings").click(function () {
-            var $this = $(this);
-            var NameItem = $this.attr("item_name");
-            var item_id = $this.attr("item_id");
-            if (confirm("Bạn chắc chắn muốn xóa thiết lập » " + NameItem + "?")) {
-                show_loading();
-                $.post("@Url.Action("Delete", "Settings")?id=" + item_id, function () {
-                    $("a.paginate_active").trigger("click");
-                });
-            }
-        });
-    });
-</script>
-
 <table class="mws-table" id="ListTable">
     <thead>
         <tr>
-            <th>Mã</th>
+            <th>Tỉnh</th>
+            <th>Huyện</th>
+            <th>Thiết lập</th>
             <th>Giá trị</th>
             <th>Thao tác</th>
         </tr>
@@ -47,11 +20,17 @@
     <tbody>
     @foreach (var item in Model ?? Enumerable.Empty<Settings>())
     {
-        <tr>
-            <td style="text-align: left;">
-                <span>@item.Key</span>
+        <tr data-id="@item.Id" data-desc="@item.Desc">
+            <td style="text-align:left;">
+                <span>@item.Name_Province</span>
             </td>
-            <td style="text-align: left;">
+            <td style="text-align:left;">
+                <span>@item.Name_District</span>
+            </td>
+            <td style="text-align:left;">
+                <span>@(((Enum_Settings_Key)Enum.Parse(typeof(Enum_Settings_Key), item.Key)).DisplayName())</span>
+            </td>
+            <td style="text-align:left;">
                 <span>@item.Value</span>
             </td>
             <td style="text-align: center;" class="no_padding">
@@ -59,15 +38,26 @@
                     <a href="#" class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
                     <ul class="dropdown-menu pull-right" style="text-align: left;">
                         <li>
-                            <a href="@Url.Action("Edit", "Settings", new { id = item.Id })" title="Chỉnh sửa &raquo; @item.Key" target="_parent">
-                                <i class="icon-pencil"></i>&nbsp;Chỉnh sửa &raquo; @item.Key
+                            <a href="javascript:void(0);" class="np-view" title="Xem mô tả" data-id="@item.Id">
+                                <i class="icon-eye-open"></i>&nbsp;Xem mô tả
                             </a>
                         </li>
+                        @if (item.CanEdit)
+                        {
                         <li>
-                            <a href="javascript:void(0);" class="ab-delete-rb-settings" item_id="@item.Id" item_name="@item.Key" title="Xóa &raquo; @item.Key">
-                                <i class="icon-trash"></i>&nbsp;&nbsp;Xóa &raquo; @item.Key
+                            <a href="@Url.Action("Edit", "Settings", new { id = item.Id })" title="Chỉnh sửa" target="_parent">
+                                <i class="icon-pencil"></i>&nbsp;Chỉnh sửa
                             </a>
                         </li>
+                        }
+                        @if (item.CanDelete)
+                        {
+                        <li>
+                            <a href="javascript:void(0);" class="np-delete" title="Xóa bỏ" data-id="@item.Id">
+                                <i class="icon-trash"></i>&nbsp;&nbsp;Xóa bỏ
+                            </a>
+                        </li>
+                        }
                     </ul>
                 </span>
             </td>

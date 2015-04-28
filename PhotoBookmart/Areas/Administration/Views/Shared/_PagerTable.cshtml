@@ -1,24 +1,16 @@
 ﻿@{
     int distance = (int)ViewData["Distance"];
-
     int currPage = (int)ViewData["CurrPage"];
-
     int pageSize = (int)ViewData["PageSize"];
-
     int totalItem = (int)ViewData["TotalItem"];
-
     int totalPage = (int)ViewData["TotalPage"];
-    
-    int startItem = (currPage - 1) * pageSize + 1;
-
-    int endItem = currPage != totalPage ? currPage * pageSize : totalItem;
-
+    int staItem = totalItem != 0 ? (currPage - 1) * pageSize + 1 : 0;
+    int endItem = totalItem != 0 && currPage != totalPage ? currPage * pageSize : totalItem;
     int seqLeft = currPage > distance ? currPage - distance : 1;
-
     int seqRight = totalPage - currPage > distance ? currPage + distance : totalPage;
 }
 <div class="dataTables_wrapper">
-    <div class="dataTables_info" id="ListTable_info">Showing @startItem to @endItem of @totalItem entries</div>
+    <div class="dataTables_info" id="ListTable_info">Showing @staItem to @endItem of @totalItem entries</div>
     <div class="dataTables_paginate paging_full_numbers" id="ListTable_paginate">
         @if (currPage != 1)
         {

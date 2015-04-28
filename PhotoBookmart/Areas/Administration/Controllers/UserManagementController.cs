@@ -28,7 +28,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
         [HttpGet]
         public ActionResult Index(int page = 1)
         {
-            List<ListModel> roles_lower = this.GetLowerRoles((RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0]));
+            List<ListModel> roles_lower = GetLowerRoles((RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0]));
             roles_lower.Insert(0, new ListModel() { Id = "", Name = "- - Cấp - -" });
             
             ViewData["page"] = page;
@@ -40,7 +40,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
         public ActionResult Add()
         {
             UserModel model = new UserModel() { Status = true };
-            List<ListModel> roles_lower = this.GetLowerRoles((RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0]));
+            List<ListModel> roles_lower = GetLowerRoles((RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0]));
             model.rolesId = new string[1] { roles_lower[0].Id };
 
             ViewData["RolesLower"] = roles_lower;
@@ -51,7 +51,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
         public ActionResult Edit(int id)
         {
             UserModel model = new UserModel();
-            List<ListModel> roles_lower = this.GetLowerRoles((RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0]));
+            List<ListModel> roles_lower = GetLowerRoles((RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0]));
             ABUserAuth user = User_GetByID(id);
             if (user == null ||
                 !roles_lower.Select(x => x.Id).Contains(user.Roles[0]) ||
@@ -77,7 +77,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
 
             List<ABUserAuth> c = new List<ABUserAuth>();
             string ma_hc = CurrentUser.MaHC != null ? CurrentUser.MaHC : "";
-            List<string> roles_lower = this.GetLowerRoles((RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0])).Select(x => string.Format("[{0}]", x.Id)).ToList();
+            List<string> roles_lower = GetLowerRoles((RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0])).Select(x => string.Format("[{0}]", x.Id)).ToList();
            
             item_count = (int)Db.Count<ABUserAuth>(x => Sql.In(x.Roles, roles_lower) && (RoleEnum.Admin == (RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0]) || x.MaHC.StartsWith(ma_hc)));
             pages = item_count / ITEMS_PER_PAGE;
@@ -111,7 +111,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 int currPage = 0;
 
                 string ma_hc = CurrentUser.MaHC != null ? CurrentUser.MaHC : "";
-                List<string> roles_lower = this.GetLowerRoles((RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0])).Select(x => string.Format("[{0}]", x.Id)).ToList();
+                List<string> roles_lower = GetLowerRoles((RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0])).Select(x => string.Format("[{0}]", x.Id)).ToList();
                 List<string> roles_filter = roles_lower;
                 if (!string.IsNullOrEmpty(req.UserRole))
                 {
@@ -173,7 +173,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             try
             {
                 string ma_hc = CurrentUser.MaHC != null ? CurrentUser.MaHC : "";
-                List<string> roles_lower = this.GetLowerRoles((RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0])).Select(x => string.Format("[{0}]", x.Id)).ToList();
+                List<string> roles_lower = GetLowerRoles((RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0])).Select(x => string.Format("[{0}]", x.Id)).ToList();
                 if (Db.Count<ABUserAuth>(x => Sql.In(x.Roles, roles_lower) && (RoleEnum.Admin == (RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0]) || x.MaHC.StartsWith(ma_hc)) && x.Id == id) == 0)
                 {
                     return JsonError("Vui lòng không hack ứng dụng.");
@@ -193,7 +193,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             try
             {
                 string ma_hc = CurrentUser.MaHC != null ? CurrentUser.MaHC : "";
-                List<string> roles_lower = this.GetLowerRoles((RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0])).Select(x => string.Format("[{0}]", x.Id)).ToList();
+                List<string> roles_lower = GetLowerRoles((RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0])).Select(x => string.Format("[{0}]", x.Id)).ToList();
                 ABUserAuth user = Db.Select<ABUserAuth>(x => x.Where(y => Sql.In(y.Roles, roles_lower) && (RoleEnum.Admin == (RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0]) || y.MaHC.StartsWith(ma_hc)) && y.Id == id).Limit(0, 1)).FirstOrDefault();
                 if (user == null)
                 {
@@ -218,7 +218,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             try
             {
                 string ma_hc = CurrentUser.MaHC != null ? CurrentUser.MaHC : "";
-                List<string> roles_lower = this.GetLowerRoles((RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0])).Select(x => string.Format("[{0}]", x.Id)).ToList();
+                List<string> roles_lower = GetLowerRoles((RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0])).Select(x => string.Format("[{0}]", x.Id)).ToList();
                 ABUserAuth user = Db.Select<ABUserAuth>(x => x.Where(y => Sql.In(y.Roles, roles_lower) && (RoleEnum.Admin == (RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0]) || y.MaHC.StartsWith(ma_hc)) && y.Id == id).Limit(0, 1)).FirstOrDefault();
                 if (user == null)
                 {
@@ -240,7 +240,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
         [HttpPost]
         public ActionResult UpdateUser(UserModel model, IEnumerable<HttpPostedFileBase> FileUp)
         {
-            ViewData["RolesLower"] = this.GetLowerRoles((RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0])); ;
+            ViewData["RolesLower"] = GetLowerRoles((RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0])); ;
 
             #region VALIDATION: #1
             ABUserAuth user = new ABUserAuth();
@@ -252,7 +252,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             }
 
             string ma_hc = CurrentUser.MaHC != null ? CurrentUser.MaHC : "";
-            List<string> roles_lower = this.GetLowerRoles((RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0])).Select(x => string.Format("[{0}]", x.Id)).ToList();
+            List<string> roles_lower = GetLowerRoles((RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0])).Select(x => string.Format("[{0}]", x.Id)).ToList();
             if (user.Id > 0 &&
                 (!roles_lower.Contains(string.Format("[{0}]", user.Roles[0])) ||
                  !(RoleEnum.Admin == (RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0]) || user.MaHC.StartsWith(ma_hc))))
@@ -420,7 +420,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
         {
             List<DanhMuc_HanhChinh> data = new List<DanhMuc_HanhChinh>();
             string ma_hc = CurrentUser.MaHC != null ? CurrentUser.MaHC : "";
-            List<ListModel> roles_lower = this.GetLowerRoles((RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0]));
+            List<ListModel> roles_lower = GetLowerRoles((RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0]));
             if (roles_lower.Select(x => x.Id).Contains(role))
             {
                 JoinSqlBuilder<DanhMuc_HanhChinh, DanhMuc_HanhChinh> jn = new JoinSqlBuilder<DanhMuc_HanhChinh, DanhMuc_HanhChinh>();
@@ -430,7 +430,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 string st = jn.ToSql();
                 int idx = st.IndexOf("WHERE");
                 sql_exp.SelectExpression = st.Substring(0, idx);
-                sql_exp.WhereExpression = string.Format("{0} AND LEN([MaHC]) = {1}", st.Substring(idx), this.GetLenMaHCByRole((RoleEnum)Enum.Parse(typeof(RoleEnum), role)));
+                sql_exp.WhereExpression = string.Format("{0} AND LEN([MaHC]) = {1}", st.Substring(idx), GetLenMaHCByRole((RoleEnum)Enum.Parse(typeof(RoleEnum), role)));
 
                 string sql = sql_exp.ToSelectStatement();
                 data = Db.Select<DanhMuc_HanhChinh>(sql);

@@ -32,6 +32,7 @@ I:\samuel_photobookmark\Common\ServiceStackHelper\bin\Debug\ServiceStack.xml
 I:\samuel_photobookmark\Common\ServiceStackHelper\obj\Debug\ServiceStackHelper.csprojResolveAssemblyReference.cache
 I:\samuel_photobookmark\Common\ServiceStackHelper\obj\Debug\ServiceStackHelper.dll
 I:\samuel_photobookmark\Common\ServiceStackHelper\obj\Debug\ServiceStackHelper.pdb
+G:\NPSoft_HTQLNHCS\Common\ServiceStackHelper\obj\Debug\ServiceStackHelper.csprojResolveAssemblyReference.cache
 G:\NPSoft_HTQLNHCS\Common\ServiceStackHelper\bin\Debug\ServiceStackHelper.dll
 G:\NPSoft_HTQLNHCS\Common\ServiceStackHelper\bin\Debug\ServiceStackHelper.pdb
 G:\NPSoft_HTQLNHCS\Common\ServiceStackHelper\bin\Debug\ABSoft.DataLayer.dll
@@ -46,7 +47,6 @@ G:\NPSoft_HTQLNHCS\Common\ServiceStackHelper\bin\Debug\ServiceStack.Common.xml
 G:\NPSoft_HTQLNHCS\Common\ServiceStackHelper\bin\Debug\ServiceStack.Interfaces.xml
 G:\NPSoft_HTQLNHCS\Common\ServiceStackHelper\bin\Debug\ServiceStack.Text.xml
 G:\NPSoft_HTQLNHCS\Common\ServiceStackHelper\bin\Debug\ServiceStack.xml
-G:\NPSoft_HTQLNHCS\Common\ServiceStackHelper\obj\Debug\ServiceStackHelper.csprojResolveAssemblyReference.cache
 G:\NPSoft_HTQLNHCS\Common\ServiceStackHelper\obj\Debug\ServiceStackHelper.dll
 G:\NPSoft_HTQLNHCS\Common\ServiceStackHelper\obj\Debug\ServiceStackHelper.pdb
 G:\NPSoft_HTQLNHCS\Common\ServiceStackHelper\bin\Debug\ABSoft.Common.dll

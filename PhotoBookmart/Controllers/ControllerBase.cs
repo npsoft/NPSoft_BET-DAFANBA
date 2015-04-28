@@ -367,9 +367,9 @@ namespace PhotoBookmart.Controllers
 
         #region Pre-define-data
 
-        public static int ITEMS_PER_PAGE = 30;
+        public static int ITEMS_PER_PAGE = 5;
         
-        public List<ListModel> GetLowerRoles(RoleEnum role)
+        public static List<ListModel> GetLowerRoles(RoleEnum role)
         {
             switch (role)
             {
@@ -390,7 +390,7 @@ namespace PhotoBookmart.Controllers
             }
         }
         
-        public List<ListModel> GetHigherRoles(RoleEnum role)
+        public static List<ListModel> GetHigherRoles(RoleEnum role)
         {
             switch (role)
             {
@@ -411,7 +411,7 @@ namespace PhotoBookmart.Controllers
             }
         }
         
-        public int GetLenMaHCByRole(RoleEnum role)
+        public static int GetLenMaHCByRole(RoleEnum role)
         {
             switch (role)
             {
@@ -424,6 +424,87 @@ namespace PhotoBookmart.Controllers
                 default:
                     return 0;
             }
+        }
+
+        public static List<ListModel> GetAllSettings()
+        {
+            List<ListModel> settings = new List<ListModel>();
+            foreach (Enum_Settings_Key setting in (Enum_Settings_Key[])Enum.GetValues(typeof(Enum_Settings_Key)) ?? Enumerable.Empty<Enum_Settings_Key>())
+            {
+                settings.Add(new ListModel() { Id = setting.ToString(), Name = setting.DisplayName() });
+            }
+            return settings;
+        }
+
+        public static List<ListModel> GetSettingsByScope(Enum_Settings_Scope scope)
+        {
+            switch (scope)
+            {
+                case Enum_Settings_Scope.Country:
+                    return new List<ListModel>() {
+                        new ListModel() { Id = Enum_Settings_Key.TL03.ToString(), Name = Enum_Settings_Key.TL03.DisplayName() },
+                        new ListModel() { Id = Enum_Settings_Key.TL04.ToString(), Name = Enum_Settings_Key.TL04.DisplayName() } };
+                case Enum_Settings_Scope.Province:
+                    return new List<ListModel>() {
+                        new ListModel() { Id = Enum_Settings_Key.TL02.ToString(), Name = Enum_Settings_Key.TL02.DisplayName() },
+                        new ListModel() { Id = Enum_Settings_Key.TL05.ToString(), Name = Enum_Settings_Key.TL05.DisplayName() },
+                        new ListModel() { Id = Enum_Settings_Key.TL07.ToString(), Name = Enum_Settings_Key.TL07.DisplayName() },
+                        new ListModel() { Id = Enum_Settings_Key.TL11.ToString(), Name = Enum_Settings_Key.TL11.DisplayName() } };
+                case Enum_Settings_Scope.District:
+                    return new List<ListModel>() {
+                        new ListModel() { Id = Enum_Settings_Key.TL01.ToString(), Name = Enum_Settings_Key.TL01.DisplayName() },
+                        new ListModel() { Id = Enum_Settings_Key.TL06.ToString(), Name = Enum_Settings_Key.TL06.DisplayName() } };
+                default:
+                    return new List<ListModel>();
+            }
+        }
+        
+        public static List<ListModel> GetSettingsByRole(RoleEnum role)
+        {
+            switch (role)
+            {
+                case RoleEnum.Admin:
+                    return GetSettingsByScope(Enum_Settings_Scope.Country);
+                case RoleEnum.Province:
+                    return GetSettingsByScope(Enum_Settings_Scope.Province);
+                case RoleEnum.District:
+                    return GetSettingsByScope(Enum_Settings_Scope.District);
+                default:
+                    return new List<ListModel>();
+            }
+        }
+
+        public static List<ListModel> GetAllSettingScopes()
+        {
+            List<ListModel> scopes = new List<ListModel>();
+            foreach (Enum_Settings_Scope scope in (Enum_Settings_Scope[])Enum.GetValues(typeof(Enum_Settings_Scope)) ?? Enumerable.Empty<Enum_Settings_Scope>())
+            {
+                scopes.Add(new ListModel() { Id = scope.ToString(), Name = scope.DisplayName() });
+            }
+            return scopes;
+        }
+        
+        public List<DanhMuc_HanhChinh> GetAllProvinces()
+        {
+            JoinSqlBuilder<DanhMuc_HanhChinh, DanhMuc_HanhChinh> jn = new JoinSqlBuilder<DanhMuc_HanhChinh, DanhMuc_HanhChinh>();
+            SqlExpressionVisitor<DanhMuc_HanhChinh> sql_exp = Db.CreateExpression<DanhMuc_HanhChinh>();
+            sql_exp.SelectExpression = jn.ToSql();
+            sql_exp.WhereExpression = string.Format("WHERE LEN([MaHC]) = {0}", 2);
+            return Db.Select<DanhMuc_HanhChinh>(sql_exp.ToSelectStatement());
+        }
+
+        public List<DanhMuc_HanhChinh> GetDistrictsByProvince(string maHC)
+        {
+            JoinSqlBuilder<DanhMuc_HanhChinh, DanhMuc_HanhChinh> jn = new JoinSqlBuilder<DanhMuc_HanhChinh, DanhMuc_HanhChinh>();
+            SqlExpressionVisitor<DanhMuc_HanhChinh> sql_exp = Db.CreateExpression<DanhMuc_HanhChinh>();
+            var p = PredicateBuilder.True<DanhMuc_HanhChinh>();
+            p = p.And(x => x.MaHC.StartsWith(maHC));
+            jn = jn.Where(p);
+            string st = jn.ToSql();
+            int idx = st.IndexOf("WHERE");
+            sql_exp.SelectExpression = st.Substring(0, idx);
+            sql_exp.WhereExpression = string.Format("{0} AND LEN([MaHC]) = {1}", st.Substring(idx), 5);
+            return Db.Select<DanhMuc_HanhChinh>(sql_exp.ToSelectStatement());
         }
 
         public static SelectList Gender_GetAll()
@@ -566,20 +647,6 @@ namespace PhotoBookmart.Controllers
         public bool CurrentUser_HasRole(RoleEnum role, ABUserAuth current_user = null)
         {
             return CurrentUser_HasRole(role.ToString(), current_user);
-        }
-
-        public bool CurrentUser_HasRole(RoleEnum role, RoleEnum role2, ABUserAuth current_user = null)
-        {
-            if (current_user == null)
-                current_user = CurrentUser;
-            return current_user.HasRole(role) || current_user.HasRole(role2);
-        }
-
-        public bool CurrentUser_HasRole(RoleEnum role, RoleEnum role2, RoleEnum role3, ABUserAuth current_user = null)
-        {
-            if (current_user == null)
-                current_user = CurrentUser;
-            return current_user.HasRole(role) || current_user.HasRole(role2) || current_user.HasRole(role3);
         }
 
         /// <summary>
