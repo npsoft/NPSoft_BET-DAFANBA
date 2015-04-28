@@ -4,8 +4,16 @@
 
 var mainList_Website = [];
 
-jQuery(document).ready(function () {
+jQuery(document).ready(function ($) {
 
+});
+
+jQuery(document).ajaxStart(function () {
+    show_loading();
+});
+
+jQuery(document).ajaxStop(function () {
+    hide_loading();
 });
 
 /// This function will reload the Main List Website on the Sidebar
