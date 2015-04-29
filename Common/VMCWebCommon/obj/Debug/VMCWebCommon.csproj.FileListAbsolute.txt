@@ -25,3 +25,11 @@ G:\NPSoft_HTQLNHCS\Common\VMCWebCommon\bin\Debug\System.Web.Razor.dll
 G:\NPSoft_HTQLNHCS\Common\VMCWebCommon\bin\Debug\MaxMind.GeoIP.pdb
 G:\NPSoft_HTQLNHCS\Common\VMCWebCommon\obj\Debug\ABSoft.Common.dll
 G:\NPSoft_HTQLNHCS\Common\VMCWebCommon\obj\Debug\ABSoft.Common.pdb
+D:\NPSoft_HTQLNHCS\Common\VMCWebCommon\bin\Debug\ABSoft.Common.dll
+D:\NPSoft_HTQLNHCS\Common\VMCWebCommon\bin\Debug\ABSoft.Common.pdb
+D:\NPSoft_HTQLNHCS\Common\VMCWebCommon\bin\Debug\MaxMind.GeoIP.dll
+D:\NPSoft_HTQLNHCS\Common\VMCWebCommon\bin\Debug\RazorEngine.dll
+D:\NPSoft_HTQLNHCS\Common\VMCWebCommon\bin\Debug\MaxMind.GeoIP.pdb
+D:\NPSoft_HTQLNHCS\Common\VMCWebCommon\obj\Debug\VMCWebCommon.csprojResolveAssemblyReference.cache
+D:\NPSoft_HTQLNHCS\Common\VMCWebCommon\obj\Debug\ABSoft.Common.dll
+D:\NPSoft_HTQLNHCS\Common\VMCWebCommon\obj\Debug\ABSoft.Common.pdb
