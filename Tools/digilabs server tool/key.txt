@@ -1,8 +1,0 @@
-decrytion key is 1612833236
-
-How it works:
-- Install the server tools
-- Do the configure for IN / OUT folder, then enter the key as above
-- The Server tool will auto detect when we copy the file to IN folder. Then it will decrypt automatically. 
-- In the OUT folder, it will create the folder same with file name but without extension DGL. If success, then it will delete the DGL file in the IN folder, and put the decrypted DGL file in the done folder (in the OUT folder). 
-- Jason wants to get the whole folder which same name of the dgl uploaded file. 

@@ -1,1 +1,0 @@
-Please upload all files in this folder to root of www on hosting
