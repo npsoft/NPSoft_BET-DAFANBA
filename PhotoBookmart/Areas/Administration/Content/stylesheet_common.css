@@ -419,3 +419,86 @@ style from http://flatfull.com/themes/scale/chat.html
 {
     overflow: hidden !important;
 }
+
+/* Sta: Redefine mws */
+.ui-datepicker select.ui-datepicker-month,
+.ui-datepicker select.ui-datepicker-year {
+    min-height: 20px;
+    width: 48%;
+}
+/* End: Redefine mws */
+
+/* Sta: Common Define */
+.ellipses {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.table {
+    display: table !important;
+}
+.table-row {
+    display: table-row !important;
+}
+.table-cell {
+    display: table-cell !important;
+}
+.img-16x16 {
+    height: 16px;
+    width: 16px;
+}
+.img-w-16 {
+    width: 16px;
+}
+.np-align-l {
+    text-align: left;
+}
+.np-align-c {
+    text-align: center;
+}
+.np-align-r {
+    text-align: right;
+}
+.float-left {
+    float: left;
+}
+.float-right {
+    float: right;
+}
+.padd-t-4 {
+    padding-top: 4px;
+}
+.min-height-0 {
+    min-height: 0 !important;
+}
+.overflow-auto {
+    overflow: auto;
+}
+.display-none {
+    display: none !important;
+}
+.display-inline-block {
+    display: inline-block !important;
+}
+.pos-relative {
+    position: relative;
+}
+.pos-absolute-bottom {
+    position: absolute;
+    bottom: 0;
+    min-height: 0 !important;
+}
+.k-grid-header .k-header > .k-grid-filter {
+    margin-right: -0.25em;
+}
+.k-grid-header .k-header > .k-link {
+    color: #333;
+}
+.k-grid-header .k-header > .k-link:hover {
+    text-decoration: underline;
+}
+/* End: Common Define */
+
+/* Sta: Customize Define */
+/* Nothing :) */
+/* End: Customize Define */

@@ -114,6 +114,11 @@ namespace PhotoBookmart.DataLayer
         public static string GetCodeVillage(this string text)
         {
             return string.IsNullOrEmpty(text) || text.Length < 10 ? "" : text.Substring(0, 10);
+        } 
+
+        public static string GetGender(this string text)
+        {
+            return text == "Male" ? "Nam" : (text == "Female" ? "Nữ" : "");
         }
     }
 }

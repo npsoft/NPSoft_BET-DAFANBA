@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Text.RegularExpressions;
 using PhotoBookmart.Areas.Administration.Models;
 using PhotoBookmart.Common.Helpers;
 using System.IO;
@@ -15,12 +16,15 @@ using PhotoBookmart.Areas.Administration.Controllers;
 using PhotoBookmart.DataLayer.Models.System;
 using PhotoBookmart.DataLayer.Models.Users_Management;
 using PhotoBookmart.DataLayer.Models.Sites;
+using PhotoBookmart.DataLayer.Models.ExtraShipping;
 using PhotoBookmart.DataLayer.Models.Products;
+using PhotoBookmart.DataLayer.Models.Reports;
+using PhotoBookmart.Helper;
 using PhotoBookmart.Support;
 
 namespace PhotoBookmart.Areas.Administration.Controllers
 {
-    [ABRequiresAnyRole(RoleEnum.Administrator)]
+    [ABRequiresAnyRole(RoleEnum.Admin, RoleEnum.Province, RoleEnum.District, RoleEnum.Village)]
     public class WebsiteProductController : WebAdminController
     {
         #region Product List
@@ -92,30 +96,247 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             return PartialView("_List", c);
         }
 
-        public ActionResult Add(int? cat_id)
+        [HttpGet]
+        public ActionResult Add()
         {
-            Product model = new Product();
-
-            if (!cat_id.HasValue || cat_id <= 0)
-            {
-                cat_id = 1;
-            }
-
-            var cat = Cache_GetProductCategory().Where(m => m.Id == cat_id.Value).FirstOrDefault();
-            // get default category
-            if (cat == null)
-            {
-                cat = Cache_GetProductCategory().Where(m => m.Id == 1).FirstOrDefault();
-            }
-
-            if (cat != null)
-            {
-                model.CatId = cat.Id;
-                model.Category_Name = cat.Name;
-            }
-
-
+            DoiTuong model = new DoiTuong();
             return View(model);
+        }
+
+        [HttpPost]
+        [ValidateInput(false)]
+        public ActionResult Update(DoiTuong model, IEnumerable<HttpPostedFileBase> FilesUp)
+        {
+            #region TODO: #1
+            model.Id = model.Id > 0 ? model.Id : 0;
+            model.HoTen = string.Format("{0}", model.HoTen).Trim();
+            model.NamSinh = string.Format("{0}", model.NamSinh).Trim();
+            model.ThangSinh = string.Format("{0}", model.ThangSinh).Trim();
+            model.NgaySinh = string.Format("{0}", model.NgaySinh).Trim();
+            model.CMTND = string.Format("{0}", model.CMTND).Trim();
+            model.NoiCap = string.Format("{0}", model.NoiCap).Trim();
+            model.TruQuan = string.Format("{0}", model.TruQuan).Trim();
+            model.NguyenQuan = string.Format("{0}", model.NguyenQuan).Trim();
+            DoiTuong old_model = null;
+            if (model.Id > 0)
+            {
+                old_model = Db.Select<DoiTuong>(x => x.Where(y => y.Id == model.Id).Limit(0, 1)).FirstOrDefault();
+                if (old_model != null)
+                {
+                    model.IDDT = old_model.IDDT;
+                }
+            }
+            PermissionChecker permission = new PermissionChecker(this);
+            if (!(model.Id == 0 && permission.CanAdd(model) ||
+                  model.Id > 0 && permission.CanUpdate(model)))
+            {
+                return JsonError("Vui lòng không hack ứng dụng.");
+            }
+            #endregion
+
+            #region TODO: #2
+            if (string.IsNullOrEmpty(model.MaHC))
+            {
+                return JsonError("Vui lòng chọn xã.");
+            }
+            if (!model.IDDiaChi.HasValue)
+            {
+                return JsonError("Vui lòng chọn xóm.");
+            }
+            if (!(Db.Count<DanhMuc_HanhChinh>(x => x.MaHC == model.MaHC) > 0 &&
+                  Db.Count<DanhMuc_DiaChi>(x => x.IDDiaChi == model.IDDiaChi) > 0))
+            {
+                return JsonError("Vui lòng không hack ứng dụng.");
+            }
+            #endregion
+
+            #region TODO: #3
+            if (string.IsNullOrEmpty(model.HoTen))
+            {
+                return JsonError("Vui lòng nhập họ & tên.");
+            }
+            if (string.IsNullOrEmpty(model.NamSinh))
+            {
+                return JsonError("Vui lòng nhập ngày sinh » Năm.");
+            }
+            if (!new Regex(@"^([1-9]\d{3})$", RegexOptions.Compiled).IsMatch(model.NamSinh) ||
+                int.Parse(model.NamSinh) < DateTime.MinValue.Year ||
+                int.Parse(model.NamSinh) > DateTime.MaxValue.Year)
+            {
+                return JsonError("Ngày sinh » Năm không đúng định dạng.");
+            }
+            if (!string.IsNullOrEmpty(model.NgaySinh) && string.IsNullOrEmpty(model.ThangSinh))
+            {
+                return JsonError("Vui lòng nhập ngày sinh » Tháng.");
+            }
+            if (!string.IsNullOrEmpty(model.ThangSinh) && !new Regex(@"^(0?[1-9]|1[012])$", RegexOptions.Compiled).IsMatch(model.ThangSinh))
+            {
+                return JsonError("Ngày sinh » Tháng không đúng định dạng.");
+            }
+            if (!string.IsNullOrEmpty(model.NgaySinh))
+            {
+                DateTime dt = new DateTime(int.Parse(model.NamSinh), int.Parse(model.ThangSinh), 1).AddMonths(1).Subtract(TimeSpan.FromSeconds(1));
+                if (!new Regex(@"^(0?[1-9]|[12][0-9]|3[01])$", RegexOptions.Compiled).IsMatch(model.NgaySinh) || int.Parse(model.NgaySinh) > dt.Day)
+                {
+                    return JsonError("Ngày sinh » Ngày không đúng định dạng.");
+                }
+            }
+            model.ThangSinh = !string.IsNullOrEmpty(model.ThangSinh) && model.ThangSinh.Length < 2 ? "0" + model.ThangSinh : model.ThangSinh;
+            model.NgaySinh = !string.IsNullOrEmpty(model.NgaySinh) && model.NgaySinh.Length < 2 ? "0" + model.NgaySinh : model.NgaySinh;
+            if (string.IsNullOrEmpty(model.GioiTinh))
+            {
+                return JsonError("Vui lòng chọn giới tính.");
+            }
+            if (!model.MaDanToc.HasValue)
+            {
+                return JsonError("Vui lòng chọn dân tộc.");
+            }
+            if (string.IsNullOrEmpty(model.CMTND))
+            {
+                return JsonError("Vui lòng nhập CMTND.");
+            }
+            if (!model.NgayCap.HasValue)
+            {
+                return JsonError("Vui lòng nhập ngày cấp.");
+            }
+            if (string.IsNullOrEmpty(model.NoiCap))
+            {
+                return JsonError("Vui lòng nhập nơi cấp.");
+            }
+            if (string.IsNullOrEmpty(model.TruQuan))
+            {
+                return JsonError("Vui lòng nhập trú quán.");
+            }
+            if (string.IsNullOrEmpty(model.NguyenQuan))
+            {
+                return JsonError("Vui lòng nhập nguyên quán.");
+            }
+            if (!(new string[] { "Male", "Female" }.Contains(model.GioiTinh) &&
+                  Db.Count<DanhMuc_DanToc>(x => x.Id == model.MaDanToc.Value) > 0))
+            {
+                return JsonError("Vui lòng không hack ứng dụng.");
+            }
+            #endregion
+
+            #region TODO: #4
+            if (string.IsNullOrEmpty(model.MaLDT))
+            {
+                return JsonError("Vui lòng chọn loại.");
+            }
+            if (model.MaLDT.StartsWith("01"))
+            {
+                if (model.MaLDT_Details.Count != 1)
+                {
+                    return JsonError("Vui lòng không hack ứng dụng.");
+                }
+                DoiTuong_LoaiDoiTuong_CT detail = new DoiTuong_LoaiDoiTuong_CT();
+                detail.Type1_InfoFather = string.Format("{0}", model.MaLDT_Details[0].Type1_InfoFather).Trim();
+                detail.Type1_InfoMother = string.Format("{0}", model.MaLDT_Details[0].Type1_InfoMother).Trim();
+                if (string.IsNullOrEmpty(detail.Type1_InfoFather))
+                {
+                    return JsonError("Vui lòng nhập thông tin cha.");
+                }
+                if (string.IsNullOrEmpty(detail.Type1_InfoMother))
+                {
+                    return JsonError("Vui lòng nhập thông tin mẹ.");
+                }
+                model.MaLDT_Details[0] = detail;
+            }
+            else if (model.MaLDT.StartsWith("03"))
+            {
+                if (model.MaLDT_Details.Count == 0)
+                {
+                    return JsonError("Vui lòng thêm thông tin » con.");
+                }
+                List<DoiTuong_LoaiDoiTuong_CT> details = new List<DoiTuong_LoaiDoiTuong_CT>();
+                foreach (DoiTuong_LoaiDoiTuong_CT item in model.MaLDT_Details)
+                {
+                    DoiTuong_LoaiDoiTuong_CT detail = new DoiTuong_LoaiDoiTuong_CT();
+                    detail.Id = item.Id;
+                    detail.Type3_FullName = string.Format("{0}", item.Type3_FullName).Trim();
+                    detail.Type3_DateOfBirth = item.Type3_DateOfBirth;
+                    detail.Type3_DateOfBirth_IsMonth = item.Type3_DateOfBirth_IsMonth;
+                    detail.Type3_DateOfBirth_IsDate = item.Type3_DateOfBirth_IsDate;
+                    detail.Type3_Gender = item.Type3_Gender;
+                    detail.Type3_CurrAddr = string.Format("{0}", item.Type3_CurrAddr).Trim();
+                    detail.Type3_StatusLearn = string.Format("{0}", item.Type3_StatusLearn).Trim();
+                    if (string.IsNullOrEmpty(detail.Type3_FullName))
+                    {
+                        return JsonError("Vui lòng kiểm tra lại họ & tên cho các con.");
+                    }
+                    if (detail.Type3_DateOfBirth.Year == DateTime.MinValue.Year)
+                    {
+                        return JsonError("Vui lòng kiểm tra lại ngày sinh cho các con » Năm.");
+                    }
+                    if (!detail.Type3_DateOfBirth_IsMonth && detail.Type3_DateOfBirth.Month != 1)
+                    {
+                        return JsonError("Vui lòng kiểm tra lại ngày sinh cho các con » Tháng.");
+                    }
+                    if (!detail.Type3_DateOfBirth_IsDate && detail.Type3_DateOfBirth.Day != 1)
+                    {
+                        return JsonError("Vui lòng kiểm tra lại ngày sinh cho các con » Ngày.");
+                    }
+                    if (string.IsNullOrEmpty(detail.Type3_Gender) || !new string[] { "Male", "Female" }.Contains(detail.Type3_Gender))
+                    {
+                        return JsonError("Vui lòng kiểm tra lại giới tính cho các con.");
+                    }
+                    details.Add(detail);
+                }
+                model.MaLDT_Details = details;
+                if (model.Id == 0 && details.Count(x => x.Id > 0) > 0)
+                {
+                    return JsonError("Vui lòng không hack ứng dụng.");
+                }
+            }
+            else if (model.MaLDT.StartsWith("04"))
+            {
+                if (model.MaLDT_Details.Count != 1)
+                {
+                    return JsonError("Vui lòng không hack ứng dụng.");
+                }
+                DoiTuong_LoaiDoiTuong_CT detail = new DoiTuong_LoaiDoiTuong_CT();
+                detail.Type4_MaritalStatus = model.MaLDT_Details[0].Type4_MaritalStatus;
+                detail.Type4_InfoAdditional = string.Format("{0}", model.MaLDT_Details[0].Type4_InfoAdditional).Trim();
+                if (string.IsNullOrEmpty(detail.Type4_MaritalStatus))
+                {
+                    return JsonError("Vui lòng chọn tình trạng hôn nhân.");
+                };
+                model.MaLDT_Details[0] = detail;
+            }
+            else if (model.MaLDT.StartsWith("05"))
+            {
+                if (model.MaLDT_Details.Count != 1)
+                {
+                    return JsonError("Vui lòng không hack ứng dụng.");
+                }
+                DoiTuong_LoaiDoiTuong_CT detail = new DoiTuong_LoaiDoiTuong_CT();
+                detail.Type5_SelfServing = model.MaLDT_Details[0].Type5_SelfServing;
+                detail.Type5_Carer = string.Format("{0}", model.MaLDT_Details[0].Type5_Carer).Trim();
+                if (string.IsNullOrEmpty(detail.Type5_SelfServing))
+                {
+                    return JsonError("Vui lòng chọn khả năng phục vụ.");
+                }
+                model.MaLDT_Details[0] = detail;
+            }
+            if (model.isKhuyetTat.HasValue && model.isKhuyetTat.Value)
+            {
+                if (!model.DangKT.HasValue)
+                {
+                    return JsonError("Vui lòng chọn dạng khuyết tật.");
+                }
+                if (!model.MucDoKT.HasValue)
+                {
+                    return JsonError("Vui lòng chọn mức độ khuyết tật.");
+                }
+            }
+            if (model.Id > 0 && model.MaLDT_Details.Count(x => x.Id > 0) > 0 && model.MaLDT_Details.Count(x => x.Id > 0) != Db.Count<DoiTuong_LoaiDoiTuong_CT>(x => x.CodeObj == model.IDDT && Sql.In(x.Id, model.MaLDT_Details.Where(y => y.Id > 0).Select(y => y.Id))) ||
+                model.isKhuyetTat.HasValue && model.isKhuyetTat.Value && (Db.Count<DanhMuc_DangKhuyetTat>(x => x.IDDangTat == model.DangKT.Value) == 0 || Db.Count<DanhMuc_MucDoKhuyetTat>(x => x.IDMucDoKT == model.MucDoKT.Value) == 0))
+            {
+                return JsonError("Vui lòng không hack ứng dụng.");
+            }
+            #endregion
+            
+            return JsonSuccess(null);
         }
 
         public ActionResult Edit(int id)
@@ -132,110 +353,6 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 //var site = Cache_GetAllWebsite().Where(m => m.Id == model.WebsiteId).FirstOrDefault();
                 return View("Add", model);
             }
-        }
-
-        [ValidateInput(false)]
-        public ActionResult Update(Product model, IEnumerable<HttpPostedFileBase> FileUp, string Status)
-        {
-            model.Status = Status != null ? true : false;
-
-            if (string.IsNullOrEmpty(model.Name))
-            {
-                return JsonError("Please enter field » Name");
-            }
-
-            if (model.Weight < 0)
-            {
-                model.Weight = 0;
-            }
-
-            // generate seo name
-            string random = "";
-            do
-            {
-
-                if (string.IsNullOrEmpty(model.SeoName))
-                {
-                    model.SeoName = model.Name + random;
-                    model.SeoName = model.SeoName.ToSeoUrl();
-                }
-                else
-                {
-                    model.SeoName = model.SeoName.ToSeoUrl();
-                }
-
-                // check exist
-                if (Db.Count<Product>(m => m.SeoName == model.SeoName && m.Id != model.Id) == 0)
-                {
-                    break;
-                }
-
-                random = "_" + random.GenerateRandomText(3);
-                model.SeoName = "";
-            } while (0 < 1);
-
-            Product current_item = new Product();
-            if (model.Id > 0)
-            {
-                var z = Db.Where<Product>(m => m.Id == model.Id);
-                if (z.Count == 0)
-                {
-                    // the ID is not exist
-                    return JsonError("Please dont try to hack us");
-                }
-                else
-                {
-                    current_item = z.First();
-                }
-            }
-
-            if (model.Id == 0)
-            {
-                model.CreatedOn = DateTime.Now;
-                model.CreatedBy = AuthenticatedUserID;
-
-            }
-            else
-            {
-                model.CreatedOn = current_item.CreatedOn;
-                model.CreatedBy = current_item.CreatedBy;
-            }
-
-            if (model.Id == 0 || current_item.Order == 0)
-            {
-                // set Order Menu
-                try
-                {
-                    int OrderMenu = Db.Where<Product>(m => m.CatId == model.CatId).Max(m => m.Order);
-                    model.Order = OrderMenu + 1;
-                }
-                catch
-                {
-                    model.Order = 0;
-                }
-            }
-            else
-            {
-                model.Order = current_item.Order;
-            }
-
-            if (model.Id == 0)
-            {
-                Db.Insert<Product>(model);
-
-                //// insert into category
-                //if (model.CatId > 0)
-                //{
-                //    var p = new Product_In_Category() { Category_Id = model.CatId, CreatedBy = AuthenticatedUserID, CreatedOn = DateTime.Now, ProductId = (int)Db.GetLastInsertId() };
-                //    Db.Insert<Product_In_Category>(p);
-                //}
-            }
-            else
-            {
-                Db.Update<Product>(model);
-            }
-
-            return JsonSuccess(Url.Action("Index", new { cat_id = model.CatId }));
         }
 
         public ActionResult Delete(int id)
@@ -566,9 +683,64 @@ namespace PhotoBookmart.Areas.Administration.Controllers
 
         #region Support
 
-        public ActionResult ExportExcel()
+        [HttpPost]
+        public ActionResult GetProvincesForFilter()
         {
-            return ExportListProduct();
+            return Json(GetAllProvinces());
+        }
+
+        [HttpPost]
+        public ActionResult GetDistrictsForFilter(string MaHC)
+        {
+            return Json(GetDistrictsByProvince(MaHC));
+        }
+
+        [HttpPost]
+        public ActionResult GetVillagesForFilter(string MaHC)
+        {
+            return Json(GetVillagesByDistrict(MaHC));
+        }
+
+        [HttpPost]
+        public ActionResult GetHamletsForFilter(string MaHC)
+        {
+            return Json(GetHamletsByVillage(MaHC));
+        }
+
+        [HttpPost]
+        public ActionResult GetEthnicsForFilter()
+        {
+            return Json(Cache_GetAllEthnics());
+        }
+
+        [HttpPost]
+        public ActionResult GetTypesDisabilityForFilter()
+        {
+            return Json(Cache_GetAllTypesDisability());
+        }
+
+        [HttpPost]
+        public ActionResult GetLevelsDisabilityForFilter()
+        {
+            return Json(Cache_GetAllLevelsDisability());
+        }
+
+        [HttpPost]
+        public ActionResult GetTypesObjForFilter()
+        {
+            return Json(Cache_GetAllTypesObj());
+        }
+
+        [HttpPost]
+        public ActionResult GetMaritalStatusesForFilter()
+        {
+            return Json(Cache_GetAllMaritalStatuses());
+        }
+
+        [HttpPost]
+        public ActionResult GetSelfServingsForFilter()
+        {
+            return Json(Cache_GetAllSelfServings());
         }
 
         private ActionResult ExportListProduct()

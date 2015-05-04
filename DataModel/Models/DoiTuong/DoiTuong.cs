@@ -13,18 +13,10 @@ namespace PhotoBookmart.DataLayer.Models.Products
     [Schema("DoiTuong")]
     public partial class DoiTuong : BasicModelBase
     {
-        [ForeignKey(typeof(DanhMuc_HanhChinh), OnDelete = "CASCADE", OnUpdate = "CASCADE")]
-        public long? MaHC { get; set; }
-        [ForeignKey(typeof(DanhMuc_DiaChi), OnDelete = "CASCADE", OnUpdate = "CASCADE")]
-        public long? IDDiaChi { get; set; }
-        [ForeignKey(typeof(DanhMuc_LoaiDT), OnDelete = "CASCADE", OnUpdate = "CASCADE")]
-        public long? MaLDT { get; set; }
+        public string MaHC { get; set; }
+        public Guid? IDDiaChi { get; set; }
         [ForeignKey(typeof(DanhMuc_DanToc), OnDelete = "CASCADE", OnUpdate = "CASCADE")]
         public long? MaDanToc { get; set; }
-        [ForeignKey(typeof(DanhMuc_DangKhuyetTat), OnDelete = "CASCADE", OnUpdate = "CASCADE")]
-        public long? DangKT { get; set; }
-        [ForeignKey(typeof(DanhMuc_MucDoKhuyetTat), OnDelete = "CASCADE", OnUpdate = "CASCADE")]
-        public long? MucDoKT { get; set; }
         [ForeignKey(typeof(DanhMuc_TinhTrangDT), OnDelete = "CASCADE", OnUpdate = "CASCADE")]
         public long? TinhTrang { get; set; }
         public Guid IDDT { get; set; }
@@ -33,22 +25,41 @@ namespace PhotoBookmart.DataLayer.Models.Products
         public string NgaySinh { get; set; }
         public string ThangSinh { get; set; }
         public string NamSinh { get; set; }
-        public int? GioiTinh { get; set; }
+        public string GioiTinh { get; set; }
         public string CMTND { get; set; }
         public DateTime? NgayCap { get; set; }
         public string NoiCap { get; set; }
         public string NguyenQuan { get; set; }
         public string TruQuan { get; set; }
+
+        #region TODO: #1
         public bool? isBHYT { get; set; }
-        public decimal? MucTC { get; set; }
-        public DateTime? NgayHuong { get; set; }
         public bool? isHoNgheo { get; set; }
         public bool? isKhuyetTat { get; set; }
+        public Guid? DangKT { get; set; }
+        public Guid? MucDoKT { get; set; }
+        public string MaLDT { get; set; }
+        public decimal? MucTC { get; set; }
+        public DateTime? NgayHuong { get; set; }
+        #endregion
+
+        #region TODO: #2
         public string SoQD { get; set; }
         public DateTime? NgayQD { get; set; }
         public string GhiChu { get; set; }
-        
-        public DoiTuong() { }
+        #endregion
+
+        #region TODO: Ignore
+        [Ignore]
+        public List<DoiTuong_LoaiDoiTuong_CT> MaLDT_Details { get; set; }
+        [Ignore]
+        public bool IsContinue { get; set; }
+        #endregion
+
+        public DoiTuong()
+        {
+            MaLDT_Details = new List<DoiTuong_LoaiDoiTuong_CT>();
+        }
     }
 
     [Alias("Products")]

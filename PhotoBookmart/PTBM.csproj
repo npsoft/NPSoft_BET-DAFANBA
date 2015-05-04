@@ -218,6 +218,7 @@
     <Compile Include="Support\Payment\iPay_paymentRequest.cs" />
     <Compile Include="Support\Payment\ProcessPaymentRequest.cs" />
     <Compile Include="Support\Payment\ProcessPaymentResult.cs" />
+    <Compile Include="Support\PermissionChecker.cs" />
     <Compile Include="Support\VMCWebErrorHandler.cs" />
     <Compile Include="Support\UrlHelperExtensions.cs" />
     <Compile Include="Tasks\AutoCancelUnpaidOrder.cs" />
@@ -231,6 +232,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\Administration\Content\Admin.js" />
+    <Content Include="Areas\Administration\Content\admin_template\bootstrap\css\bootstrap-responsive.css" />
     <Content Include="Areas\Administration\Content\admin_template\bootstrap\css\bootstrap.min.css" />
     <Content Include="Areas\Administration\Content\admin_template\bootstrap\js\bootstrap.min.js" />
     <Content Include="Areas\Administration\Content\admin_template\calendar.html" />
@@ -3481,9 +3483,6 @@
     <Content Include="Areas\Administration\Views\WebsiteNews\_List.cshtml" />
     <Content Include="Areas\Administration\Views\Website\Detail_NewsCategory.cshtml" />
     <Content Include="Areas\Administration\Views\Website\Detail_NewsCategory_List.cshtml" />
-    <Content Include="Areas\Administration\Views\ProductOption\Add.cshtml" />
-    <Content Include="Areas\Administration\Views\ProductOption\Index.cshtml" />
-    <Content Include="Areas\Administration\Views\ProductOption\_List.cshtml" />
     <Content Include="Areas\Administration\Views\Price\_List.cshtml" />
     <Content Include="Areas\Administration\Views\Price\Add.cshtml" />
     <Content Include="Areas\Administration\Views\Price\Index.cshtml" />

@@ -68,7 +68,7 @@
     <Compile Include="Models\Orders\Order_ProductOptionUsing.cs" />
     <Compile Include="Models\Orders\Order.cs" />
     <Compile Include="Models\DoiTuong\DoiTuong_BienDong.cs" />
-    <Compile Include="Models\DoiTuong\OptionInProduct.cs" />
+    <Compile Include="Models\DoiTuong\DoiTuong_LoaiDoiTuong_CT.cs" />
     <Compile Include="Models\DanhMuc\DanhMuc_KhaNangPhucVu.cs" />
     <Compile Include="Models\DanhMuc\DanhMuc_LoaiDT.cs" />
     <Compile Include="Models\DanhMuc\DanhMuc_TinhTrangDT.cs" />

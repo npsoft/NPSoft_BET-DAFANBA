@@ -136,6 +136,7 @@ namespace PhotoBookmart.DataLayer.Models
             }
             dbConn.CreateTableIfNotExists<DoiTuong>();
             dbConn.CreateTableIfNotExists<DoiTuong_BienDong>();
+            dbConn.CreateTableIfNotExists<DoiTuong_LoaiDoiTuong_CT>();
             #endregion
 
             #region CMS
@@ -214,7 +215,6 @@ namespace PhotoBookmart.DataLayer.Models
 
             // option
             dbConn.CreateTableIfNotExists<Product_Option>();
-            dbConn.CreateTableIfNotExists<OptionInProduct>();
 
             // Payment
             dbConn.CreateTableIfNotExists<PayPalStandardPaymentSettings>();

@@ -28,6 +28,7 @@ using PhotoBookmart.DataLayer.Models.Users_Management;
 using PhotoBookmart.DataLayer.Models.System;
 using PhotoBookmart.DataLayer.Models.Sites;
 using PhotoBookmart.DataLayer.Models.Products;
+using PhotoBookmart.DataLayer.Models.Reports;
 using PhotoBookmart.ServiceInterface;
 using PhotoBookmart.ServiceInterface.RequestModel;
 using PhotoBookmart.DataLayer.Models.SMS;
@@ -410,7 +411,7 @@ namespace PhotoBookmart.Controllers
                     return new List<ListModel>() { };
             }
         }
-        
+
         public static int GetLenMaHCByRole(RoleEnum role)
         {
             switch (role)
@@ -424,6 +425,12 @@ namespace PhotoBookmart.Controllers
                 default:
                     return 0;
             }
+        }
+
+        public static bool IsHigherRole(RoleEnum org_role, RoleEnum new_role)
+        {
+            List<ListModel> roles = GetHigherRoles(org_role);
+            return roles.Select(x => x.Id).Contains(new_role.ToString());
         }
 
         public static List<ListModel> GetAllSettings()
@@ -505,6 +512,24 @@ namespace PhotoBookmart.Controllers
             sql_exp.SelectExpression = st.Substring(0, idx);
             sql_exp.WhereExpression = string.Format("{0} AND LEN([MaHC]) = {1}", st.Substring(idx), 5);
             return Db.Select<DanhMuc_HanhChinh>(sql_exp.ToSelectStatement());
+        }
+
+        public List<DanhMuc_HanhChinh> GetVillagesByDistrict(string maHC)
+        {
+            JoinSqlBuilder<DanhMuc_HanhChinh, DanhMuc_HanhChinh> jn = new JoinSqlBuilder<DanhMuc_HanhChinh, DanhMuc_HanhChinh>();
+            SqlExpressionVisitor<DanhMuc_HanhChinh> sql_exp = Db.CreateExpression<DanhMuc_HanhChinh>();
+            jn = jn.And<DanhMuc_HanhChinh>(x => x.MaHC.StartsWith(maHC));
+            sql_exp = sql_exp.And(x => x.MaHC.StartsWith(maHC));
+            string st = jn.ToSql();
+            int idx = st.IndexOf("WHERE");
+            sql_exp.SelectExpression = st.Substring(0, idx);
+            sql_exp.WhereExpression = string.Format("{0} AND LEN([MaHC]) = {1}", st.Substring(idx), 10);
+            return Db.Select<DanhMuc_HanhChinh>(sql_exp.ToSelectStatement());
+        }
+
+        public List<DanhMuc_DiaChi> GetHamletsByVillage(string maHC)
+        {
+            return Db.Select<DanhMuc_DiaChi>(x => x.MaHC == maHC);
         }
 
         public static SelectList Gender_GetAll()
@@ -730,6 +755,104 @@ namespace PhotoBookmart.Controllers
         #endregion
 
         #region Cache Common
+
+        public List<DanhMuc_DanToc> Cache_GetAllEthnics(int cache_in_minutes = 10)
+        {
+            var data = Cache.Get<List<DanhMuc_DanToc>>(InternalService.SessionNamePrefix + "TTG_Cache_Ethnics");
+            if (data == null)
+            {
+                data = Db.Query<DanhMuc_DanToc>("SELECT * FROM [DanhMuc].[DanhMuc_DanToc] WITH (NOLOCK);");
+                Cache.Add<List<DanhMuc_DanToc>>(InternalService.SessionNamePrefix + "TTG_Cache_Ethnics", data, TimeSpan.FromMinutes(cache_in_minutes));
+            }
+            return data;
+        }
+        
+        public List<DanhMuc_DangKhuyetTat> Cache_GetAllTypesDisability(int cache_in_minutes = 10)
+        {
+            var data = Cache.Get<List<DanhMuc_DangKhuyetTat>>(InternalService.SessionNamePrefix + "TTG_Cache_TypesDisability");
+            if (data == null)
+            {
+                data = Db.SqlList<DanhMuc_DangKhuyetTat>("SELECT * FROM [DanhMuc].[DanhMuc_DangKhuyetTat] WITH (NOLOCK);");
+                Cache.Add<List<DanhMuc_DangKhuyetTat>>(InternalService.SessionNamePrefix + "TTG_Cache_TypesDisability", data, TimeSpan.FromMinutes(cache_in_minutes));
+            }
+            return data;
+        }
+        
+        public List<ListModel> Cache_GetAllLevelsDisability(int cache_in_minutes = 10)
+        {
+            var data = Cache.Get<List<ListModel>>(InternalService.SessionNamePrefix + "TTG_Cache_LevelsDisability");
+            if (data == null)
+            {
+                Dictionary<Guid, List<string>> lookup = Db.Lookup<Guid, string>("SELECT [IDMucDoKT], [TenMucDoKT] FROM [DanhMuc].[DanhMuc_MucDoKhuyetTat] WITH (NOLOCK);");
+                data = lookup.Select(x => new ListModel() { Id = x.Key.ToString(), Name = x.Value[0] }).ToList();
+                Cache.Add<List<ListModel>>(InternalService.SessionNamePrefix + "TTG_Cache_LevelsDisability", data, TimeSpan.FromMinutes(cache_in_minutes));
+            }
+            return data;
+        }
+
+        public List<KeyValuePair<DanhMuc_LoaiDT, List<DanhMuc_LoaiDT>>> Cache_GetAllTypesObj(int cache_in_minutes = 10)
+        {
+            var data = Cache.Get<List<KeyValuePair<DanhMuc_LoaiDT, List<DanhMuc_LoaiDT>>>>(InternalService.SessionNamePrefix + "TTG_Cache_TypesObj");
+            if (data == null)
+            {
+                data = new List<KeyValuePair<DanhMuc_LoaiDT, List<DanhMuc_LoaiDT>>>();
+                List<DanhMuc_LoaiDT> types = Db.Select<DanhMuc_LoaiDT>();
+                types.Where(x => x.MaLDT.Length == 2).OrderBy(x => x.MaLDT).ToList().ForEach(x => {
+                    data.Add(new KeyValuePair<DanhMuc_LoaiDT, List<DanhMuc_LoaiDT>>(x, types.Where(y => y.Id != x.Id && y.MaLDT.StartsWith(x.MaLDT)).OrderBy(y => y.MaLDT).ToList()));
+                });
+                Cache.Add<List<KeyValuePair<DanhMuc_LoaiDT, List<DanhMuc_LoaiDT>>>>(InternalService.SessionNamePrefix + "TTG_Cache_TypesObj", data, TimeSpan.FromMinutes(cache_in_minutes));
+            }
+            return data;
+        }
+
+        public List<DanhMuc_TinhTrangHonNhan> Cache_GetAllMaritalStatuses(int cache_in_minutes = 10)
+        {
+            var data = Cache.Get<List<DanhMuc_TinhTrangHonNhan>>(InternalService.SessionNamePrefix + "TTG_Cache_MaritalStatuses");
+            if (data == null)
+            {
+                data = Db.Select<DanhMuc_TinhTrangHonNhan>();
+                Cache.Add<List<DanhMuc_TinhTrangHonNhan>>(InternalService.SessionNamePrefix + "TTG_Cache_MaritalStatuses", data, TimeSpan.FromMinutes(cache_in_minutes));
+            }
+            return data;
+        }
+
+        public List<DanhMuc_KhaNangPhucVu> Cache_GetAllSelfServings(int cache_in_minutes = 10)
+        {
+            var data = Cache.Get<List<DanhMuc_KhaNangPhucVu>>(InternalService.SessionNamePrefix + "TTG_Cache_SelfServings");
+            if (data == null)
+            {
+                data = Db.Select<DanhMuc_KhaNangPhucVu>();
+                Cache.Add<List<DanhMuc_KhaNangPhucVu>>(InternalService.SessionNamePrefix + "TTG_Cache_SelfServings", data, TimeSpan.FromMinutes(cache_in_minutes));
+            }
+            return data;
+        }
+        
+        public List<DoiTuong_LoaiDoiTuong_CT> Cache_GetMaLDT_DetailsByParams(Guid CodeObj, string CodeType, int cache_in_minutes = 10)
+        {
+            var key = InternalService.SessionNamePrefix + "Cache_GetMaLDT_DetailsByParams";
+            var data = Cache.Get<List<DoiTuong_LoaiDoiTuong_CT>>(key);
+            if (data == null)
+            {
+                var p = PredicateBuilder.True<DoiTuong_LoaiDoiTuong_CT>();
+                p = p.And(x => x.CodeObj == CodeObj && x.CodeType == CodeType);
+                if (CodeType.StartsWith("03"))
+                {
+                    data = Db.Where<DoiTuong_LoaiDoiTuong_CT>(p);
+                }
+                else
+                {
+                    data = Db.Select<DoiTuong_LoaiDoiTuong_CT>(x => x.Where(p).Limit(0, 1));
+                }
+                Cache.Add<List<DoiTuong_LoaiDoiTuong_CT>>(key, data, TimeSpan.FromMinutes(cache_in_minutes));
+            }
+            return data;
+        }
+
+        public ActionResult Svc_GetMaLDT_DetailsByParams(Guid CodeObj, string CodeType)
+        {
+            return Json(Cache_GetMaLDT_DetailsByParams(CodeObj, CodeType));
+        }
+
         /// <summary>
         /// Get the cache of all languages 
         /// Common usage
@@ -780,8 +903,7 @@ namespace PhotoBookmart.Controllers
             }
             return data;
         }
-
-
+        
         public List<Site_News_Category> Cache_GetNewsCategory(int cache_in_minutes = 10)
         {
             var data = Cache.Get<List<Site_News_Category>>(InternalService.SessionNamePrefix + "TTG_Cache_NewsCategory");
@@ -793,38 +915,6 @@ namespace PhotoBookmart.Controllers
             return data;
         }
 
-        public List<Site_News> Cache_GetNewsCategoryBySite(int cache_in_minutes = 10)
-        {
-            var data = Cache.Get<List<Site_News>>(InternalService.SessionNamePrefix + "TTG_Cache_News");
-            if (data == null)
-            {
-
-                data = Db.Select<Site_News>().ToList();
-
-                Cache.Add<List<Site_News>>(InternalService.SessionNamePrefix + "TTG_Cache_News", data, TimeSpan.FromMinutes(cache_in_minutes));
-            }
-            return data;
-        }
-
-        public List<Site_News> Cache_GetNewsCategoryById(int cat_id = 0, int cache_in_minutes = 10)
-        {
-            var data = Cache.Get<List<Site_News>>(InternalService.SessionNamePrefix + "TTG_Cache_News_Cat_id" + cat_id);
-            if (data == null)
-            {
-                if (cat_id == 0)
-                {
-                    data = Db.Select<Site_News>().ToList();
-                }
-                else
-                {
-                    data = Db.Where<Site_News>(m => m.CategoryId == cat_id);
-                }
-                Cache.Add<List<Site_News>>(InternalService.SessionNamePrefix + "TTG_Cache_News_Cat_id" + cat_id, data, TimeSpan.FromMinutes(cache_in_minutes));
-            }
-            return data;
-        }
-
-
         public List<Site_Blog_Category> Cache_GetBlogCategory(int cache_in_minutes = 10)
         {
             var data = Cache.Get<List<Site_Blog_Category>>(InternalService.SessionNamePrefix + "TTG_Cache_BlogCategory");
@@ -833,19 +923,6 @@ namespace PhotoBookmart.Controllers
             {
                 data = Db.Select<Site_Blog_Category>().ToList();
                 Cache.Add<List<Site_Blog_Category>>(InternalService.SessionNamePrefix + "TTG_Cache_BlogCategory", data, TimeSpan.FromMinutes(cache_in_minutes));
-            }
-
-            return data;
-        }
-
-        public List<Site_Blog> Cache_GetBlogCategoryBySite(int cache_in_minutes = 10)
-        {
-            var data = Cache.Get<List<Site_Blog>>(InternalService.SessionNamePrefix + "TTG_Cache_Blog");
-
-            if (data == null)
-            {
-                data = Db.Select<Site_Blog>().ToList();
-                Cache.Add<List<Site_Blog>>(InternalService.SessionNamePrefix + "TTG_Cache_Blog", data, TimeSpan.FromMinutes(cache_in_minutes));
             }
 
             return data;
@@ -862,17 +939,6 @@ namespace PhotoBookmart.Controllers
             return data;
         }
 
-        public List<Product> Cache_GetProduct(int cache_in_minutes = 10)
-        {
-            var data = Cache.Get<List<Product>>(InternalService.SessionNamePrefix + "TTG_Cache_Product");
-            if (data == null)
-            {
-                data = Db.Select<Product>().ToList();
-                Cache.Add<List<Product>>(InternalService.SessionNamePrefix + "TTG_Cache_Product", data, TimeSpan.FromMinutes(cache_in_minutes));
-            }
-            return data;
-        }
-
         /// <summary>
         /// Get cache of all users
         /// Common Usage
@@ -885,23 +951,6 @@ namespace PhotoBookmart.Controllers
             {
                 data = Db.Select<ABUserAuth>().ToList();
                 Cache.Add<List<ABUserAuth>>(key, data, TimeSpan.FromMinutes(cache_in_minutes));
-            }
-            return data;
-        }
-
-        /// <summary>
-        /// Return all countries by cache
-        /// </summary>
-        /// <param name="cache_in_minutes"></param>
-        /// <returns></returns>
-        public List<Country> Cache_GetAllCountry(int cache_in_minutes = 10)
-        {
-            var key = InternalService.SessionNamePrefix + "Cache_GetAllCountry";
-            var data = Cache.Get<List<Country>>(key);
-            if (data == null)
-            {
-                data = Db.Select<Country>().ToList();
-                Cache.Add<List<Country>>(key, data, TimeSpan.FromMinutes(cache_in_minutes));
             }
             return data;
         }
