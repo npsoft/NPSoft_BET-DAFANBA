@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -117,6 +118,13 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             model.NoiCap = string.Format("{0}", model.NoiCap).Trim();
             model.TruQuan = string.Format("{0}", model.TruQuan).Trim();
             model.NguyenQuan = string.Format("{0}", model.NguyenQuan).Trim();
+            if (!model.isKhuyetTat.HasValue || !model.isKhuyetTat.Value)
+            {
+                model.DangKT = null;
+                model.MucDoKT = null;
+            }
+            model.SoQD = string.Format("{0}", model.SoQD).Trim();
+            model.GhiChu = string.Format("{0}", model.GhiChu).Trim();
             DoiTuong old_model = null;
             if (model.Id > 0)
             {
@@ -124,11 +132,20 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 if (old_model != null)
                 {
                     model.IDDT = old_model.IDDT;
+                    model.CreatedOn = old_model.CreatedOn;
+                    model.CreatedBy = old_model.CreatedBy;
                 }
             }
+            else
+            {
+                model.IDDT = Guid.NewGuid();
+                model.CreatedOn = DateTime.Now;
+                model.CreatedBy = CurrentUser.Id;
+            }
+
             PermissionChecker permission = new PermissionChecker(this);
             if (!(model.Id == 0 && permission.CanAdd(model) ||
-                  model.Id > 0 && permission.CanUpdate(model)))
+                  model.Id > 0 && permission.CanUpdate(old_model) && permission.CanUpdate(model)))
             {
                 return JsonError("Vui lòng không hack ứng dụng.");
             }
@@ -144,7 +161,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 return JsonError("Vui lòng chọn xóm.");
             }
             if (!(Db.Count<DanhMuc_HanhChinh>(x => x.MaHC == model.MaHC) > 0 &&
-                  Db.Count<DanhMuc_DiaChi>(x => x.IDDiaChi == model.IDDiaChi) > 0))
+                  Db.Count<DanhMuc_DiaChi>(x => x.MaHC == model.MaHC && x.IDDiaChi == model.IDDiaChi) > 0))
             {
                 return JsonError("Vui lòng không hack ứng dụng.");
             }
@@ -318,6 +335,13 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 }
                 model.MaLDT_Details[0] = detail;
             }
+            else
+            {
+                if (model.MaLDT_Details.Count > 0)
+                {
+                    return JsonError("Vui lòng không hack ứng dụng.");
+                }
+            }
             if (model.isKhuyetTat.HasValue && model.isKhuyetTat.Value)
             {
                 if (!model.DangKT.HasValue)
@@ -335,8 +359,37 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 return JsonError("Vui lòng không hack ứng dụng.");
             }
             #endregion
+
+            #region TODO: #5
+            if (model.MucTC.HasValue && model.MucTC.Value < 0)
+            {
+                return JsonError("Mức trợ cấp không đúng định dạng.");
+            }
+            #endregion
             
-            return JsonSuccess(null);
+            using (IDbTransaction dbTrans = Db.OpenTransaction())
+            {
+                Db.Delete<DoiTuong_LoaiDoiTuong_CT>(x =>
+                        x.CodeObj == model.IDDT && (
+                            x.CodeType != model.MaLDT ||
+                                model.MaLDT.StartsWith("03") &&
+                                model.MaLDT_Details.Count(y => y.Id > 0) > 0 &&
+                                !Sql.In(x.Id, model.MaLDT_Details.Where(y => y.Id > 0).Select(y => y.Id))));
+                if (model.MaLDT_Details.Count == 1 && !model.MaLDT.StartsWith("03"))
+                {
+                    DoiTuong_LoaiDoiTuong_CT detail = Db.Select<DoiTuong_LoaiDoiTuong_CT>(x => x.Where(y => y.CodeObj == model.IDDT).Limit(0, 1)).FirstOrDefault();
+                    if (detail != null) { model.MaLDT_Details[0].Id = detail.Id; }
+                }
+                model.MaLDT_Details.ForEach(x => {
+                    x.CodeObj = model.IDDT;
+                    x.CodeType = model.MaLDT;
+                });
+
+                Db.Save(model);
+                Db.Save(model.MaLDT_Details);
+                dbTrans.Commit();
+            }
+            return JsonSuccess(Url.Action("Index", "WebsiteProduct", new { }), null);
         }
 
         public ActionResult Edit(int id)

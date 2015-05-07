@@ -303,13 +303,16 @@ namespace PhotoBookmart.Helper
 
         private bool CanAdd(DoiTuong item)
         {
+            if (item == null) { return false; }
             ABUserAuth curr_user = service.CurrentUser;
             return curr_user.HasRole(RoleEnum.Admin) || curr_user.MaHC.StartsWith(item.MaHC);
         }
 
         private bool CanUpdate(DoiTuong item)
         {
-            return false;
+            if (item == null) { return false; }
+            ABUserAuth curr_user = service.CurrentUser;
+            return curr_user.HasRole(RoleEnum.Admin) || curr_user.MaHC.StartsWith(item.MaHC);
         }
 
         //private bool CanList(KIT item)

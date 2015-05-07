@@ -11,7 +11,7 @@ namespace PhotoBookmart.DataLayer.Models.Products
 {
     [Alias("DoiTuong")]
     [Schema("DoiTuong")]
-    public partial class DoiTuong : BasicModelBase
+    public partial class DoiTuong : ModelBase
     {
         public string MaHC { get; set; }
         public Guid? IDDiaChi { get; set; }

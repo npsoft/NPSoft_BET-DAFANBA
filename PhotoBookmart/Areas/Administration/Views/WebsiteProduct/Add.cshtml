@@ -505,8 +505,29 @@
                 }
             }
 
+            var $txt_muc_tc = $frm.find("[name='MucTC']"); 
+            $txt_muc_tc.val($.trim($txt_muc_tc.val()));
+            if (!IsNullOrEmpty($txt_muc_tc.val())) {
+                var val_muc_tc = parseFloat($txt_muc_tc.val());
+                if (isNaN(val_muc_tc) || val_muc_tc < 0) {
+                    $txt_muc_tc.focus();
+                    notify_error("Lỗi", "Mức trợ cấp không đúng định dạng.");
+                    return false;
+                }
+                $txt_muc_tc.val(val_muc_tc);
+            }
+            var  $txt_so_qd = $frm.find("[name='SoQD']");
+            $txt_so_qd.val($.trim($txt_so_qd.val()));
+            var $txt_ghi_chu = $frm.find("[name='GhiChu']");
+            $txt_ghi_chu.val($.trim($txt_ghi_chu.val()));
+
             var data = $frm.serializeObject();
-            data.NgayCap = TimeForReq({ dt: ParseTime(data.NgayCap), tz: TIMEZONE_SERVER }).toISOString();
+            var dt = ParseTime(data.NgayCap);
+            data.NgayCap = dt != null ? TimeForReq({ dt: dt, tz: TIMEZONE_SERVER }).toISOString() : null;
+            dt = ParseTime(data.NgayHuong);
+            data.NgayHuong = dt != null ? TimeForReq({ dt: dt, tz: TIMEZONE_SERVER }).toISOString() : null;
+            dt = ParseTime(data.NgayQD);
+            data.NgayQD = dt != null ? TimeForReq({ dt: dt, tz: TIMEZONE_SERVER }).toISOString() : null;
             data.MaLDT_Details = [];
             if ($ddl_loai.val().startsWith("01")) {
                 data.MaLDT_Details.push({
@@ -537,24 +558,27 @@
                     Type5_Carer: $txt_loai_carer.val()
                 });
             }
-            
-            $.post($frm.attr("action"), data, function (returnObj) {
-
-                if (returnObj.Status == "success") {
-                    if (returnObj.Message != null) {
-                        notify_success("Success", returnObj.Message);
+            $.ajax({
+                url: $frm.attr("action"),
+                type: "post",
+                data: JSON.stringify({ model: data }, null, 0),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (result, textStatus, jqXHR) {
+                    if (result.Status == "error") {
+                        $.pnotify({
+                            type: "error",
+                            title: "Lỗi",
+                            text: result.Message,
+                            opacity: .8
+                        });
                     }
-                    else
-                        if (returnObj.RedirectUrl != null) {
-                            window.location.href = returnObj.RedirectUrl;
-                        }
-                } else {
-                    $.pnotify({
-                        title: "Lỗi",
-                        text: returnObj.Message,
-                        type: 'error',
-                        opacity: .8
-                    });
+                    if (result.RedirectUrl != null) {
+                        // location.href = result.RedirectUrl;
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.warn("textStatus: " + textStatus + " | errorThrown: " + errorThrown);
                 }
             });
             return false;
@@ -837,7 +861,7 @@
                 <div class="mws-form-row">
                     <label class="mws-form-label">Ngày QĐ</label>
                     <div class="mws-form-item">
-                        @Html.TextBoxFor(model => model.NgayQD, new { @class = "large", @readonly = "readonly" })
+                        @Html.TextBoxFor(model => model.NgayQD, new { @class = "large" })
                     </div>
                 </div>
                 <div class="mws-form-row">
@@ -848,8 +872,8 @@
                 </div>
             </div>
             <div class="mws-button-row">
-                <input type="submit" value="Lưu lại" class="btn btn-danger">
-                <input type="reset" value="Làm mới" class="btn ">
+                <button type="submit" class="btn btn-danger">Lưu lại</button>
+                <button type="button" class="btn" onclick="javascript: location.href = '@Url.Action("Index", "WebsiteProduct", new { })'">Hủy bỏ</button>
             </div>
         }
     </div>
