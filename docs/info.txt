@@ -1,7 +1,0 @@
-========== ACCOUNT ==========
-Link				: http://localhost:8083/ | http://htqlnhcs2020.somee.com/
-FTP					: 
-User/Pass(Admin)	: immanuel.dang@gmail.com :: 123absoft.vn
-User/Pass(Province)	: diving :: 123456
-User/Pass(District)	: eric@ipo.com.my :: 123456
-User/Pass(Village)	: qsoonwong@yahoo.com :: 123456

@@ -369,13 +369,15 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             
             using (IDbTransaction dbTrans = Db.OpenTransaction())
             {
-                Db.Delete<DoiTuong_LoaiDoiTuong_CT>(x =>
-                        x.CodeObj == model.IDDT && (
-                            x.CodeType != model.MaLDT ||
-                                model.MaLDT.StartsWith("03") &&
-                                model.MaLDT_Details.Count(y => y.Id > 0) > 0 &&
-                                !Sql.In(x.Id, model.MaLDT_Details.Where(y => y.Id > 0).Select(y => y.Id))));
-                if (model.MaLDT_Details.Count == 1 && !model.MaLDT.StartsWith("03"))
+                Db.Delete<DoiTuong_LoaiDoiTuong_CT>(x => x.CodeObj == model.IDDT && x.CodeType != model.MaLDT);
+                if (model.MaLDT.StartsWith("03"))
+                {
+                    List<long> ids = new List<long>() { 0 };
+                    ids.AddRange(model.MaLDT_Details.Where(x => x.Id > 0).Select(x => x.Id));
+                    Db.Delete<DoiTuong_LoaiDoiTuong_CT>(x => x.CodeObj == model.IDDT && !Sql.In(x.Id, ids));
+                }
+
+                if (!model.MaLDT.StartsWith("03") && model.MaLDT_Details.Count == 1)
                 {
                     DoiTuong_LoaiDoiTuong_CT detail = Db.Select<DoiTuong_LoaiDoiTuong_CT>(x => x.Where(y => y.CodeObj == model.IDDT).Limit(0, 1)).FirstOrDefault();
                     if (detail != null) { model.MaLDT_Details[0].Id = detail.Id; }
@@ -386,7 +388,8 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 });
 
                 Db.Save(model);
-                Db.Save(model.MaLDT_Details);
+                Db.UpdateAll<DoiTuong_LoaiDoiTuong_CT>(model.MaLDT_Details.Where(x => x.Id > 0));
+                Db.InsertAll<DoiTuong_LoaiDoiTuong_CT>(model.MaLDT_Details.Where(x => x.Id == 0));
                 dbTrans.Commit();
             }
             return JsonSuccess(Url.Action("Index", "WebsiteProduct", new { }), null);

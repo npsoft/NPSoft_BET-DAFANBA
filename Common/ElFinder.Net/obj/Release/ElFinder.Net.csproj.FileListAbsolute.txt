@@ -11,4 +11,3 @@ G:\NPSoft_HTQLNHCS\Common\ElFinder.Net\bin\Release\Newtonsoft.Json.dll
 G:\NPSoft_HTQLNHCS\Common\ElFinder.Net\bin\Release\Newtonsoft.Json.xml
 G:\NPSoft_HTQLNHCS\Common\ElFinder.Net\obj\Release\ElFinder.Net.dll
 G:\NPSoft_HTQLNHCS\Common\ElFinder.Net\obj\Release\ElFinder.Net.pdb
-G:\NPSoft_HTQLNHCS\Common\ElFinder.Net\obj\Release\ElFinder.Net.csprojResolveAssemblyReference.cache
