@@ -108,14 +108,12 @@ namespace PhotoBookmart.Areas.Administration.Controllers
         [ValidateInput(false)]
         public ActionResult Update(DoiTuong model, IEnumerable<HttpPostedFileBase> FilesUp)
         {
-            #region TODO: #1
-            model.Id = model.Id > 0 ? model.Id : 0;
+            #region Validate for client
+            #region Block #1
             model.HoTen = string.Format("{0}", model.HoTen).Trim();
             model.NamSinh = string.Format("{0}", model.NamSinh).Trim();
             model.ThangSinh = string.Format("{0}", model.ThangSinh).Trim();
             model.NgaySinh = string.Format("{0}", model.NgaySinh).Trim();
-            model.CMTND = string.Format("{0}", model.CMTND).Trim();
-            model.NoiCap = string.Format("{0}", model.NoiCap).Trim();
             model.TruQuan = string.Format("{0}", model.TruQuan).Trim();
             model.NguyenQuan = string.Format("{0}", model.NguyenQuan).Trim();
             if (!model.isKhuyetTat.HasValue || !model.isKhuyetTat.Value)
@@ -123,35 +121,8 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 model.DangKT = null;
                 model.MucDoKT = null;
             }
-            model.SoQD = string.Format("{0}", model.SoQD).Trim();
-            model.GhiChu = string.Format("{0}", model.GhiChu).Trim();
-            DoiTuong old_model = null;
-            if (model.Id > 0)
-            {
-                old_model = Db.Select<DoiTuong>(x => x.Where(y => y.Id == model.Id).Limit(0, 1)).FirstOrDefault();
-                if (old_model != null)
-                {
-                    model.IDDT = old_model.IDDT;
-                    model.CreatedOn = old_model.CreatedOn;
-                    model.CreatedBy = old_model.CreatedBy;
-                }
-            }
-            else
-            {
-                model.IDDT = Guid.NewGuid();
-                model.CreatedOn = DateTime.Now;
-                model.CreatedBy = CurrentUser.Id;
-            }
-
-            PermissionChecker permission = new PermissionChecker(this);
-            if (!(model.Id == 0 && permission.CanAdd(model) ||
-                  model.Id > 0 && permission.CanUpdate(old_model) && permission.CanUpdate(model)))
-            {
-                return JsonError("Vui lòng không hack ứng dụng.");
-            }
             #endregion
-
-            #region TODO: #2
+            #region Block #2
             if (string.IsNullOrEmpty(model.MaHC))
             {
                 return JsonError("Vui lòng chọn xã.");
@@ -160,14 +131,8 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             {
                 return JsonError("Vui lòng chọn xóm.");
             }
-            if (!(Db.Count<DanhMuc_HanhChinh>(x => x.MaHC == model.MaHC) > 0 &&
-                  Db.Count<DanhMuc_DiaChi>(x => x.MaHC == model.MaHC && x.IDDiaChi == model.IDDiaChi) > 0))
-            {
-                return JsonError("Vui lòng không hack ứng dụng.");
-            }
             #endregion
-
-            #region TODO: #3
+            #region Block #3
             if (string.IsNullOrEmpty(model.HoTen))
             {
                 return JsonError("Vui lòng nhập họ & tên.");
@@ -204,22 +169,6 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             {
                 return JsonError("Vui lòng chọn giới tính.");
             }
-            if (!model.MaDanToc.HasValue)
-            {
-                return JsonError("Vui lòng chọn dân tộc.");
-            }
-            if (string.IsNullOrEmpty(model.CMTND))
-            {
-                return JsonError("Vui lòng nhập CMTND.");
-            }
-            if (!model.NgayCap.HasValue)
-            {
-                return JsonError("Vui lòng nhập ngày cấp.");
-            }
-            if (string.IsNullOrEmpty(model.NoiCap))
-            {
-                return JsonError("Vui lòng nhập nơi cấp.");
-            }
             if (string.IsNullOrEmpty(model.TruQuan))
             {
                 return JsonError("Vui lòng nhập trú quán.");
@@ -228,18 +177,88 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             {
                 return JsonError("Vui lòng nhập nguyên quán.");
             }
-            if (!(new string[] { "Male", "Female" }.Contains(model.GioiTinh) &&
-                  Db.Count<DanhMuc_DanToc>(x => x.Id == model.MaDanToc.Value) > 0))
+            #endregion
+            #region Block #4
+            if (string.IsNullOrEmpty(model.MaLDT))
+            {
+                return JsonError("Vui lòng chọn loại.");
+            }
+            if (model.isKhuyetTat.HasValue && model.isKhuyetTat.Value)
+            {
+                if (!model.DangKT.HasValue)
+                {
+                    return JsonError("Vui lòng chọn dạng khuyết tật.");
+                }
+                if (!model.MucDoKT.HasValue)
+                {
+                    return JsonError("Vui lòng chọn mức độ khuyết tật.");
+                }
+            }
+            #endregion
+            #region Block #5
+            if (!model.MucTC.HasValue)
+            {
+                return JsonError("Vui lòng nhập mức trợ cấp.");
+            }
+            if (model.MucTC.Value < 0)
+            {
+                return JsonError("Mức trợ cấp không đúng định dạng.");
+            }
+            if (!model.NgayHuong.HasValue)
+            {
+                return JsonError("Vui lòng chọn ngày hưởng.");
+            }
+            #endregion
+            #region Block #6
+            if (Db.Count<DanhMuc_HanhChinh>(x => x.MaHC == model.MaHC) == 0 ||
+                Db.Count<DanhMuc_DiaChi>(x => x.MaHC == model.MaHC && x.IDDiaChi == model.IDDiaChi) == 0 ||
+                !new string[] { "Male", "Female" }.Contains(model.GioiTinh) ||
+                Db.Count<DanhMuc_LoaiDT>(x => x.MaLDT == model.MaLDT) == 0 ||
+                model.DangKT.HasValue && Db.Count<DanhMuc_DangKhuyetTat>(x => x.IDDangTat == model.DangKT.Value) == 0 ||
+                model.MucDoKT.HasValue && Db.Count<DanhMuc_MucDoKhuyetTat>(x => x.IDMucDoKT == model.MucDoKT.Value) == 0 ||
+                model.MaDanToc.HasValue && Db.Count<DanhMuc_DanToc>(x => x.Id == model.MaDanToc.Value) == 0)
+            {
+                return JsonError("Vui lòng không hack ứng dụng.");
+            }
+            #endregion
+            model.Id = model.Id > 0 ? model.Id : 0;
+            DoiTuong old_model = null;
+            if (model.Id > 0)
+            {
+                old_model = Db.Select<DoiTuong>(x => x.Where(y => y.Id == model.Id).Limit(0, 1)).FirstOrDefault();
+                if (old_model != null)
+                {
+                    model.IDDT = old_model.IDDT;
+                    model.CreatedOn = old_model.CreatedOn;
+                    model.CreatedBy = old_model.CreatedBy;
+                }
+            }
+            else
+            {
+                model.IDDT = Guid.NewGuid();
+                model.CreatedOn = DateTime.Now;
+                model.CreatedBy = CurrentUser.Id;
+            }
+
+            PermissionChecker permission = new PermissionChecker(this);
+            if (!(model.Id == 0 && permission.CanAdd(model) ||
+                  model.Id > 0 && permission.CanUpdate(old_model) && permission.CanUpdate(model)))
             {
                 return JsonError("Vui lòng không hack ứng dụng.");
             }
             #endregion
 
+            #region TODO: #2
+            
+           
+            #endregion
+
+            #region TODO: #3
+            
+            #endregion
+
             #region TODO: #4
-            if (string.IsNullOrEmpty(model.MaLDT))
-            {
-                return JsonError("Vui lòng chọn loại.");
-            }
+            
             if (model.MaLDT.StartsWith("01"))
             {
                 if (model.MaLDT_Details.Count != 1)
@@ -342,17 +361,6 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                     return JsonError("Vui lòng không hack ứng dụng.");
                 }
             }
-            if (model.isKhuyetTat.HasValue && model.isKhuyetTat.Value)
-            {
-                if (!model.DangKT.HasValue)
-                {
-                    return JsonError("Vui lòng chọn dạng khuyết tật.");
-                }
-                if (!model.MucDoKT.HasValue)
-                {
-                    return JsonError("Vui lòng chọn mức độ khuyết tật.");
-                }
-            }
             if (model.Id > 0 && model.MaLDT_Details.Count(x => x.Id > 0) > 0 && model.MaLDT_Details.Count(x => x.Id > 0) != Db.Count<DoiTuong_LoaiDoiTuong_CT>(x => x.CodeObj == model.IDDT && Sql.In(x.Id, model.MaLDT_Details.Where(y => y.Id > 0).Select(y => y.Id))) ||
                 model.isKhuyetTat.HasValue && model.isKhuyetTat.Value && (Db.Count<DanhMuc_DangKhuyetTat>(x => x.IDDangTat == model.DangKT.Value) == 0 || Db.Count<DanhMuc_MucDoKhuyetTat>(x => x.IDMucDoKT == model.MucDoKT.Value) == 0))
             {
@@ -361,10 +369,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             #endregion
 
             #region TODO: #5
-            if (model.MucTC.HasValue && model.MucTC.Value < 0)
-            {
-                return JsonError("Mức trợ cấp không đúng định dạng.");
-            }
+            
             #endregion
             
             using (IDbTransaction dbTrans = Db.OpenTransaction())

@@ -353,6 +353,21 @@
 
         $("#obj-info-common").on("submit", function (e) {
             var $frm = $(this);
+            var $ddl_gender = $frm.find("[name='GioiTinh']");
+            var $ddl_loai = $frm.find("[name='MaLDT']");
+            var $ddl_disability_type = $frm.find("[name='DangKT']");
+            var $ddl_disability_level = $frm.find("[name='MucDoKT']");
+            var $txt_ho_ten = $frm.find("[name='HoTen']");
+            var $txt_tru_quan = $frm.find("[name='TruQuan']");
+            var $txt_nguyen_quan = $frm.find("[name='NguyenQuan']");
+            var $txt_muc_tc = $frm.find("[name='MucTC']");
+            var $txt_ngay_huong = $frm.find("[name='NgayHuong']");
+            var $chk_disability = $frm.find("[name='isKhuyetTat']");
+            $txt_ho_ten.val($.trim($txt_ho_ten.val()));
+            $txt_tru_quan.val($.trim($txt_tru_quan.val()));
+            $txt_nguyen_quan.val($.trim($txt_nguyen_quan.val()));
+            $txt_muc_tc.val($.trim($txt_muc_tc.val()));
+            $txt_ngay_huong.val($.trim($txt_ngay_huong.val()));
 
             if (IsNullOrEmpty($ddl_province.val())) {
                 setTimeout(function () { $ddl_province.select2("open"); }, 200);
@@ -375,74 +390,34 @@
                 return false;
             }
             
-            var $txt_ho_ten = $frm.find("[name='HoTen']");
-            $txt_ho_ten.val($.trim($txt_ho_ten.val()));
             if (IsNullOrEmpty($txt_ho_ten.val())) {
                 $txt_ho_ten.focus();
                 notify_error("Lỗi", "Vui lòng nhập họ & tên.");
                 return false;
             }
             if (!CheckDateOfBirth({
-                $txt_year: $(this).find("[name='NamSinh']"),
-                $txt_month: $(this).find("[name='ThangSinh']"),
-                $txt_date: $(this).find("[name='NgaySinh']")
+                $txt_year: $frm.find("[name='NamSinh']"),
+                $txt_month: $frm.find("[name='ThangSinh']"),
+                $txt_date: $frm.find("[name='NgaySinh']")
             })) {
                 return false;
             }
-            var $ddl_gender = $frm.find("[name='GioiTinh']");
             if (IsNullOrEmpty($ddl_gender.val())) {
                 setTimeout(function () { $ddl_gender.select2("open"); }, 200);
                 notify_error("Lỗi", "Vui lòng chọn giới tính.");
                 return false;
             }
-            var $ddl_ethnic = $frm.find("[name='MaDanToc']");
-            if (IsNullOrEmpty($ddl_ethnic.val())) {
-                setTimeout(function () { $ddl_ethnic.select2("open"); }, 200)
-                notify_error("Lỗi", "Vui lòng chọn dân tộc.");
-                return false;
-            }
-            var $txt_cmtnd = $frm.find("[name='CMTND']");
-            $txt_cmtnd.val($.trim($txt_cmtnd.val()));
-            if (IsNullOrEmpty($txt_cmtnd.val())) {
-                $txt_cmtnd.focus();
-                notify_error("Lỗi", "Vui lòng nhập CMTND.");
-                return false;
-            }
-            var $txt_ngay_cap = $frm.find("[name='NgayCap']");
-            $txt_ngay_cap.val($.trim($txt_ngay_cap.val()));
-            if (IsNullOrEmpty($txt_ngay_cap.val())) {
-                $txt_ngay_cap.focus();
-                notify_error("Lỗi", "Vui lòng chọn ngày cấp.");
-                return false;
-            }
-            if (IsNullOrEmpty(ParseTime($txt_ngay_cap.val()))) {
-                $txt_ngay_cap.focus();
-                notify_error("Lỗi", "Ngày cấp không đúng định dạng");
-                return false;
-            }
-            var $txt_noi_cap = $frm.find("[name='NoiCap']");
-            $txt_noi_cap.val($.trim($txt_noi_cap.val()));
-            if (IsNullOrEmpty($txt_noi_cap.val())) {
-                $txt_noi_cap.focus();
-                notify_error("Lỗi", "Vui lòng nhập nơi cấp.");
-                return false;
-            }
-            var $txt_tru_quan = $frm.find("[name='TruQuan']");
-            $txt_tru_quan.val($.trim($txt_tru_quan.val()));
             if (IsNullOrEmpty($txt_tru_quan.val())) {
                 $txt_tru_quan.focus();
                 notify_error("Lỗi", "Vui lòng nhập trú quán.");
                 return false;
             }
-            var $txt_nguyen_quan = $frm.find("[name='NguyenQuan']");
-            $txt_nguyen_quan.val($.trim($txt_nguyen_quan.val()));
             if (IsNullOrEmpty($txt_nguyen_quan.val())) {
                 $txt_nguyen_quan.focus();
                 notify_error("Lỗi", "Vui lòng nhập nguyên quán.");
                 return false;
             }
 
-            var $ddl_loai = $frm.find("[name='MaLDT']");
             if (IsNullOrEmpty($ddl_loai.val())) {
                 setTimeout(function() { $ddl_loai.select2("open"); }, 200);
                 notify_error("Lỗi", "Vui lòng chọn loại.");
@@ -489,9 +464,6 @@
                     return false;
                 }
             }
-            var $chk_disability = $frm.find("[name='isKhuyetTat']");
-            var $ddl_disability_type = $frm.find("[name='DangKT']");
-            var $ddl_disability_level = $frm.find("[name='MucDoKT']");
             if ($chk_disability.prop("checked")) {
                 if (IsNullOrEmpty($ddl_disability_type.val())) {
                     setTimeout(function () { $ddl_disability_type.select2("open"); });
@@ -505,22 +477,29 @@
                 }
             }
 
-            var $txt_muc_tc = $frm.find("[name='MucTC']"); 
-            $txt_muc_tc.val($.trim($txt_muc_tc.val()));
-            if (!IsNullOrEmpty($txt_muc_tc.val())) {
-                var val_muc_tc = parseFloat($txt_muc_tc.val());
-                if (isNaN(val_muc_tc) || val_muc_tc < 0) {
-                    $txt_muc_tc.focus();
-                    notify_error("Lỗi", "Mức trợ cấp không đúng định dạng.");
-                    return false;
-                }
-                $txt_muc_tc.val(val_muc_tc);
+            if (IsNullOrEmpty($txt_muc_tc.val())) {
+                $txt_muc_tc.focus();
+                notify_error("Lỗi", "Vui lòng nhập mức trợ cấp.");
+                return false;
             }
-            var  $txt_so_qd = $frm.find("[name='SoQD']");
-            $txt_so_qd.val($.trim($txt_so_qd.val()));
-            var $txt_ghi_chu = $frm.find("[name='GhiChu']");
-            $txt_ghi_chu.val($.trim($txt_ghi_chu.val()));
-
+            var val_muc_tc = parseFloat($txt_muc_tc.val());
+            if (isNaN(val_muc_tc) || val_muc_tc < 0) {
+                $txt_muc_tc.focus();
+                notify_error("Lỗi", "Mức trợ cấp không đúng định dạng.");
+                return false;
+            }
+            $txt_muc_tc.val(val_muc_tc);
+            if (IsNullOrEmpty($txt_ngay_huong.val())) {
+                $txt_ngay_huong.focus();
+                notify_error("Lỗi", "Vui lòng chọn ngày hưởng.");
+                return false;
+            }
+            if (IsNullOrEmpty(ParseTime($txt_ngay_huong.val()))) {
+                $txt_ngay_huong.focus();
+                notify_error("Lỗi", "Ngày hưởng không đúng định dạng.");
+                return false;
+            }
+            
             var data = $frm.serializeObject();
             var dt = ParseTime(data.NgayCap);
             data.NgayCap = dt != null ? TimeForReq({ dt: dt, tz: TIMEZONE_SERVER }).toISOString() : null;
@@ -574,7 +553,8 @@
                         });
                     }
                     if (result.RedirectUrl != null) {
-                        // location.href = result.RedirectUrl;
+                        // TODO: location.href = result.RedirectUrl;
+                        console.log("Redirect Url: " + result.RedirectUrl);
                     }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
