@@ -196,13 +196,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
         {
             return Json( GetAllSettingScopes() );
         }
-
-        [HttpPost]
-        public ActionResult GetSettingsForFilter(string Scope)
-        {
-            return Json(GetSettingsByScope((Enum_Settings_Scope)Enum.Parse(typeof(Enum_Settings_Scope), Scope)));
-        }
-
+        
         [HttpPost]
         public ActionResult GetDanhMucHanhChinhByMaHC(string MaHC)
         {

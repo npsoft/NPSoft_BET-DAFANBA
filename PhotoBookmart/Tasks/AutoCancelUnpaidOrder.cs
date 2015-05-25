@@ -170,7 +170,7 @@ namespace PhotoBookmart.Tasks
             {
                 try
                 {
-                    int interval = (int)Settings.Get(Enum_Settings_Key.TASK_AUTO_CANCEL_ORDER_IF_MORETHAN_MINUTE, 5, Enum_Settings_DataType.Int);
+                    int interval = (int)Settings.Get(Enum_Settings_Key.TASK_AUTO_CANCEL_ORDER_IF_MORETHAN_MINUTE, null, 5, Enum_Settings_DataType.Int);
 
                     Site_MaillingListTemplate template = Get_MaillingListTemplate("cancel_order_not_receive_payment");
                     if (template == null)

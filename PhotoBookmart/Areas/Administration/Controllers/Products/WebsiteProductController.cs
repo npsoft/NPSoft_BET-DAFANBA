@@ -5,15 +5,17 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Text.RegularExpressions;
-using PhotoBookmart.Areas.Administration.Models;
-using PhotoBookmart.Common.Helpers;
 using System.IO;
-using PhotoBookmart.Controllers;
 using ServiceStack.OrmLite;
 using ServiceStack.ServiceInterface;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
+using Newtonsoft.Json;
 using PhotoBookmart.Areas.Administration.Controllers;
+using PhotoBookmart.Areas.Administration.Models;
+using PhotoBookmart.Common.Helpers;
+using PhotoBookmart.Controllers;
+using PhotoBookmart.DataLayer;
 using PhotoBookmart.DataLayer.Models.System;
 using PhotoBookmart.DataLayer.Models.Users_Management;
 using PhotoBookmart.DataLayer.Models.Sites;
@@ -104,11 +106,44 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        public ActionResult Edit(long id)
+        {
+            var model = Db.Select<DoiTuong>(x => x.Where(y => y.Id == id).Limit(0, 1)).FirstOrDefault();
+            if (model != null)
+            {
+                model.MaLDT_Details = Db.Where<DoiTuong_LoaiDoiTuong_CT>(x => x.CodeObj == model.IDDT);
+            }
+            return View("Add", model);
+        }
+
         [HttpPost]
         [ValidateInput(false)]
         public ActionResult Update(DoiTuong model, IEnumerable<HttpPostedFileBase> FilesUp)
         {
-            #region Validate for client
+            #region Refill for object
+            model.Id = model.Id > 0 ? model.Id : 0;
+            DoiTuong old_model = null;
+            if (model.Id > 0)
+            {
+                old_model = Db.Select<DoiTuong>(x => x.Where(y => y.Id == model.Id).Limit(0, 1)).FirstOrDefault();
+                if (old_model != null)
+                {
+                    model.IDDT = old_model.IDDT;
+                    model.CreatedOn = old_model.CreatedOn;
+                    model.CreatedBy = old_model.CreatedBy;
+                    old_model.MaLDT_Details = Db.Where<DoiTuong_LoaiDoiTuong_CT>(x => x.CodeObj == old_model.IDDT).OrderBy(x => x.Id).ToList();
+                }
+            }
+            else
+            {
+                model.IDDT = Guid.NewGuid();
+                model.CreatedOn = DateTime.Now;
+                model.CreatedBy = CurrentUser.Id;
+            }
+            #endregion
+
+            #region Validate for object
             #region Block #1
             model.HoTen = string.Format("{0}", model.HoTen).Trim();
             model.NamSinh = string.Format("{0}", model.NamSinh).Trim();
@@ -116,6 +151,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             model.NgaySinh = string.Format("{0}", model.NgaySinh).Trim();
             model.TruQuan = string.Format("{0}", model.TruQuan).Trim();
             model.NguyenQuan = string.Format("{0}", model.NguyenQuan).Trim();
+            model.MaLDT_Details = model.MaLDT_Details.OrderBy(x => x.Id).ToList();
             if (!model.isKhuyetTat.HasValue || !model.isKhuyetTat.Value)
             {
                 model.DangKT = null;
@@ -183,84 +219,9 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             {
                 return JsonError("Vui lòng chọn loại.");
             }
-            if (model.isKhuyetTat.HasValue && model.isKhuyetTat.Value)
-            {
-                if (!model.DangKT.HasValue)
-                {
-                    return JsonError("Vui lòng chọn dạng khuyết tật.");
-                }
-                if (!model.MucDoKT.HasValue)
-                {
-                    return JsonError("Vui lòng chọn mức độ khuyết tật.");
-                }
-            }
-            #endregion
-            #region Block #5
-            if (!model.MucTC.HasValue)
-            {
-                return JsonError("Vui lòng nhập mức trợ cấp.");
-            }
-            if (model.MucTC.Value < 0)
-            {
-                return JsonError("Mức trợ cấp không đúng định dạng.");
-            }
-            if (!model.NgayHuong.HasValue)
-            {
-                return JsonError("Vui lòng chọn ngày hưởng.");
-            }
-            #endregion
-            #region Block #6
-            if (Db.Count<DanhMuc_HanhChinh>(x => x.MaHC == model.MaHC) == 0 ||
-                Db.Count<DanhMuc_DiaChi>(x => x.MaHC == model.MaHC && x.IDDiaChi == model.IDDiaChi) == 0 ||
-                !new string[] { "Male", "Female" }.Contains(model.GioiTinh) ||
-                Db.Count<DanhMuc_LoaiDT>(x => x.MaLDT == model.MaLDT) == 0 ||
-                model.DangKT.HasValue && Db.Count<DanhMuc_DangKhuyetTat>(x => x.IDDangTat == model.DangKT.Value) == 0 ||
-                model.MucDoKT.HasValue && Db.Count<DanhMuc_MucDoKhuyetTat>(x => x.IDMucDoKT == model.MucDoKT.Value) == 0 ||
-                model.MaDanToc.HasValue && Db.Count<DanhMuc_DanToc>(x => x.Id == model.MaDanToc.Value) == 0)
-            {
-                return JsonError("Vui lòng không hack ứng dụng.");
-            }
-            #endregion
-            model.Id = model.Id > 0 ? model.Id : 0;
-            DoiTuong old_model = null;
-            if (model.Id > 0)
-            {
-                old_model = Db.Select<DoiTuong>(x => x.Where(y => y.Id == model.Id).Limit(0, 1)).FirstOrDefault();
-                if (old_model != null)
-                {
-                    model.IDDT = old_model.IDDT;
-                    model.CreatedOn = old_model.CreatedOn;
-                    model.CreatedBy = old_model.CreatedBy;
-                }
-            }
-            else
-            {
-                model.IDDT = Guid.NewGuid();
-                model.CreatedOn = DateTime.Now;
-                model.CreatedBy = CurrentUser.Id;
-            }
-
-            PermissionChecker permission = new PermissionChecker(this);
-            if (!(model.Id == 0 && permission.CanAdd(model) ||
-                  model.Id > 0 && permission.CanUpdate(old_model) && permission.CanUpdate(model)))
-            {
-                return JsonError("Vui lòng không hack ứng dụng.");
-            }
-            #endregion
-
-            #region TODO: #2
-            
-           
-            #endregion
-
-            #region TODO: #3
-            
-            #endregion
-
-            #region TODO: #4
-            
             if (model.MaLDT.StartsWith("01"))
             {
+                #region TODO: 01
                 if (model.MaLDT_Details.Count != 1)
                 {
                     return JsonError("Vui lòng không hack ứng dụng.");
@@ -277,12 +238,22 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                     return JsonError("Vui lòng nhập thông tin mẹ.");
                 }
                 model.MaLDT_Details[0] = detail;
+                #endregion
             }
             else if (model.MaLDT.StartsWith("03"))
             {
+                #region TODO: 03
                 if (model.MaLDT_Details.Count == 0)
                 {
                     return JsonError("Vui lòng thêm thông tin » con.");
+                }
+                else if (model.MaLDT.StartsWith("0301") && model.MaLDT_Details.Count != 1)
+                {
+                    return JsonError("Loại 3.1 giành cho đối tượng nuôi 1 con.");
+                }
+                else if (model.MaLDT.StartsWith("0302") && model.MaLDT_Details.Count < 2)
+                {
+                    return JsonError("Loại 3.2 giành cho đối tượng nuôi 2 con trở lên.");
                 }
                 List<DoiTuong_LoaiDoiTuong_CT> details = new List<DoiTuong_LoaiDoiTuong_CT>();
                 foreach (DoiTuong_LoaiDoiTuong_CT item in model.MaLDT_Details)
@@ -323,9 +294,11 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 {
                     return JsonError("Vui lòng không hack ứng dụng.");
                 }
+                #endregion
             }
             else if (model.MaLDT.StartsWith("04"))
             {
+                #region TODO: 04
                 if (model.MaLDT_Details.Count != 1)
                 {
                     return JsonError("Vui lòng không hack ứng dụng.");
@@ -338,9 +311,11 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                     return JsonError("Vui lòng chọn tình trạng hôn nhân.");
                 };
                 model.MaLDT_Details[0] = detail;
+                #endregion
             }
             else if (model.MaLDT.StartsWith("05"))
             {
+                #region TODO: 05
                 if (model.MaLDT_Details.Count != 1)
                 {
                     return JsonError("Vui lòng không hack ứng dụng.");
@@ -353,25 +328,138 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                     return JsonError("Vui lòng chọn khả năng phục vụ.");
                 }
                 model.MaLDT_Details[0] = detail;
+                #endregion
             }
             else
             {
+                #region TODO: Others
                 if (model.MaLDT_Details.Count > 0)
                 {
                     return JsonError("Vui lòng không hack ứng dụng.");
                 }
+                #endregion
             }
-            if (model.Id > 0 && model.MaLDT_Details.Count(x => x.Id > 0) > 0 && model.MaLDT_Details.Count(x => x.Id > 0) != Db.Count<DoiTuong_LoaiDoiTuong_CT>(x => x.CodeObj == model.IDDT && Sql.In(x.Id, model.MaLDT_Details.Where(y => y.Id > 0).Select(y => y.Id))) ||
-                model.isKhuyetTat.HasValue && model.isKhuyetTat.Value && (Db.Count<DanhMuc_DangKhuyetTat>(x => x.IDDangTat == model.DangKT.Value) == 0 || Db.Count<DanhMuc_MucDoKhuyetTat>(x => x.IDMucDoKT == model.MucDoKT.Value) == 0))
+            if (model.Id > 0 && model.MaLDT_Details.Count(x => x.Id > 0) > 0 && model.MaLDT_Details.Count(x => x.Id > 0) != Db.Count<DoiTuong_LoaiDoiTuong_CT>(x => x.CodeObj == model.IDDT && Sql.In(x.Id, model.MaLDT_Details.Where(y => y.Id > 0).Select(y => y.Id))))
+            {
+                return JsonError("Vui lòng không hack ứng dụng.");
+            }
+            if (model.isKhuyetTat.HasValue && model.isKhuyetTat.Value)
+            {
+                if (!model.DangKT.HasValue)
+                {
+                    return JsonError("Vui lòng chọn dạng khuyết tật.");
+                }
+                if (!model.MucDoKT.HasValue)
+                {
+                    return JsonError("Vui lòng chọn mức độ khuyết tật.");
+                }
+            }
+            #endregion
+            #region Block #5
+            if (!model.MucTC.HasValue)
+            {
+                return JsonError("Vui lòng nhập mức trợ cấp.");
+            }
+            if (model.MucTC.Value < 0)
+            {
+                return JsonError("Mức trợ cấp không đúng định dạng.");
+            }
+            if (!model.NgayHuong.HasValue)
+            {
+                return JsonError("Vui lòng chọn ngày hưởng.");
+            }
+            #endregion
+            #region Block #6
+            if (!model.MaLDT.CheckDateOfBirth(model.NamSinh, model.ThangSinh, model.NgaySinh))
+            {
+                return JsonError("Ngày sinh không phù hợp với loại.");
+            }
+            if (model.Id > 0)
+            {
+                int sobd = GetSBD(model.Id);
+                bool is_change_details = true;
+                if (old_model.MaLDT == model.MaLDT &&
+                    old_model.MaLDT_Details.Count == model.MaLDT_Details.Count)
+                {
+                    if (model.MaLDT.StartsWith("01"))
+                    {
+                        if (old_model.MaLDT_Details[0].Type1_InfoFather == model.MaLDT_Details[0].Type1_InfoFather &&
+                            old_model.MaLDT_Details[0].Type1_InfoMother == model.MaLDT_Details[0].Type1_InfoMother)
+                        {
+                            is_change_details = false;
+                        }
+                    }
+                    else if (model.MaLDT.StartsWith("03"))
+                    {
+                        for (int i = 0; i < model.MaLDT_Details.Count; i++)
+                        {
+                            if (old_model.MaLDT_Details[i].Id == model.MaLDT_Details[i].Id ||
+                                old_model.MaLDT_Details[i].Type3_FullName == model.MaLDT_Details[i].Type3_FullName ||
+                                old_model.MaLDT_Details[i].Type3_DateOfBirth == model.MaLDT_Details[i].Type3_DateOfBirth ||
+                                old_model.MaLDT_Details[i].Type3_DateOfBirth_IsMonth == model.MaLDT_Details[i].Type3_DateOfBirth_IsMonth ||
+                                old_model.MaLDT_Details[i].Type3_DateOfBirth_IsDate == model.MaLDT_Details[i].Type3_DateOfBirth_IsDate ||
+                                old_model.MaLDT_Details[i].Type3_Gender == model.MaLDT_Details[i].Type3_Gender ||
+                                old_model.MaLDT_Details[i].Type3_CurrAddr == model.MaLDT_Details[i].Type3_CurrAddr ||
+                                old_model.MaLDT_Details[i].Type3_StatusLearn == model.MaLDT_Details[i].Type3_StatusLearn)
+                            {
+                                break;
+                            }
+                        }
+                        is_change_details = false;
+                    }
+                    else if (model.MaLDT.StartsWith("04"))
+                    {
+                        if (old_model.MaLDT_Details[0].Type4_MaritalStatus == model.MaLDT_Details[0].Type4_MaritalStatus &&
+                            old_model.MaLDT_Details[0].Type4_InfoAdditional == model.MaLDT_Details[0].Type4_InfoAdditional)
+                        {
+                            is_change_details = false;
+                        }
+                    }
+                    else if (model.MaLDT.StartsWith("05"))
+                    {
+                        if (old_model.MaLDT_Details[0].Type5_SelfServing == model.MaLDT_Details[0].Type5_SelfServing &&
+                            old_model.MaLDT_Details[0].Type5_Carer == model.MaLDT_Details[0].Type5_Carer)
+                        {
+                            is_change_details = false;
+                        }
+                    }
+                    else
+                    {
+                        is_change_details = false;
+                    }
+                }
+
+                if (!is_change_details && sobd > 1 && old_model.NgayHuong != model.NgayHuong)
+                {
+                    return JsonError("Ngày hưởng mới và ngày hưởng gốc khác nhau.");
+                }
+            }
+            #endregion
+            #region Block #7
+            List<long> MaLDT_Details_Ids = model.MaLDT_Details.Where(x => x.Id > 0).Select(x => x.Id).ToList();
+            if (Db.Count<DanhMuc_HanhChinh>(x => x.MaHC == model.MaHC) == 0 ||
+                Db.Count<DanhMuc_DiaChi>(x => x.MaHC == model.MaHC && x.IDDiaChi == model.IDDiaChi) == 0 ||
+                !new string[] { "Male", "Female" }.Contains(model.GioiTinh) ||
+                Db.Count<DanhMuc_LoaiDT>(x => x.MaLDT == model.MaLDT) == 0 ||
+                model.DangKT.HasValue && Db.Count<DanhMuc_DangKhuyetTat>(x => x.IDDangTat == model.DangKT.Value) == 0 ||
+                model.MucDoKT.HasValue && Db.Count<DanhMuc_MucDoKhuyetTat>(x => x.IDMucDoKT == model.MucDoKT.Value) == 0 ||
+                model.MaDanToc.HasValue && Db.Count<DanhMuc_DanToc>(x => x.Id == model.MaDanToc.Value) == 0 ||
+                model.Id > 0 && MaLDT_Details_Ids.Count > 0 && MaLDT_Details_Ids.Count != Db.Count<DoiTuong_LoaiDoiTuong_CT>(x => x.CodeObj == model.IDDT && Sql.In(x.Id, MaLDT_Details_Ids)))
             {
                 return JsonError("Vui lòng không hack ứng dụng.");
             }
             #endregion
-
-            #region TODO: #5
-            
+            #region Block #8
+            PermissionChecker permission = new PermissionChecker(this);
+            if (!(model.Id == 0 && permission.CanAdd(model) ||
+                  model.Id > 0 && permission.CanUpdate(old_model) && permission.CanUpdate(model)))
+            {
+                return JsonError("Vui lòng không hack ứng dụng.");
+            }
+            #endregion
             #endregion
             
+            #region Save changes to database
             using (IDbTransaction dbTrans = Db.OpenTransaction())
             {
                 Db.Delete<DoiTuong_LoaiDoiTuong_CT>(x => x.CodeObj == model.IDDT && x.CodeType != model.MaLDT);
@@ -398,24 +486,9 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 dbTrans.Commit();
             }
             return JsonSuccess(Url.Action("Index", "WebsiteProduct", new { }), null);
+            #endregion
         }
-
-        public ActionResult Edit(int id)
-        {
-            var models = Db.Where<Product>(m => m.Id == id);
-            if (models.Count == 0)
-            {
-                return RedirectToAction("Index", "Management");
-            }
-            else
-            {
-                var model = models.First();
-
-                //var site = Cache_GetAllWebsite().Where(m => m.Id == model.WebsiteId).FirstOrDefault();
-                return View("Add", model);
-            }
-        }
-
+        
         public ActionResult Delete(int id)
         {
             try

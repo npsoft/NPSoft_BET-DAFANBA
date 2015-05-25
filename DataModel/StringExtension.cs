@@ -114,7 +114,46 @@ namespace PhotoBookmart.DataLayer
         public static string GetCodeVillage(this string text)
         {
             return string.IsNullOrEmpty(text) || text.Length < 10 ? "" : text.Substring(0, 10);
-        } 
+        }
+
+        public static bool CheckDateOfBirth(this string type, string year, string month, string date)
+        {
+            int y = int.Parse(year);
+            int m = string.IsNullOrEmpty(month) ? 1 : int.Parse(month);
+            int d = string.IsNullOrEmpty(date) ? 1 : int.Parse(date);
+
+            int dis = DateTime.Today.Year - y;
+            if (DateTime.Today.Month > m ||
+                DateTime.Today.Month == m && DateTime.Today.Day > d)
+            {
+                dis -= 1;
+            }
+            switch (type)
+            {
+                case "0101":
+                    return dis < 4;
+                case "0102":
+                    return dis >= 4 && dis < 16;
+                case "0103":
+                    return dis >= 16 && dis <= 22;
+                case "0201":
+                    return dis < 4;
+                case "0202":
+                    return dis >= 4 && dis < 16;
+                case "0203":
+                    return dis >= 16;
+                case "0401":
+                    return dis >= 60 && dis < 80;
+                case "0402":
+                    return dis >= 80;
+                case "0403":
+                    return dis >= 80;
+                case "0601":
+                    return dis < 16;
+                default:
+                    return true;
+            }
+        }
 
         public static string GetGender(this string text)
         {

@@ -181,7 +181,7 @@ namespace PhotoBookmart.Tasks
             //var data = Cache.Get<string>(cache_key);
             //if (string.IsNullOrEmpty(data))
             //{
-            var data = Settings.Get(Enum_Settings_Key.SMS_SERVICE_ENABLE, 0, Enum_Settings_DataType.String).ToString();
+            var data = Settings.Get(Enum_Settings_Key.SMS_SERVICE_ENABLE, null, 0, Enum_Settings_DataType.String).ToString();
             //    Cache.Add<string>(cache_key, data, TimeSpan.FromMinutes(5));
             //}
             return data == "true";

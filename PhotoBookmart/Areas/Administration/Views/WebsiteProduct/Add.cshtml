@@ -5,7 +5,9 @@
 <link rel="stylesheet" type="text/css" href="@Url.ContentArea("~/Content/admin_template/plugins/datatables/colvis.css")">
 <script src="@Url.ContentArea("~/Content/admin_template/plugins/datatables/ColVis.js")"></script>
 <script>
-    var TIMEZONE_SERVER = parseInt(@TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now).TotalMinutes);
+    var JsonModel = @Html.Raw(JsonConvert.SerializeObject(Model));
+    JsonModel.IDDiaChi = IsNullOrEmpty(JsonModel.IDDiaChi) ? "" : JsonModel.IDDiaChi.replace(/-/g, "");
+    JsonModel.DangKT = IsNullOrEmpty(JsonModel.DangKT) ? "" : JsonModel.DangKT.replace(/-/g, "");
     var Url_GetProvincesForFilter = "@Url.Action("GetProvincesForFilter", "WebsiteProduct")";
     var Url_GetDistrictsForFilter = "@Url.Action("GetDistrictsForFilter", "WebsiteProduct")";
     var Url_GetVillagesForFilter = "@Url.Action("GetVillagesForFilter", "WebsiteProduct")";
@@ -21,9 +23,15 @@
     var Code_Province = Id > 0 ? "@Model.MaHC.GetCodeProvince()" : "@CurrentUser.MaHC.GetCodeProvince()";
     var Code_District = Id > 0 ? "@Model.MaHC.GetCodeDistrict()" : "@CurrentUser.MaHC.GetCodeDistrict()";
     var MaHC = Id > 0 ? "@Model.MaHC.GetCodeVillage()" : "@CurrentUser.MaHC.GetCodeVillage()";
-    var IDDiaChi = "@Model.IDDiaChi";
+    var Settings = { TL02: null, TL11: null };
     var $ddl_province, $ddl_district, $ddl_MaHC, $ddl_IDDiaChi, $ddl_MaLDT;
-    
+
+    function CalcMucTC(_data) {
+        var heso = parseFloat($ddl_MaLDT.find("option:selected").attr("data-heso"));
+        var muctc = $("#obj-info-common [name='isHoNgheo']").prop("checked") ? Settings.TL11 : Settings.TL02;
+        return heso * muctc;
+    };
+
     function UpdDataForAddrs(_data) {
         var val = "";
         if (!IsNullOrEmpty($ddl_province.val())) {
@@ -39,6 +47,14 @@
             val = $ddl_IDDiaChi.data("select2").selection.find(">span:first-child").text() + ", " + val;
         }
         $("#obj-info-common [name='NguyenQuan'], #obj-info-common [name='TruQuan']").val(val);
+    };
+
+    function UpdDataForMucTC(_data) {
+        if (Settings.TL02 != null &&
+            Settings.TL11 != null &&
+            !IsNullOrEmpty($ddl_MaLDT.val())) {
+            $("#obj-info-common [name='MucTC']").val(CalcMucTC({}));
+        }
     };
 
     function FillDataForSelect2(_data) {
@@ -69,7 +85,7 @@
                             FillDataForSelect2({ $ddl: $ddl_MaHC, val: MaHC, data: data, id: "MaHC", name: "TenHC" });
                             if (!IsNullOrEmpty(MaHC)) {
                                 $.post(Url_GetHamletsForFilter, { MaHC: MaHC }, function (data) {
-                                    FillDataForSelect2({ $ddl: $ddl_IDDiaChi, val: IDDiaChi, data: data, id: "IDDiaChi", name: "TenDiaChi" });
+                                    FillDataForSelect2({ $ddl: $ddl_IDDiaChi, val: JsonModel.IDDiaChi, data: data, id: "IDDiaChi", name: "TenDiaChi" });
                                 });
                                 if (Id == 0) { UpdDataForAddrs({}); };
                             } else {
@@ -87,7 +103,7 @@
             FillDataForSelect2({ $ddl: $("#obj-info-common [name='MaDanToc']"), val: "@Model.MaDanToc", data: data, id: "Id", name: "TenDanToc" });
         });
         $.post(Url_GetTypesDisabilityForFilter, {}, function (data) {
-            FillDataForSelect2({ $ddl: $("#obj-info-common [name='DangKT']"), val: "@Model.DangKT", data: data, id: "IDDangTat", name: "TenDangTat" });
+            FillDataForSelect2({ $ddl: $("#obj-info-common [name='DangKT']"), val: JsonModel.DangKT, data: data, id: "IDDangTat", name: "TenDangTat" });
         });
         $.post(Url_GetLevelsDisabilityForFilter, {}, function (data) {
             FillDataForSelect2({ $ddl: $("#obj-info-common [name='MucDoKT']"), val: "@Model.MucDoKT", data: data, id: "Id", name: "Name" });
@@ -103,19 +119,24 @@
             data.forEach(function (group, index, array) {
                 opts += "<optgroup label='" + group.Key.TenLDT + "'>";
                 group.Value.forEach(function (type, index, array) {
-                    opts += "<option value='" + type.MaLDT + "' data-ratio='" + type.HeSo + "'>" + type.TenLDT + "</option>";
+                    opts += "<option value='" + type.MaLDT + "' data-heso='" + type.HeSo + "'>" + type.TenLDT + "</option>";
                 });
                 opts += "</optgroup>";
             });
             $ddl_MaLDT.append(opts);
             $ddl_MaLDT.select2().select2("val", "@Model.MaLDT");
         });
-
+        if (!IsNullOrEmpty(Code_Province)) {
+            $.post(SVC_GETMUCTROCAPCOBANBYPARAMS, { MaHC: Code_Province }, function (data) {
+                Settings.TL02 = data.TL02;
+                Settings.TL11 = data.TL11;
+            });
+        }
         setTimeout(function () {
             $ddl_province.select2().select2("val", Code_Province);
             $ddl_district.select2().select2("val", Code_District);
             $ddl_MaHC.select2().select2("val", MaHC);
-            $ddl_IDDiaChi.select2().select2("val", IDDiaChi);
+            $ddl_IDDiaChi.select2().select2("val", JsonModel.IDDiaChi);
             $("#obj-info-common [name='GioiTinh']").select2().select2("val", "@Model.GioiTinh");
         }, 100);
     };
@@ -128,11 +149,18 @@
             if (IsNullOrEmpty(data.MaHC)) {
                 FillDataForSelect2({ $ddl: $ddl_district, val: "", data: [], id: "", name: "" });
                 $ddl_district.trigger("change");
+                Settings.TL02 = null;
+                Settings.TL11 = null;
             } else {
                 $.post(Url_GetDistrictsForFilter, data, function (data) {
                     FillDataForSelect2({ $ddl: $ddl_district, val: "", data: data, id: "MaHC", name: "TenHC" });
                     $ddl_district.trigger("change");
                 });
+                $.post(SVC_GETMUCTROCAPCOBANBYPARAMS, data, function (data) {
+                    Settings.TL02 = data.TL02;
+                    Settings.TL11 = data.TL11;
+                    UpdDataForMucTC({});
+                })
             }
         });
 
@@ -184,13 +212,16 @@
             }
         });
 
-        $("#obj-info-common")
-            .find("[name='NgayCap'], [name='NgayHuong'], [name='NgayQD']")
-            .datepicker({
-                changeMonth: true,
-                changeYear: true,
-                dateFormat: "dd/mm/yy"
-            });
+        $ddl_MaLDT.on("change", function (e) {
+            var val = $(this).val().substr(0, 2);
+            $("#obj-info-common [data-con='type']:not([data-val='" + val + "'])").addClass("hide");
+            $("#obj-info-common [data-con='type'][data-val='" + val + "']").removeClass("hide");
+            UpdDataForMucTC({});
+        });
+
+        $("#obj-info-common [name='isHoNgheo']").on("change", function (e) {
+            UpdDataForMucTC({});
+        });
 
         $("#obj-info-common [name='isKhuyetTat']").on("change", function (e) {
             if ($(this).prop("checked")) {
@@ -200,13 +231,14 @@
             }
         });
 
+        $("#obj-info-common")
+            .find("[name='NgayCap'], [name='NgayHuong'], [name='NgayQD']")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy"
+            });
 
-        $("#obj-info-common [name='MaLDT']").on("change", function (e) {
-            var val = $(this).val().substr(0, 2);
-            $("#obj-info-common [data-con='type']:not([data-val='" + val + "'])").addClass("hide");
-            $("#obj-info-common [data-con='type'][data-val='" + val + "']").removeClass("hide");
-        });
-        
         $("#popup-maldt-child").dialog({
             modal: true,
             autoOpen: false,
@@ -354,16 +386,21 @@
         $("#obj-info-common").on("submit", function (e) {
             var $frm = $(this);
             var $ddl_gender = $frm.find("[name='GioiTinh']");
-            var $ddl_loai = $frm.find("[name='MaLDT']");
             var $ddl_disability_type = $frm.find("[name='DangKT']");
             var $ddl_disability_level = $frm.find("[name='MucDoKT']");
             var $txt_ho_ten = $frm.find("[name='HoTen']");
+            var $txt_nam_sinh = $frm.find("[name='NamSinh']");
+            var $txt_thang_sinh = $frm.find("[name='ThangSinh']");
+            var $txt_ngay_sinh = $frm.find("[name='NgaySinh']");
             var $txt_tru_quan = $frm.find("[name='TruQuan']");
             var $txt_nguyen_quan = $frm.find("[name='NguyenQuan']");
             var $txt_muc_tc = $frm.find("[name='MucTC']");
             var $txt_ngay_huong = $frm.find("[name='NgayHuong']");
             var $chk_disability = $frm.find("[name='isKhuyetTat']");
             $txt_ho_ten.val($.trim($txt_ho_ten.val()));
+            $txt_nam_sinh.val($.trim($txt_nam_sinh.val()));
+            $txt_thang_sinh.val($.trim($txt_thang_sinh.val()));
+            $txt_ngay_sinh.val($.trim($txt_ngay_sinh.val()));
             $txt_tru_quan.val($.trim($txt_tru_quan.val()));
             $txt_nguyen_quan.val($.trim($txt_nguyen_quan.val()));
             $txt_muc_tc.val($.trim($txt_muc_tc.val()));
@@ -389,16 +426,16 @@
                 notify_error("Lỗi", "Vui lòng chọn xóm.");
                 return false;
             }
-            
+
             if (IsNullOrEmpty($txt_ho_ten.val())) {
                 $txt_ho_ten.focus();
                 notify_error("Lỗi", "Vui lòng nhập họ & tên.");
                 return false;
             }
             if (!CheckDateOfBirth({
-                $txt_year: $frm.find("[name='NamSinh']"),
-                $txt_month: $frm.find("[name='ThangSinh']"),
-                $txt_date: $frm.find("[name='NgaySinh']")
+                $txt_year: $txt_nam_sinh,
+                $txt_month: $txt_thang_sinh,
+                $txt_date: $txt_ngay_sinh
             })) {
                 return false;
             }
@@ -418,8 +455,8 @@
                 return false;
             }
 
-            if (IsNullOrEmpty($ddl_loai.val())) {
-                setTimeout(function() { $ddl_loai.select2("open"); }, 200);
+            if (IsNullOrEmpty($ddl_MaLDT.val())) {
+                setTimeout(function() { $ddl_MaLDT.select2("open"); }, 200);
                 notify_error("Lỗi", "Vui lòng chọn loại.");
                 return false;
             }
@@ -434,7 +471,7 @@
             $txt_loai_info_mother.val($.trim($txt_loai_info_mother.val()));
             $txt_loai_info_additional.val($.trim($txt_loai_info_additional.val()));
             $txt_loai_carer.val($.trim($txt_loai_carer.val()));
-            if ($ddl_loai.val().startsWith("01")) {
+            if ($ddl_MaLDT.val().startsWith("01")) {
                 if (IsNullOrEmpty($txt_loai_info_father.val())) {
                     $txt_loai_info_father.focus();
                     notify_error("Lỗi", "Vui lòng nhập thông tin cha.");
@@ -445,19 +482,26 @@
                     notify_error("Lỗi", "Vui lòng nhập thông tin mẹ.");
                     return false;
                 }
-            } else if ($ddl_loai.val().startsWith("03")) {
+            } else if ($ddl_MaLDT.val().startsWith("03")) {
                 if ($trs_loai_children.length == 0) {
                     $frm.find("[data-con='type'][data-val='03'] .np-add").trigger("click");
                     notify_error("Lỗi", "Vui lòng thêm thông tin » con.");
                     return false;
+                } else if ($ddl_MaLDT.val().startsWith("0301") && $trs_loai_children.length != 1) {
+                    notify_error("Lỗi", "Loại 3.1 giành cho đối tượng nuôi 1 con.");
+                    return false;
+                } else if ($ddl_MaLDT.val().startsWith("0302") && $trs_loai_children.length < 2) {
+                    $frm.find("[data-con='type'][data-val='03'] .np-add").trigger("click");
+                    notify_error("Lỗi", "Loại 3.2 giành cho đối tượng nuôi 2 con trở lên.");
+                    return false;
                 }
-            } else if ($ddl_loai.val().startsWith("04")) {
+            } else if ($ddl_MaLDT.val().startsWith("04")) {
                 if (IsNullOrEmpty($ddl_loai_marital_status.val())) {
                     setTimeout(function () { $ddl_loai_marital_status.select2("open"); }, 200);
                     notify_error("Lỗi", "Vui lòng chọn tình trạng hôn nhân.");
                     return false;
                 }
-            } else if ($ddl_loai.val().startsWith("05")) {
+            } else if ($ddl_MaLDT.val().startsWith("05")) {
                 if (IsNullOrEmpty($ddl_loai_self_serving.val())) {
                     setTimeout(function () { $ddl_loai_self_serving.select2("open"); }, 200);
                     notify_error("Lỗi", "Vui lòng chọn khả năng phục vụ.");
@@ -499,21 +543,33 @@
                 notify_error("Lỗi", "Ngày hưởng không đúng định dạng.");
                 return false;
             }
-            
+
+            if (!CheckDateOfBirth_MaLDT({
+                year: $txt_nam_sinh.val(),
+                month: $txt_thang_sinh.val(),
+                date: $txt_ngay_sinh.val(),
+                type: $ddl_MaLDT.val()
+            })) {
+                $txt_nam_sinh.focus();
+                notify_error("Lỗi", "Ngày sinh không phù hợp với loại.");
+                return false;
+            }
+
             var data = $frm.serializeObject();
+            data.Id = parseInt(data.Id);
             var dt = ParseTime(data.NgayCap);
-            data.NgayCap = dt != null ? TimeForReq({ dt: dt, tz: TIMEZONE_SERVER }).toISOString() : null;
+            data.NgayCap = dt != null ? TimeForReq({ dt: dt }) : null;
             dt = ParseTime(data.NgayHuong);
-            data.NgayHuong = dt != null ? TimeForReq({ dt: dt, tz: TIMEZONE_SERVER }).toISOString() : null;
+            data.NgayHuong = dt != null ? TimeForReq({ dt: dt }) : null;
             dt = ParseTime(data.NgayQD);
-            data.NgayQD = dt != null ? TimeForReq({ dt: dt, tz: TIMEZONE_SERVER }).toISOString() : null;
+            data.NgayQD = dt != null ? TimeForReq({ dt: dt }) : null;
             data.MaLDT_Details = [];
-            if ($ddl_loai.val().startsWith("01")) {
+            if ($ddl_MaLDT.val().startsWith("01")) {
                 data.MaLDT_Details.push({
                     Type1_InfoFather: $txt_loai_info_father.val(),
                     Type1_InfoMother: $txt_loai_info_mother.val()
                 });
-            } else if ($ddl_loai.val().startsWith("03")) {
+            } else if ($ddl_MaLDT.val().startsWith("03")) {
                 $trs_loai_children.each(function (index, element) {
                     data.MaLDT_Details.push({
                         Id: parseInt($(element).attr("data-id")),
@@ -526,17 +582,120 @@
                         Type3_StatusLearn: $(element).attr("data-status-learn")
                     });
                 });
-            } else if ($ddl_loai.val().startsWith("04")) {
+            } else if ($ddl_MaLDT.val().startsWith("04")) {
                 data.MaLDT_Details.push({
                     Type4_MaritalStatus: $ddl_loai_marital_status.val(),
                     Type4_InfoAdditional: $txt_loai_info_additional.val()
                 });
-            } else if ($ddl_loai.val().startsWith("05")) {
+            } else if ($ddl_MaLDT.val().startsWith("05")) {
                 data.MaLDT_Details.push({
                     Type5_SelfServing: $ddl_loai_self_serving.val(),
                     Type5_Carer: $txt_loai_carer.val()
                 });
             }
+
+            var is_continue = true;
+            if (JsonModel.Id > 0) {
+                var sobd = 0;
+                var is_change_details = true;
+                if (JsonModel.MaLDT == $ddl_MaLDT.val() &&
+                    JsonModel.MaLDT_Details.length == data.MaLDT_Details.length) {
+                    if (data.MaLDT.startsWith("01")) {
+                        if (JsonModel.MaLDT_Details[0].Type1_InfoFather == data.MaLDT_Details[0].Type1_InfoFather &&
+                            JsonModel.MaLDT_Details[0].Type1_InfoMother == data.MaLDT_Details[0].Type1_InfoMother) {
+                            is_change_details = false;
+                        }
+                    } else if (data.MaLDT.startsWith("03")) {
+                        var rst_every = JsonModel.MaLDT_Details.every(function (element_old, index_old, array_old){
+                            var element_tmp;
+                            var rst_some = data.MaLDT_Details.some(function (element_new, index_new, array_new) {
+                                if (element_old.Id == element_new.Id) {
+                                    element_tmp = element_new;
+                                    return true;
+                                }
+                                return false;
+                            });
+                            if (rst_some &&
+                                element_old.Type3_FullName == element_tmp.Type3_FullName &&
+                                element_old.Type3_DateOfBirth == element_tmp.Type3_DateOfBirth &&
+                                element_old.Type3_DateOfBirth_IsMonth == element_tmp.Type3_DateOfBirth_IsMonth &&
+                                element_old.Type3_DateOfBirth_IsDate == element_tmp.Type3_DateOfBirth_IsDate &&
+                                element_old.Type3_Gender == element_tmp.Type3_Gender &&
+                                element_old.Type3_CurrAddr == element_tmp.Type3_CurrAddr &&
+                                element_old.Type3_StatusLearn == element_tmp.Type3_StatusLearn) {
+                                return true;
+                            }
+                            return false;
+                        });
+                        is_change_details = !rst_every;
+                    } else if (data.MaLDT.startsWith("04")) {
+                        if (JsonModel.MaLDT_Details[0].Type4_MaritalStatus == data.MaLDT_Details[0].Type4_MaritalStatus &&
+                            JsonModel.MaLDT_Details[0].Type4_InfoAdditional == data.MaLDT_Details[0].Type4_InfoAdditional) {
+                            is_change_details = false;
+                        }
+                    } else if (data.MaLDT.startsWith("05")) {
+                        if (JsonModel.MaLDT_Details[0].Type5_SelfServing == data.MaLDT_Details[0].Type5_SelfServing &&
+                            JsonModel.MaLDT_Details[0].Type5_Carer == data.MaLDT_Details[0].Type5_Carer) {
+                            is_change_details = false;
+                        }
+                    } else {
+                        is_change_details = false;
+                    }
+                }
+                $.ajax({
+                    url: SVC_GETSBD,
+                    type: "post",
+                    data: JSON.stringify({ IDDT: JsonModel.Id }),
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    async: false,
+                    success: function (result, textStatus, jqXHR) {
+                        sobd = result;
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.warn("textStatus: " + textStatus + " | errorThrown: " + errorThrown);
+                    }
+                });
+
+                if (!is_change_details && sobd > 1 && JsonModel.NgayHuong != data.NgayHuong) {
+                    $txt_ngay_huong.focus();
+                    notify_error("Lỗi", "Ngày hưởng mới và ngày hưởng gốc khác nhau.");
+                    return false;
+                }
+            }
+            $.ajax({
+                url: SVC_GETDOITUONGBYPARAMS,
+                type: "post",
+                data: JSON.stringify({
+                    Id: data.Id,
+                    HoTen: data.HoTen,
+                    NamSinh: data.NamSinh,
+                    TruQuan: data.TruQuan,
+                    NguyenQuan: data.NguyenQuan
+                }),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                async: false,
+                success: function (result, textStatus, jqXHR) {
+                    if (result != null) {
+                        var msg = "Đã tồn tại đối tượng với thông tin:\n";
+                        msg += "Họ tên: {0}\n".format(result.HoTen);
+                        msg += "Năm sinh: {0}\n".format(result.NamSinh);
+                        msg += "Trú quán: {0}\n".format(result.TruQuan);
+                        msg += "Nguyên quán: {0}\n".format(result.NguyenQuan);
+                        msg += "Loại: {0}\n\n".format(result.MaLDT_Name);
+                        msg += "Bạn muốn nhập tiếp?";
+                        if (!confirm(msg)) {
+                            $txt_ho_ten.focus();
+                            is_continue = false;
+                        }
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.warn("textStatus: " + textStatus + " | errorThrown: " + errorThrown);
+                }
+            });
+            if (!is_continue) { return false; }
             $.ajax({
                 url: $frm.attr("action"),
                 type: "post",
@@ -650,7 +809,7 @@
                 <div class="mws-form-row">
                     <label class="mws-form-label">Ngày cấp</label>
                     <div class="mws-form-item">
-                        @Html.TextBoxFor(model => model.NgayCap, new { @class = "large" })
+                        <input type="text" name="NgayCap" value="@string.Format("{0:dd/MM/yyyy}", Model.NgayCap)" class="large" />
                     </div>
                 </div>
                 <div class="mws-form-row">
@@ -685,13 +844,13 @@
                     <div class="mws-form-row">
                         <label class="mws-form-label">Thông tin cha</label>
                         <div class="mws-form-item">
-                            <input type="text" name="MaLDT_Type1_InfoFather" value="@if (Model.MaLDT_Details.Count > 0) {<text>@Model.MaLDT_Details[0].Type1_InfoFather</text>}" class="large" />
+                            <input type="text" name="MaLDT_Type1_InfoFather" value="@if (!string.IsNullOrEmpty(Model.MaLDT) && Model.MaLDT.StartsWith("01")) {<text>@Model.MaLDT_Details[0].Type1_InfoFather</text>}" class="large" />
                         </div>
                     </div>
                     <div class="mws-form-row">
                         <label class="mws-form-label">Thông tin mẹ</label>
                         <div class="mws-form-item">
-                            <input type="text" name="MaLDT_Type1_InfoMother" value="@if (Model.MaLDT_Details.Count > 0) {<text>@Model.MaLDT_Details[0].Type1_InfoMother</text>}" class="large" />
+                            <input type="text" name="MaLDT_Type1_InfoMother" value="@if (!string.IsNullOrEmpty(Model.MaLDT) && Model.MaLDT.StartsWith("01")) {<text>@Model.MaLDT_Details[0].Type1_InfoMother</text>}" class="large" />
                         </div>
                     </div>
                 </div>
@@ -718,7 +877,7 @@
                                             <th>Thao tác</th>
                                         </tr>
                                     </thead>
-                                    @if (Model.MaLDT_Details.Count > 0 && Model.MaLDT.StartsWith("03"))
+                                    @if (!string.IsNullOrEmpty(Model.MaLDT) && Model.MaLDT.StartsWith("03"))
                                     {
                                     <tbody>
                                         @foreach (var item in Model.MaLDT_Details)
@@ -764,7 +923,7 @@
                     <div class="mws-form-row">
                         <label class="mws-form-label">Thông tin thêm</label>
                         <div class="mws-form-item">
-                            <input type="text" name="MaLDT_Type4_InfoAdditional" value="@if (Model.MaLDT_Details.Count > 0) {<text>@Model.MaLDT_Details[0].Type4_InfoAdditional</text>}" class="large" />
+                            <input type="text" name="MaLDT_Type4_InfoAdditional" value="@if (!string.IsNullOrEmpty(Model.MaLDT) && Model.MaLDT.StartsWith("04")) {<text>@Model.MaLDT_Details[0].Type4_InfoAdditional</text>}" class="large" />
                         </div>
                     </div>
                 </div>
@@ -780,7 +939,7 @@
                     <div class="mws-form-row">
                         <label class="mws-form-label">Người chăm sóc</label>
                         <div class="mws-form-item">
-                            <input type="text" name="MaLDT_Type5_Carer" value="@if (Model.MaLDT_Details.Count > 0) {<text>@Model.MaLDT_Details[0].Type5_Carer</text>}" class="large" />
+                            <input type="text" name="MaLDT_Type5_Carer" value="@if (!string.IsNullOrEmpty(Model.MaLDT) && Model.MaLDT.StartsWith("05")) {<text>@Model.MaLDT_Details[0].Type5_Carer</text>}" class="large" />
                         </div>
                     </div>
                 </div>
@@ -829,7 +988,7 @@
                 <div class="mws-form-row">
                     <label class="mws-form-label">Ngày hưởng</label>
                     <div class="mws-form-item">
-                        @Html.TextBoxFor(model => model.NgayHuong, new { @class = "large" })
+                        <input type="text" name="NgayHuong" value="@string.Format("{0:dd/MM/yyyy}", Model.NgayHuong)" class="large" />
                     </div>
                 </div>
                 <div class="mws-form-row">
@@ -841,7 +1000,7 @@
                 <div class="mws-form-row">
                     <label class="mws-form-label">Ngày QĐ</label>
                     <div class="mws-form-item">
-                        @Html.TextBoxFor(model => model.NgayQD, new { @class = "large" })
+                        <input type="text" name="NgayQD" value="@string.Format("{0:dd/MM/yyyy}", Model.NgayQD)" class="large" />
                     </div>
                 </div>
                 <div class="mws-form-row">

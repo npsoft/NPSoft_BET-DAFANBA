@@ -31,8 +31,6 @@ namespace PhotoBookmart.DataLayer.Models.Products
         public string NoiCap { get; set; }
         public string NguyenQuan { get; set; }
         public string TruQuan { get; set; }
-
-        #region TODO: #1
         public bool? isBHYT { get; set; }
         public bool? isHoNgheo { get; set; }
         public bool? isKhuyetTat { get; set; }
@@ -41,21 +39,14 @@ namespace PhotoBookmart.DataLayer.Models.Products
         public string MaLDT { get; set; }
         public decimal? MucTC { get; set; }
         public DateTime? NgayHuong { get; set; }
-        #endregion
-
-        #region TODO: #2
         public string SoQD { get; set; }
         public DateTime? NgayQD { get; set; }
         public string GhiChu { get; set; }
-        #endregion
-
-        #region TODO: Ignore
+        [Ignore]
+        public string MaLDT_Name { get; set; }
         [Ignore]
         public List<DoiTuong_LoaiDoiTuong_CT> MaLDT_Details { get; set; }
-        [Ignore]
-        public bool IsContinue { get; set; }
-        #endregion
-
+        
         public DoiTuong()
         {
             MaLDT_Details = new List<DoiTuong_LoaiDoiTuong_CT>();

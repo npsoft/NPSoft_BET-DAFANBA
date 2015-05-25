@@ -531,6 +531,74 @@ namespace PhotoBookmart.Controllers
         {
             return Db.Select<DanhMuc_DiaChi>(x => x.MaHC == maHC);
         }
+        
+        public List<DoiTuong_LoaiDoiTuong_CT> GetMaLDT_DetailsByParams(Guid CodeObj, string CodeType)
+        {
+            var p = PredicateBuilder.True<DoiTuong_LoaiDoiTuong_CT>();
+            p = p.And(x => x.CodeObj == CodeObj && x.CodeType == CodeType);
+            if (CodeType.StartsWith("03"))
+            {
+                return Db.Where<DoiTuong_LoaiDoiTuong_CT>(p);
+            }
+            else
+            {
+                return Db.Select<DoiTuong_LoaiDoiTuong_CT>(x => x.Where(p).Limit(0, 1));
+            }
+        }
+
+        public int GetSBD(long IDDT)
+        {
+            return (int)Db.Count<DoiTuong_BienDong>(x => x.IDDT == IDDT);
+        }
+        
+        public DoiTuong GetDoiTuongByParams(long Id, string HoTen, string NamSinh, string TruQuan, string NguyenQuan)
+        {
+            var p = PredicateBuilder.True<DoiTuong>();
+            p = p.And(x =>
+                x.Id != Id &&
+                x.HoTen == HoTen &&
+                x.NamSinh == NamSinh &&
+                x.TruQuan == TruQuan &&
+                x.NguyenQuan == NguyenQuan);
+            var data = Db.Select<DoiTuong>(x => x.Where(p).Limit(0, 1)).FirstOrDefault();
+            if (data != null)
+            {
+                var type = Db.Select<DanhMuc_LoaiDT>(x => x.Where(y => y.MaLDT == data.MaLDT).Limit(0, 1)).FirstOrDefault();
+                if (type != null)
+                {
+                    data.MaLDT_Name = type.TenLDT;
+                }
+            }
+            return data;
+        }
+        
+        public ActionResult Svc_GetSettingsByScope(string Scope)
+        {
+            return Json(GetSettingsByScope((Enum_Settings_Scope)Enum.Parse(typeof(Enum_Settings_Scope), Scope)));
+        }
+
+        public ActionResult Svc_GetMaLDT_DetailsByParams(Guid CodeObj, string CodeType)
+        {
+            return Json(GetMaLDT_DetailsByParams(CodeObj, CodeType));
+        }
+
+        public ActionResult Svc_GetDoiTuongByParams(long Id, string HoTen, string NamSinh, string TruQuan, string NguyenQuan)
+        {
+            return Json(GetDoiTuongByParams(Id, HoTen, NamSinh, TruQuan, NguyenQuan));
+        }
+    
+        public ActionResult Svc_GetMucTroCapCoBanByParams(string MaHC)
+        {
+            return Json(new {
+                TL02 = Settings.Get(Enum_Settings_Key.TL02, MaHC, 345000, Enum_Settings_DataType.Double),
+                TL11 = Settings.Get(Enum_Settings_Key.TL11, MaHC, 500000, Enum_Settings_DataType.Double)
+            });
+        }
+        
+        public ActionResult Svc_GetSBD(long IDDT)
+        {
+            return Json(GetSBD(IDDT));
+        }
 
         public static SelectList Gender_GetAll()
         {
@@ -827,32 +895,6 @@ namespace PhotoBookmart.Controllers
             return data;
         }
         
-        public List<DoiTuong_LoaiDoiTuong_CT> Cache_GetMaLDT_DetailsByParams(Guid CodeObj, string CodeType, int cache_in_minutes = 10)
-        {
-            var key = InternalService.SessionNamePrefix + "Cache_GetMaLDT_DetailsByParams";
-            var data = Cache.Get<List<DoiTuong_LoaiDoiTuong_CT>>(key);
-            if (data == null)
-            {
-                var p = PredicateBuilder.True<DoiTuong_LoaiDoiTuong_CT>();
-                p = p.And(x => x.CodeObj == CodeObj && x.CodeType == CodeType);
-                if (CodeType.StartsWith("03"))
-                {
-                    data = Db.Where<DoiTuong_LoaiDoiTuong_CT>(p);
-                }
-                else
-                {
-                    data = Db.Select<DoiTuong_LoaiDoiTuong_CT>(x => x.Where(p).Limit(0, 1));
-                }
-                Cache.Add<List<DoiTuong_LoaiDoiTuong_CT>>(key, data, TimeSpan.FromMinutes(cache_in_minutes));
-            }
-            return data;
-        }
-
-        public ActionResult Svc_GetMaLDT_DetailsByParams(Guid CodeObj, string CodeType)
-        {
-            return Json(Cache_GetMaLDT_DetailsByParams(CodeObj, CodeType));
-        }
-
         /// <summary>
         /// Get the cache of all languages 
         /// Common usage

@@ -3,6 +3,10 @@
 // Copyright: Trung Dang (trungdt@absoft.vn)
 
 var mainList_Website = [];
+var SVC_GETSETTINGSBYSCOPE = "/Administration/WebAdmin/Svc_GetSettingsByScope";
+var SVC_GETDOITUONGBYPARAMS = "/Administration/WebAdmin/Svc_GetDoiTuongByParams";
+var SVC_GETMUCTROCAPCOBANBYPARAMS = "/Administration/WebAdmin/Svc_GetMucTroCapCoBanByParams";
+var SVC_GETSBD = "/Administration/WebAdmin/Svc_GetSBD";
 
 jQuery(document).ready(function ($) {
 
@@ -131,7 +135,6 @@ function getUrlParameter(_param, _url) {
     }
 };
 
-/* Sta: Functions support for form */
 $.fn.serializeObject = function()
 {
     var o = {};
@@ -148,9 +151,7 @@ $.fn.serializeObject = function()
     });
     return o;
 };
-/* End: Functions support for form */
 
-/* Sta: Functions support for string */
 if (!String.prototype.format) {
     String.prototype.format = function () {
         var args = arguments;
@@ -173,9 +174,7 @@ function NewGuid() {
 function IsNullOrEmpty(_data) {
     return _data == undefined || _data == null || _data == "";
 };
-/* End: Functions support for string */
 
-/* Sta: Functions support for time */
 function ParseTime(_data) {
     if (typeof _data !== "undefined") {
         // Template: Date object
@@ -235,6 +234,26 @@ function TimeForReq(_data) {
     if (typeof _data.dt !== "object" || _data.dt == null) {
         return null;
     }
+
+    var y = _data.dt.getFullYear();
+    var m = _data.dt.getMonth() + 1;
+    var d = _data.dt.getDate();
+    var H = _data.dt.getHours();
+    var M = _data.dt.getMinutes();
+    var s = _data.dt.getSeconds();
+    return (m > 9 ? m.toString() : "0" + m.toString()) +
+           "/" +
+           (d > 9 ? d.toString() : "0" + d.toString()) +
+           "/" +
+           y +
+           " " +
+           (H > 9 ? H.toString() : "0" + H.toString()) +
+           ":" +
+           (M > 9 ? M.toString() : "0" + M.toString()) +
+           ":" +
+           (s > 9 ? s.toString() : "0" + s.toString());
+
+    /* Occur problem on production
     if (typeof _data.tz !== "number") {
         var d = _data.dt.getDate();
         var m = _data.dt.getMonth() + 1;
@@ -242,7 +261,7 @@ function TimeForReq(_data) {
         return (m > 9 ? m.toString() : "0" + m.toString()) + "/" + (d > 9 ? d.toString() : "0" + d.toString()) + "/" + y;
     }
     var offset = -(new Date().getTimezoneOffset() + _data.tz);
-    return new Date(_data.dt.getTime() + offset * 60 * 1000);
+    return new Date(_data.dt.getTime() + offset * 60 * 1000);*/
 };
 
 function CheckDateOfBirth(_data) {
@@ -295,4 +314,41 @@ function CheckDateOfBirth(_data) {
     $txt_date.val(date);
     return true;
 };
-/* End: Functions support for time */
+
+function CheckDateOfBirth_MaLDT(_data) {
+    var now = new Date();
+
+    var y1 = parseInt(_data.year);
+    var m1 = IsNullOrEmpty(_data.month) ? 1 : parseInt(_data.month);
+    var d1 = IsNullOrEmpty(_data.date) ? 1 : parseInt(_data.date);
+    var y2 = now.getFullYear();
+    var m2 = now.getMonth() + 1;
+    var d2 = now.getDate();
+
+    var dis = y2 - y1;
+    if (m2 > m1 || m2 == m1 && d2 > d1) { dis -= 1; }
+    switch (_data.type) {
+        case "0101":
+            return dis < 4;
+        case "0102":
+            return dis >= 4 && dis < 16;
+        case "0103":
+            return dis >= 16 && dis <= 22;
+        case "0201":
+            return dis < 4;
+        case "0202":
+            return dis >= 4 && dis < 16;
+        case "0203":
+            return dis >= 16;
+        case "0401":
+            return dis >= 60 && dis < 80;
+        case "0402":
+            return dis >= 80;
+        case "0403":
+            return dis >= 80;
+        case "0601":
+            return dis < 16;
+        default:
+            return true;
+    }
+};

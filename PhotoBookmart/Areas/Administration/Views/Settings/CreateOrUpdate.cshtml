@@ -6,7 +6,6 @@
 <script>
     var Name_HC, SettingScope;
     var $txt_hc, $ddl_setting;
-    var url_GetSettingsForFilter = "@Url.Action("GetSettingsForFilter", "Settings")";
     var url_GetDanhMucHanhChinhByMaHC = "@Url.Action("GetDanhMucHanhChinhByMaHC", "Settings")";
 
     jQuery(document).ready(function ($) {
@@ -28,7 +27,7 @@
             @:      $txt_hc.val(Name_HC);
             @: });
         }
-        $.post(url_GetSettingsForFilter, { Scope: SettingScope }, function (data) {
+        $.post(SVC_GETSETTINGSBYSCOPE, { Scope: SettingScope }, function (data) {
             var opt = "";
             data.forEach(function (element, index, array) {
                 opt += "<option value='" + element.Id + "'>" + element.Name + "</option>";

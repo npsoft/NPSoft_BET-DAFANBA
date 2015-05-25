@@ -17,7 +17,6 @@
 <script>
     var $ddl_setting_scope, $ddl_setting, $ddl_province, $ddl_district, $popup_view, $list;
     var url_GetSettingScopesForFilter = "@Url.Action("GetSettingScopesForFilter", "Settings")";
-    var url_GetSettingsForFilter = "@Url.Action("GetSettingsForFilter", "Settings")";
     var url_GetProvincesForFilter = "@Url.Action("GetProvincesForFilter", "Settings")";
     var url_GetDistrictsForFilter = "@Url.Action("GetDistrictsForFilter", "Settings")";
     var url_List = "@Url.Action("List", "Settings")";
@@ -48,7 +47,7 @@
             $ddl_setting.select2().select2("val", "");
             var data = { Scope: $ddl_setting_scope.val() };
             if (data.Scope != "") {
-                $.post(url_GetSettingsForFilter, data, function (data) {
+                $.post(SVC_GETSETTINGSBYSCOPE, data, function (data) {
                     var opts = "";
                     data.forEach(function (element, index, array) {
                         opts += "<option value='" + element.Id + "'>" + element.Name + "</option>"

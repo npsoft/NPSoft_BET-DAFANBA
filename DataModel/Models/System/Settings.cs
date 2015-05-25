@@ -128,104 +128,47 @@ namespace PhotoBookmart.DataLayer.Models.System
         public bool CanEdit { get; set; }
         [Ignore]
         public bool CanDelete { get; set; }
-        /// <summary>
-        /// Get a setting by name
-        /// </summary>
-        /// <returns>Cast the return to your specific datatype</returns>
-        public static object Get(string key, object default_value = null, Enum_Settings_DataType data_type = Enum_Settings_DataType.Raw)
+
+        public static object Get(string key, string mahc, object default_val = null, Enum_Settings_DataType data_type = Enum_Settings_DataType.Raw)
         {
             var db = ModelBase.ServiceAppHost.TryResolve<IDbConnection>();
-            if (db.State != ConnectionState.Open)
-            {
-                db = ModelBase.ServiceAppHost.TryResolve<IDbConnectionFactory>().Open();
-            }
+            if (db.State != ConnectionState.Open) { db = ModelBase.ServiceAppHost.TryResolve<IDbConnectionFactory>().Open(); }
 
-            string value = "";
-
+            string val = "";
             try
             {
-                var k = db.Select<Settings>(x => x.Where(m => m.Key == key).Limit(1)).FirstOrDefault();
-                if (k == null)
-                {
-                    value = default_value.ToString();
-                }
-                else
-                {
-                    value = k.Value;
-                }
-
-                // // we dispose the connection to save resource
+                var setting = db.Select<Settings>(x => x.Where(y => y.Key == key && y.MaHC == mahc).Limit(0, 1)).FirstOrDefault();
+                val = setting != null ? setting.Value : string.Format("{0}", default_val);
                 db.Close();
 
                 switch (data_type)
                 {
                     case Enum_Settings_DataType.Int:
-                        return int.Parse(value.ToString());
-
+                        return int.Parse(val);
                     case Enum_Settings_DataType.Double:
-                        return double.Parse(value.ToString());
-
+                        return double.Parse(val);
                     case Enum_Settings_DataType.Percent:
-                        value = value.Substring(0, value.Length - 1);
-                        return double.Parse(value);
-
+                        val = val.Substring(0, val.Length - 1);
+                        return double.Parse(val);
                     case Enum_Settings_DataType.String:
-                        return value.ToString();
-
+                        return val;
                     case Enum_Settings_DataType.DateTime:
-                        return DateTime.Parse(value.ToString());
-
+                        return DateTime.Parse(val);
                     case Enum_Settings_DataType.Raw:
-                        return k;
+                        return setting;
                     default:
-                        return value;
+                        return val;
                 }
-
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return default_value;
+                return default_val;
             }
         }
 
-        public static object Get(Enum_Settings_Key key, object default_value = null, Enum_Settings_DataType data_type = Enum_Settings_DataType.Raw)
+        public static object Get(Enum_Settings_Key key, string mahc, object default_val = null, Enum_Settings_DataType data_type = Enum_Settings_DataType.Raw)
         {
-            return Get(key.ToString(), default_value, data_type);
-        }
-
-        /// <summary>
-        /// Set data into the db
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        /// <param name="data_type"></param>
-        public static void Set(Enum_Settings_Key key, object value, Enum_Settings_DataType data_type = Enum_Settings_DataType.Raw)
-        {
-            var Db = ModelBase.ServiceAppHost.TryResolve<IDbConnection>();
-
-            if (Db.State != ConnectionState.Open)
-            {
-                Db = ModelBase.ServiceAppHost.TryResolve<IDbConnectionFactory>().Open();
-            }
-
-
-            // try to get it first
-            var key_name = key.ToString();
-            var item = Db.Select<Settings>(x => x.Where(m => m.Key == key_name).Limit(1)).FirstOrDefault();
-            if (item == null)
-            {
-                // insert new
-                item = new Settings() { Key = key_name, Value = value.ToString() };
-                Db.Insert<Settings>(item);
-            }
-            else
-            {
-                // update
-                item.Value = value.ToString();
-                Db.Update<Settings>(item);
-            }
-            // we dispose the connection to save resource
-            Db.Close();
+            return Get(key.ToString(), mahc, default_val, data_type);
         }
     }
 }

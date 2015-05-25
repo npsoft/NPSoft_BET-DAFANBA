@@ -16,4 +16,3 @@ D:\NPSoft_HTQLNHCS\Common\abScripting\bin\Debug\abScripting.pdb
 D:\NPSoft_HTQLNHCS\Common\abScripting\obj\Debug\abScripting.csprojResolveAssemblyReference.cache
 D:\NPSoft_HTQLNHCS\Common\abScripting\obj\Debug\abScripting.dll
 D:\NPSoft_HTQLNHCS\Common\abScripting\obj\Debug\abScripting.pdb
-G:\NPSoft_HTQLNHCS\Common\abScripting\obj\Debug\abScripting.csprojResolveAssemblyReference.cache

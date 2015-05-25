@@ -1012,7 +1012,7 @@ namespace PhotoBookmart.Controllers
                 }
 
                 // use gst or not
-                var use_gst = ((int)Settings.Get(Enum_Settings_Key.WEBSITE_GST_ENABLE, 0, Enum_Settings_DataType.Int)) == 1;
+                var use_gst = ((int)Settings.Get(Enum_Settings_Key.WEBSITE_GST_ENABLE, null, 0, Enum_Settings_DataType.Int)) == 1;
                 if (use_gst)
                 {
                     o.Bill_GST = o.Bill_GrandTotal * 0.06d;

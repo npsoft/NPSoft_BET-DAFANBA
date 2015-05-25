@@ -305,14 +305,14 @@ namespace PhotoBookmart.Helper
         {
             if (item == null) { return false; }
             ABUserAuth curr_user = service.CurrentUser;
-            return curr_user.HasRole(RoleEnum.Admin) || curr_user.MaHC.StartsWith(item.MaHC);
+            return curr_user.HasRole(RoleEnum.Admin) || item.MaHC.StartsWith(curr_user.MaHC);
         }
 
         private bool CanUpdate(DoiTuong item)
         {
             if (item == null) { return false; }
             ABUserAuth curr_user = service.CurrentUser;
-            return curr_user.HasRole(RoleEnum.Admin) || curr_user.MaHC.StartsWith(item.MaHC);
+            return curr_user.HasRole(RoleEnum.Admin) || item.MaHC.StartsWith(curr_user.MaHC);
         }
 
         //private bool CanList(KIT item)

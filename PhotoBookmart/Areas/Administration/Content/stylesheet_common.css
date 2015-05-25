@@ -421,6 +421,9 @@ style from http://flatfull.com/themes/scale/chat.html
 }
 
 /* Sta: Redefine mws */
+.ui-datepicker {
+    z-index: 5;
+}
 .ui-datepicker select.ui-datepicker-month,
 .ui-datepicker select.ui-datepicker-year {
     min-height: 20px;
