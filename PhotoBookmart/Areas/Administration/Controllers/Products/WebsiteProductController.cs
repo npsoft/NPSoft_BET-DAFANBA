@@ -108,12 +108,13 @@ namespace PhotoBookmart.Areas.Administration.Controllers
 
         [HttpGet]
         public ActionResult Edit(long id)
-        {
+        {  
             var model = Db.Select<DoiTuong>(x => x.Where(y => y.Id == id).Limit(0, 1)).FirstOrDefault();
-            if (model != null)
-            {
-                model.MaLDT_Details = Db.Where<DoiTuong_LoaiDoiTuong_CT>(x => x.CodeObj == model.IDDT);
-            }
+
+            PermissionChecker permission = new PermissionChecker(this);
+            if (!permission.CanUpdate(model)) { return RedirectToAction("Index", "WebsiteProduct", new { }); }
+            
+            model.MaLDT_Details = Db.Where<DoiTuong_LoaiDoiTuong_CT>(x => x.CodeObj == model.IDDT);
             return View("Add", model);
         }
 
@@ -368,14 +369,53 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             {
                 return JsonError("Vui lòng chọn ngày hưởng.");
             }
+            if (string.IsNullOrEmpty(model.TinhTrang))
+            {
+                return JsonError("Vui lòng chọn tình trạng.");
+            }
             #endregion
             #region Block #6
+            List<long> MaLDT_Details_Ids = model.MaLDT_Details.Where(x => x.Id > 0).Select(x => x.Id).ToList(); 
+            if (Db.Count<DanhMuc_HanhChinh>(x => x.MaHC == model.MaHC) == 0 ||
+                Db.Count<DanhMuc_DiaChi>(x => x.MaHC == model.MaHC && x.IDDiaChi == model.IDDiaChi) == 0 ||
+                !new string[] { "Male", "Female" }.Contains(model.GioiTinh) ||
+                Db.Count<DanhMuc_LoaiDT>(x => x.MaLDT == model.MaLDT) == 0 ||
+                Db.Count<DanhMuc_TinhTrangDT>(x => x.MaTT == model.TinhTrang) == 0 ||
+                model.DangKT.HasValue && Db.Count<DanhMuc_DangKhuyetTat>(x => x.IDDangTat == model.DangKT.Value) == 0 ||
+                model.MucDoKT.HasValue && Db.Count<DanhMuc_MucDoKhuyetTat>(x => x.IDMucDoKT == model.MucDoKT.Value) == 0 ||
+                model.MaDanToc.HasValue && Db.Count<DanhMuc_DanToc>(x => x.Id == model.MaDanToc.Value) == 0 ||
+                model.Id > 0 && MaLDT_Details_Ids.Count > 0 && MaLDT_Details_Ids.Count != Db.Count<DoiTuong_LoaiDoiTuong_CT>(x => x.CodeObj == model.IDDT && Sql.In(x.Id, MaLDT_Details_Ids)) ||
+                (!model.IsDuyet || !old_model.IsDuyet) && !GetTinhTrangDTsByParams(false).Select(x => x.MaTT).Contains(model.TinhTrang) ||
+                !model.IsDuyet && old_model.IsDuyet || model.IsDuyet && !old_model.IsDuyet && !CurrentUser.HasRole(RoleEnum.District))
+            {
+                return JsonError("Vui lòng không hack ứng dụng.");
+            }
+            #endregion
+            #region Block #7
+            DanhMuc_LoaiDT loaidt = Db.Select<DanhMuc_LoaiDT>(x => x.Where(y => y.MaLDT == model.MaLDT).Limit(0, 1)).FirstOrDefault();
             if (!model.MaLDT.CheckDateOfBirth(model.NamSinh, model.ThangSinh, model.NgaySinh))
             {
                 return JsonError("Ngày sinh không phù hợp với loại.");
             }
-            if (model.Id > 0)
+
+            if (model.Id == 0 && model.IsDuyet ||
+                model.Id > 0 && model.IsDuyet && !old_model.IsDuyet)
             {
+                DoiTuong_BienDong bien_dong = new DoiTuong_BienDong();
+                bien_dong.MaHC = model.MaHC;
+                bien_dong.IDDiaChi = model.IDDiaChi;
+                bien_dong.TinhTrang = model.TinhTrang;
+                bien_dong.MaLDT = model.MaLDT;
+                bien_dong.NgayHuong = model.NgayHuong;
+                bien_dong.HeSo = decimal.Parse(string.Format("{0}", loaidt.HeSo));
+                bien_dong.MucTC = model.MucTC;
+                bien_dong.MucChenh = model.MucTC;
+                model.BienDong_Lst_Ins.Add(bien_dong);
+            }
+
+            if (model.Id > 0 & old_model.IsDuyet)
+            {
+                #region Initialize miscellaneous
                 int sobd = GetSBD(model.Id);
                 bool is_change_details = true;
                 if (old_model.MaLDT == model.MaLDT &&
@@ -428,25 +468,96 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                         is_change_details = false;
                     }
                 }
+                #endregion
 
-                if (!is_change_details && sobd > 1 && old_model.NgayHuong != model.NgayHuong)
+                #region Validate miscellaneous
+                if (is_change_details)
                 {
-                    return JsonError("Ngày hưởng mới và ngày hưởng gốc khác nhau.");
+                    if (model.IsThayDoiDoChuyenLoaiDoiTuong)
+                    {
+                        DateTime dt_old = new DateTime(old_model.NgayHuong.Value.Year, old_model.NgayHuong.Value.Month, 1, 0, 0, 0, 0);
+                        DateTime dt_new = new DateTime(model.NgayHuong.Value.Year, model.NgayHuong.Value.Month, 1, 0, 0, 0, 0);
+                        if (dt_new <= dt_old)
+                        {
+                            return JsonError("Tháng biến động phải lớn hơn tháng đang hưởng.");
+                        }
+                        DoiTuong_BienDong bien_dong_them = new DoiTuong_BienDong();
+                        DoiTuong_BienDong bien_dong_cat = new DoiTuong_BienDong();
+                        bien_dong_them.MaHC = bien_dong_cat.MaHC = model.MaHC;
+                        bien_dong_them.IDDiaChi = bien_dong_cat.IDDiaChi = model.IDDiaChi;
+                        bien_dong_them.TinhTrang = bien_dong_cat.TinhTrang = model.TinhTrang;
+                        bien_dong_them.MaLDT = bien_dong_cat.MaLDT = model.MaLDT;
+                        bien_dong_them.NgayHuong = bien_dong_cat.NgayHuong = model.NgayHuong;
+                        bien_dong_them.HeSo = bien_dong_cat.HeSo = decimal.Parse(string.Format("{0}", loaidt.HeSo)); 
+                        decimal muc_chenh = (decimal)(model.MucTC - old_model.MucTC);
+                        bien_dong_them.MucTC = bien_dong_cat.MucTC = model.MucTC;
+                        bien_dong_them.MucChenh = bien_dong_cat.MucChenh = muc_chenh > 0 ? muc_chenh : -muc_chenh;
+                        if (model.MucTC > old_model.MucTC)
+                        {
+                            // bien_dong_them.LoaiBD = "HCT";
+                            // bien_dong_cat.LoaiBD = "KCT";
+                            bien_dong_them.MoTa = "Thêm do chuyển loại trợ cấp tăng";
+                            bien_dong_cat.MoTa = "Cắt do chuyển loại trợ cấp tăng";
+                        }
+                        else if (model.MucTC < old_model.MucTC)
+                        {
+                            // bien_dong_them.LoaiBD = "HCG";
+                            // bien_dong_cat.LoaiBD = "KCG";
+                            bien_dong_them.MoTa = "Thêm do chuyển loại trợ cấp giảm";
+                            bien_dong_cat.MoTa = "Cắt do chuyển loại trợ cấp giảm";
+                        }
+                        else
+                        {
+                            // bien_dong_them.LoaiBD = "HCK";
+                            // bien_dong_cat.LoaiBD = "KCK";
+                            bien_dong_them.MoTa = "Thêm do chuyển loại trợ cấp";
+                            bien_dong_cat.MoTa = "Cắt do chuyển loại trợ cấp";
+                        }
+                        model.BienDong_Lst_Ins.Add(bien_dong_them);
+                        model.BienDong_Lst_Ins.Add(bien_dong_cat);
+                    }
+                    else
+                    {
+                        if (sobd != 1)
+                        {
+                            return JsonError("Số biến động hiện tại khác 1.");
+                        }
+                        if (old_model.NgayHuong != model.NgayHuong)
+                        {
+                            return JsonError("Vui lòng xóa hết lịch sử biến động trước khi sửa.");
+                        }
+                        DoiTuong_BienDong bien_dong = Db.Select<DoiTuong_BienDong>(x => x.Where(y => y.IDDT == model.Id).Limit(0, 1)).FirstOrDefault();
+                        bien_dong.MaHC = model.MaHC;
+                        bien_dong.IDDiaChi = model.IDDiaChi;
+                        bien_dong.TinhTrang = model.TinhTrang;
+                        bien_dong.MaLDT = model.MaLDT;
+                        bien_dong.NgayHuong = model.NgayHuong;
+                        bien_dong.HeSo = decimal.Parse(string.Format("{0}", loaidt.HeSo));
+                        bien_dong.MucChenh = model.MucTC - bien_dong.MucTC;
+                        bien_dong.MucTC = model.MucTC;
+                        bien_dong.MucChenh = bien_dong.MucChenh > 0 ? bien_dong.MucChenh : -bien_dong.MucChenh;
+                        model.BienDong_Lst_Upd.Add(bien_dong);
+                    }
                 }
-            }
-            #endregion
-            #region Block #7
-            List<long> MaLDT_Details_Ids = model.MaLDT_Details.Where(x => x.Id > 0).Select(x => x.Id).ToList();
-            if (Db.Count<DanhMuc_HanhChinh>(x => x.MaHC == model.MaHC) == 0 ||
-                Db.Count<DanhMuc_DiaChi>(x => x.MaHC == model.MaHC && x.IDDiaChi == model.IDDiaChi) == 0 ||
-                !new string[] { "Male", "Female" }.Contains(model.GioiTinh) ||
-                Db.Count<DanhMuc_LoaiDT>(x => x.MaLDT == model.MaLDT) == 0 ||
-                model.DangKT.HasValue && Db.Count<DanhMuc_DangKhuyetTat>(x => x.IDDangTat == model.DangKT.Value) == 0 ||
-                model.MucDoKT.HasValue && Db.Count<DanhMuc_MucDoKhuyetTat>(x => x.IDMucDoKT == model.MucDoKT.Value) == 0 ||
-                model.MaDanToc.HasValue && Db.Count<DanhMuc_DanToc>(x => x.Id == model.MaDanToc.Value) == 0 ||
-                model.Id > 0 && MaLDT_Details_Ids.Count > 0 && MaLDT_Details_Ids.Count != Db.Count<DoiTuong_LoaiDoiTuong_CT>(x => x.CodeObj == model.IDDT && Sql.In(x.Id, MaLDT_Details_Ids)))
-            {
-                return JsonError("Vui lòng không hack ứng dụng.");
+                else
+                {
+                    if (sobd > 1 && old_model.NgayHuong != model.NgayHuong)
+                    {
+                        return JsonError("Ngày hưởng mới và ngày hưởng gốc khác nhau.");
+                    }
+                    DoiTuong_BienDong bien_dong = Db.Select<DoiTuong_BienDong>(x => x.Where(y => y.IDDT == model.Id).Limit(0, 1)).FirstOrDefault();
+                    bien_dong.MaHC = model.MaHC;
+                    bien_dong.IDDiaChi = model.IDDiaChi;
+                    bien_dong.TinhTrang = model.TinhTrang;
+                    bien_dong.MaLDT = model.MaLDT;
+                    bien_dong.NgayHuong = model.NgayHuong;
+                    bien_dong.HeSo = decimal.Parse(string.Format("{0}", loaidt.HeSo));
+                    bien_dong.MucChenh = model.MucTC - bien_dong.MucTC;
+                    bien_dong.MucTC = model.MucTC;
+                    bien_dong.MucChenh = bien_dong.MucChenh > 0 ? bien_dong.MucChenh : -bien_dong.MucChenh;
+                    model.BienDong_Lst_Upd.Add(bien_dong);
+                }
+                #endregion
             }
             #endregion
             #region Block #8
@@ -481,6 +592,11 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 });
 
                 Db.Save(model);
+                model.BienDong_Lst_Ins.ForEach(x => {
+                    x.IDDT = model.Id;
+                });
+                Db.UpdateAll<DoiTuong_BienDong>(model.BienDong_Lst_Upd);
+                Db.InsertAll<DoiTuong_BienDong>(model.BienDong_Lst_Ins);
                 Db.UpdateAll<DoiTuong_LoaiDoiTuong_CT>(model.MaLDT_Details.Where(x => x.Id > 0));
                 Db.InsertAll<DoiTuong_LoaiDoiTuong_CT>(model.MaLDT_Details.Where(x => x.Id == 0));
                 dbTrans.Commit();

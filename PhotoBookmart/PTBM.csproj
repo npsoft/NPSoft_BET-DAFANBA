@@ -228,6 +228,10 @@
     <Compile Include="ViewEngines\ThemeableBuildManagerViewEngine.cs" />
     <Compile Include="ViewEngines\ThemeableRazorViewEngine.cs" />
     <Compile Include="ViewEngines\ThemeableVirtualPathProviderViewEngine.cs" />
+    <Content Include="Themes\Photobookmart\Content\css\bootstrap-responsive-v1.css" />
+    <Content Include="Themes\Photobookmart\Content\css\skin.css" />
+    <Content Include="Themes\Photobookmart\Content\css\style.css" />
+    <Content Include="Themes\Photobookmart\Views\Shared\_Layout1.cshtml" />
     <None Include="Views\tpl_sync_db\Form1.cshtml" />
   </ItemGroup>
   <ItemGroup>
@@ -2925,11 +2929,24 @@
     <Content Include="Themes\Photobookmart\Content\fonts\fontawesome-webfont9b1a9b1a.svg" />
     <Content Include="Themes\Photobookmart\Content\fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Themes\Photobookmart\Content\fonts\weathericons-regular-webfont.svg" />
+    <Content Include="Themes\Photobookmart\Content\images\1.jpg" />
+    <Content Include="Themes\Photobookmart\Content\images\2.jpg" />
+    <Content Include="Themes\Photobookmart\Content\images\3.jpg" />
+    <Content Include="Themes\Photobookmart\Content\images\4.jpg" />
+    <Content Include="Themes\Photobookmart\Content\images\action_top.gif" />
+    <Content Include="Themes\Photobookmart\Content\images\arrowgreen.gif" />
+    <Content Include="Themes\Photobookmart\Content\images\arrowgreen1.gif" />
+    <Content Include="Themes\Photobookmart\Content\images\banner.jpg" />
+    <Content Include="Themes\Photobookmart\Content\images\bgBanner.gif" />
+    <Content Include="Themes\Photobookmart\Content\images\bgBody.gif" />
+    <Content Include="Themes\Photobookmart\Content\images\bgMenu.gif" />
     <Content Include="Themes\Photobookmart\Content\images\bn-arrows.png" />
+    <Content Include="Themes\Photobookmart\Content\images\bottom.gif" />
     <Content Include="Themes\Photobookmart\Content\images\coupon_cancel.png" />
     <Content Include="Themes\Photobookmart\Content\images\discount.png" />
     <Content Include="Themes\Photobookmart\Content\images\download-button.jpg" />
     <Content Include="Themes\Photobookmart\Content\images\header-payment-gateways-ipay88.png" />
+    <Content Include="Themes\Photobookmart\Content\images\intro.html" />
     <Content Include="Themes\Photobookmart\Content\images\jquery_minical_icons.png" />
     <Content Include="Themes\Photobookmart\Content\images\layout\download_mac_s.png" />
     <Content Include="Themes\Photobookmart\Content\images\layout\download_windows_s.png" />
@@ -2940,6 +2957,13 @@
     <Content Include="Themes\Photobookmart\Content\images\logo_mastercard.png" />
     <Content Include="Themes\Photobookmart\Content\images\logo_photobookmart.png" />
     <Content Include="Themes\Photobookmart\Content\images\logo_visa.jpg" />
+    <Content Include="Themes\Photobookmart\Content\images\markers\Camps.png" />
+    <Content Include="Themes\Photobookmart\Content\images\markers\Churches.png" />
+    <Content Include="Themes\Photobookmart\Content\images\markers\ChurchSchool.png" />
+    <Content Include="Themes\Photobookmart\Content\images\markers\Conversion.png" />
+    <Content Include="Themes\Photobookmart\Content\images\markers\ForLease.png" />
+    <Content Include="Themes\Photobookmart\Content\images\markers\Land.png" />
+    <Content Include="Themes\Photobookmart\Content\images\markers\Other.png" />
     <Content Include="Themes\Photobookmart\Content\images\paypal.png" />
     <Content Include="Themes\Photobookmart\Content\images\prettyPhoto\dark_rounded\btnNext.png" />
     <Content Include="Themes\Photobookmart\Content\images\prettyPhoto\dark_rounded\btnPrevious.png" />
@@ -3253,7 +3277,7 @@
     <Content Include="Themes\Photobookmart\Content\select2-3.5.1\select2_locale_vi.js" />
     <Content Include="Themes\Photobookmart\Content\select2-3.5.1\select2_locale_zh-CN.js" />
     <Content Include="Themes\Photobookmart\Content\select2-3.5.1\select2_locale_zh-TW.js" />
-    <Content Include="Themes\Photobookmart\Views\Common\InvoiceDetail.cshtml" />
+    <Content Include="Themes\Photobookmart\Views\Common\_Intro.cshtml" />
     <Content Include="Themes\Photobookmart\Views\Common\_Navigation.cshtml" />
     <Content Include="Themes\Photobookmart\Views\Common\_Navigation_List.cshtml" />
     <Content Include="Themes\Photobookmart\Views\Common\_Navigation_List_Sub.cshtml" />

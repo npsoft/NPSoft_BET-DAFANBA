@@ -4,12 +4,12 @@
 
 var mainList_Website = [];
 var SVC_GETSETTINGSBYSCOPE = "/Administration/WebAdmin/Svc_GetSettingsByScope";
+var SVC_GETTINHTRANGDTSBYPARAMS = "/Administration/WebAdmin/Svc_GetTinhTrangDTsByParams";
 var SVC_GETDOITUONGBYPARAMS = "/Administration/WebAdmin/Svc_GetDoiTuongByParams";
 var SVC_GETMUCTROCAPCOBANBYPARAMS = "/Administration/WebAdmin/Svc_GetMucTroCapCoBanByParams";
 var SVC_GETSBD = "/Administration/WebAdmin/Svc_GetSBD";
 
 jQuery(document).ready(function ($) {
-
     $("input[type='text'].date-of-birth-year").spinner({
         min: 1000,
         max: 9999,
@@ -204,6 +204,21 @@ function ParseTime(_data) {
                 var time = parseInt(_data.replace(/[\+\-]\d{4}/, "").replace(/\/Date\((-?\d+)\)\//, '$1'));
                 return new Date(new Date(time).getTime() + ((new Date()).getTimezoneOffset() - (isPlus ? -offset : offset)) * 60 * 1000);
             }
+            // Template: "yyyy-MM-ddTHH:mm:ss"
+            if (/^([1-9]\d{3})-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])T([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/g.test(_data)) {
+                var time = new Date(_data).getTime();
+                return new Date(time + (new Date()).getTimezoneOffset() * 60 * 1000);
+            }
+            // Template: "yyyy/MM/dd HH:mm:ss"
+            if (/^(0[1-9]|1[012])\/(0[1-9]|[12][0-9]|3[01])\/([1-9]\d{3}) ([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/g.test(_data)) {
+                var y = parseInt(_data.substr(6, 4));
+                var M = parseInt(_data.substr(0, 2));
+                var d = parseInt(_data.substr(4, 2));
+                var H = parseInt(_data.substr(10, 2));
+                var m = parseInt(_data.substr(12, 2));
+                var s = parseInt(_data.substr(14, 2));
+                return new Date(y, M - 1, d, H, m, s, 0);
+            }
             // Template: "dd/MM/yyyy"
             if (/^(0?[1-9]|[12][0-9]|3[01])[\/](0?[1-9]|1[012])[\/]([1-9]\d{3})$/.test(_data)) {
                 var arr = _data.split("/");
@@ -231,17 +246,16 @@ function ConvertTime(_data) {
 };
 
 function TimeForReq(_data) {
-    if (typeof _data.dt !== "object" || _data.dt == null) {
+    if (typeof _data !== "object" || _data == null) {
         return null;
     }
-
-    var y = _data.dt.getFullYear();
-    var m = _data.dt.getMonth() + 1;
-    var d = _data.dt.getDate();
-    var H = _data.dt.getHours();
-    var M = _data.dt.getMinutes();
-    var s = _data.dt.getSeconds();
-    return (m > 9 ? m.toString() : "0" + m.toString()) +
+    var y = _data.getFullYear();
+    var M = _data.getMonth() + 1;
+    var d = _data.getDate();
+    var H = _data.getHours();
+    var m = _data.getMinutes();
+    var s = _data.getSeconds();
+    return (M > 9 ? M.toString() : "0" + M.toString()) +
            "/" +
            (d > 9 ? d.toString() : "0" + d.toString()) +
            "/" +
@@ -249,19 +263,9 @@ function TimeForReq(_data) {
            " " +
            (H > 9 ? H.toString() : "0" + H.toString()) +
            ":" +
-           (M > 9 ? M.toString() : "0" + M.toString()) +
+           (m > 9 ? m.toString() : "0" + m.toString()) +
            ":" +
            (s > 9 ? s.toString() : "0" + s.toString());
-
-    /* Occur problem on production
-    if (typeof _data.tz !== "number") {
-        var d = _data.dt.getDate();
-        var m = _data.dt.getMonth() + 1;
-        var y = _data.dt.getFullYear();
-        return (m > 9 ? m.toString() : "0" + m.toString()) + "/" + (d > 9 ? d.toString() : "0" + d.toString()) + "/" + y;
-    }
-    var offset = -(new Date().getTimezoneOffset() + _data.tz);
-    return new Date(_data.dt.getTime() + offset * 60 * 1000);*/
 };
 
 function CheckDateOfBirth(_data) {

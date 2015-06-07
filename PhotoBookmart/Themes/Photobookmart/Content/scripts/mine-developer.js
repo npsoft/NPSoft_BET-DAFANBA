@@ -830,3 +830,49 @@ if (typeof Number.prototype.format === 'undefined') {
         return ret;
     }
 }
+
+// Sta: For Views/Common/_Intro.cshtml
+$(function () {
+    $('#accordion > li').hover(
+        function () {
+            var $this = $(this);
+            $this.stop().animate({ 'width': '200px' }, 500);
+            $('.heading', $this).stop(true, true).fadeOut();
+            $('.bgDescription', $this).stop(true, true).slideDown(500);
+            $('.description', $this).stop(true, true).fadeIn();
+        },
+        function () {
+            var $this = $(this);
+            $this.stop().animate({ 'width': '115px' }, 1000);
+            $('.heading', $this).stop(true, true).fadeIn();
+            $('.description', $this).stop(true, true).fadeOut(500);
+            $('.bgDescription', $this).stop(true, true).slideUp(700);
+        }
+    );
+});
+// End: For Views/Common/_Intro.cshtml
+
+// Sta: For Views/Home/SignIn.cshtml
+jQuery(document).ready(function ($) {
+
+    if ($("#frmSignIn").length != 0) {
+
+        $("#frmSignIn").on("submit", function (e) {
+
+            if ($(this).find("input[name='UserName']").val() == "") {
+
+                alert("Please enter your username");
+                $(this).find("input[name='UserName']").focus();
+                return false;
+            }
+
+            if ($(this).find("input[name='Pass']").val() == "") {
+
+                alert("Please enter your password");
+                $(this).find("input[name='Pass']").focus();
+                return false;
+            }
+        });
+    }
+});
+// End: For Views/Home/SignIn.cshtml

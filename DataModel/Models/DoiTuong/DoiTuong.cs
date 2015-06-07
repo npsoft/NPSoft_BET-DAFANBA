@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Linq;
 using System.Collections.Generic;
 using ServiceStack.OrmLite;
@@ -17,10 +18,7 @@ namespace PhotoBookmart.DataLayer.Models.Products
         public Guid? IDDiaChi { get; set; }
         [ForeignKey(typeof(DanhMuc_DanToc), OnDelete = "CASCADE", OnUpdate = "CASCADE")]
         public long? MaDanToc { get; set; }
-        [ForeignKey(typeof(DanhMuc_TinhTrangDT), OnDelete = "CASCADE", OnUpdate = "CASCADE")]
-        public long? TinhTrang { get; set; }
         public Guid IDDT { get; set; }
-        public int Order { get; set; }
         public string HoTen { get; set; }
         public string NgaySinh { get; set; }
         public string ThangSinh { get; set; }
@@ -42,14 +40,26 @@ namespace PhotoBookmart.DataLayer.Models.Products
         public string SoQD { get; set; }
         public DateTime? NgayQD { get; set; }
         public string GhiChu { get; set; }
+
+        public string TinhTrang { get; set; }
+        public bool IsDuyet { get; set; }
+
         [Ignore]
         public string MaLDT_Name { get; set; }
         [Ignore]
         public List<DoiTuong_LoaiDoiTuong_CT> MaLDT_Details { get; set; }
-        
+        [Ignore]
+        public List<DoiTuong_BienDong> BienDong_Lst_Upd { get; set; }
+        [Ignore]
+        public List<DoiTuong_BienDong> BienDong_Lst_Ins { get; set; }
+        [Ignore]
+        public bool IsThayDoiDoChuyenLoaiDoiTuong { get; set; }
+
         public DoiTuong()
         {
             MaLDT_Details = new List<DoiTuong_LoaiDoiTuong_CT>();
+            BienDong_Lst_Upd = new List<DoiTuong_BienDong>();
+            BienDong_Lst_Ins = new List<DoiTuong_BienDong>();
         }
     }
 

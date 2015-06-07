@@ -1,16 +1,7 @@
 ﻿@model LoginModel
 @{
-    Layout = "~/Themes/Photobookmart/Views/Shared/_Layout.Navigation.Sidebar.cshtml";
-
-    ViewBag.Title = "Sign In";
-}
-@section _TitleMain {
-    <a href='@Url.Action("SignIn", "Home", new { })' rel='signin' title='Permanent Link: Sign In'>
-        Sign In</a>
-}
-@section _TrailLink {
-    <a href="/" rel="/" title="Home" class="trail-begin">Home</a> <span class="sep">&raquo;</span>
-    <span class="trail-end">Sign In</span>
+    ViewBag.Title = "Đăng nhập";
+    Layout = "~/Themes/Photobookmart/Views/Shared/_Layout1.cshtml";
 }
 @using (Html.BeginForm("SignInSubmit", "Home", FormMethod.Post, new { @id = "frmSignIn", @class = "ab-form ab-signin" }))
 {
@@ -47,27 +38,3 @@
         <input type="reset" value="Reset" class="ab-reset" />
     </div>
 }
-<script type="text/javascript">
-    jQuery(document).ready(function ($) {
-
-        if ($("#frmSignIn").length != 0) {
-
-            $("#frmSignIn").on("submit", function (e) {
-
-                if ($(this).find("input[name='UserName']").val() == "") {
-
-                    alert("Please enter your username");
-                    $(this).find("input[name='UserName']").focus();
-                    return false;
-                }
-
-                if ($(this).find("input[name='Pass']").val() == "") {
-
-                    alert("Please enter your password");
-                    $(this).find("input[name='Pass']").focus();
-                    return false;
-                }
-            });
-        }
-    });
-</script>

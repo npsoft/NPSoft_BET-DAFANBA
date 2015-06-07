@@ -126,6 +126,9 @@
             $ddl_MaLDT.append(opts);
             $ddl_MaLDT.select2().select2("val", "@Model.MaLDT");
         });
+        $.post(SVC_GETTINHTRANGDTSBYPARAMS, { IsDuyet: JsonModel.IsDuyet }, function (data) {
+            FillDataForSelect2({ $ddl: $("#obj-info-common [name='TinhTrang']"), val: JsonModel.TinhTrang, data: data, id: "MaTT", name: "TenTT" });
+        });
         if (!IsNullOrEmpty(Code_Province)) {
             $.post(SVC_GETMUCTROCAPCOBANBYPARAMS, { MaHC: Code_Province }, function (data) {
                 Settings.TL02 = data.TL02;
@@ -213,6 +216,18 @@
         });
 
         $ddl_MaLDT.on("change", function (e) {
+            var $tbl = $("[data-con='type'][data-val='03'] #ListTable");
+            $tbl.DataTable().fnDestroy();
+            $tbl.removeAttr("style");
+            $tbl.find("tbody").empty();
+            if ($.fn.dataTable) {
+                $tbl.dataTable({
+                    sPaginationType: "full_numbers",
+                    "aLengthMenu": [30, 50, 100],
+                    "aaSorting": []
+                });
+            }
+
             var val = $(this).val().substr(0, 2);
             $("#obj-info-common [data-con='type']:not([data-val='" + val + "'])").addClass("hide");
             $("#obj-info-common [data-con='type'][data-val='" + val + "']").removeClass("hide");
@@ -388,6 +403,7 @@
             var $ddl_gender = $frm.find("[name='GioiTinh']");
             var $ddl_disability_type = $frm.find("[name='DangKT']");
             var $ddl_disability_level = $frm.find("[name='MucDoKT']");
+            var $ddl_tinh_trang = $frm.find("[name='TinhTrang']");
             var $txt_ho_ten = $frm.find("[name='HoTen']");
             var $txt_nam_sinh = $frm.find("[name='NamSinh']");
             var $txt_thang_sinh = $frm.find("[name='ThangSinh']");
@@ -543,6 +559,11 @@
                 notify_error("Lỗi", "Ngày hưởng không đúng định dạng.");
                 return false;
             }
+            if (IsNullOrEmpty($ddl_tinh_trang.val())) {
+                setTimeout(function () { $ddl_tinh_trang.select2("open"); }, 200);
+                notify_error("Lỗi", "Vui lòng chọn tình trạng.");
+                return false;
+            }
 
             if (!CheckDateOfBirth_MaLDT({
                 year: $txt_nam_sinh.val(),
@@ -557,12 +578,9 @@
 
             var data = $frm.serializeObject();
             data.Id = parseInt(data.Id);
-            var dt = ParseTime(data.NgayCap);
-            data.NgayCap = dt != null ? TimeForReq({ dt: dt }) : null;
-            dt = ParseTime(data.NgayHuong);
-            data.NgayHuong = dt != null ? TimeForReq({ dt: dt }) : null;
-            dt = ParseTime(data.NgayQD);
-            data.NgayQD = dt != null ? TimeForReq({ dt: dt }) : null;
+            data.NgayCap = TimeForReq(ParseTime(data.NgayCap));
+            data.NgayHuong = TimeForReq(ParseTime(data.NgayHuong));
+            data.NgayQD = TimeForReq(ParseTime(data.NgayQD));
             data.MaLDT_Details = [];
             if ($ddl_MaLDT.val().startsWith("01")) {
                 data.MaLDT_Details.push({
@@ -574,7 +592,7 @@
                     data.MaLDT_Details.push({
                         Id: parseInt($(element).attr("data-id")),
                         Type3_FullName: $(element).attr("data-full-name"),
-                        Type3_DateOfBirth: TimeForReq({ dt: ParseTime($(element).attr("data-date-of-birth")), tz: TIMEZONE_SERVER }).toISOString(),
+                        Type3_DateOfBirth: TimeForReq(ParseTime($(element).attr("data-date-of-birth"))),
                         Type3_DateOfBirth_IsMonth: $(element).attr("data-date-of-birth-is-month") == "1" ? true : false,
                         Type3_DateOfBirth_IsDate: $(element).attr("data-date-of-birth-is-date") == "1" ? true : false,
                         Type3_Gender: $(element).attr("data-gender"),
@@ -595,7 +613,7 @@
             }
 
             var is_continue = true;
-            if (JsonModel.Id > 0) {
+            if (JsonModel.Id > 0 && JsonModel.IsDuyet) {
                 var sobd = 0;
                 var is_change_details = true;
                 if (JsonModel.MaLDT == $ddl_MaLDT.val() &&
@@ -617,7 +635,7 @@
                             });
                             if (rst_some &&
                                 element_old.Type3_FullName == element_tmp.Type3_FullName &&
-                                element_old.Type3_DateOfBirth == element_tmp.Type3_DateOfBirth &&
+                                TimeForReq(ParseTime(element_old.Type3_DateOfBirth)) == element_tmp.Type3_DateOfBirth &&
                                 element_old.Type3_DateOfBirth_IsMonth == element_tmp.Type3_DateOfBirth_IsMonth &&
                                 element_old.Type3_DateOfBirth_IsDate == element_tmp.Type3_DateOfBirth_IsDate &&
                                 element_old.Type3_Gender == element_tmp.Type3_Gender &&
@@ -649,6 +667,7 @@
                     dataType: "json",
                     contentType: "application/json; charset=utf-8",
                     async: false,
+                    global: false,
                     success: function (result, textStatus, jqXHR) {
                         sobd = result;
                     },
@@ -657,10 +676,50 @@
                     }
                 });
 
-                if (!is_change_details && sobd > 1 && JsonModel.NgayHuong != data.NgayHuong) {
-                    $txt_ngay_huong.focus();
-                    notify_error("Lỗi", "Ngày hưởng mới và ngày hưởng gốc khác nhau.");
-                    return false;
+                if (is_change_details) {
+                    var msg = "Thay đổi bình thường [Hủy] hay Thay đổi do chuyển loại đối tượng [OK]?";
+                    if (confirm(msg)) {
+                        data.IsThayDoiDoChuyenLoaiDoiTuong = true;
+                        var dt_old = ParseTime(JsonModel.NgayHuong);
+                        var dt_new = ParseTime(data.NgayHuong);
+                        dt_old = new Date(dt_old.getFullYear(), dt_old.getMonth() - 1, 1, 0, 0, 0, 0);
+                        dt_new = new Date(dt_new.getFullYear(), dt_new.getMonth() - 1, 1, 0, 0, 0, 0);
+                        if (dt_new <= dt_old) {
+                            $.pnotify({
+                                type: "error",
+                                title: "Lỗi",
+                                text: "Tháng biến động phải lớn hơn tháng đang hưởng.",
+                                opacity: .8
+                            });
+                            return false;
+                        }
+                    } else {
+                        data.IsThayDoiDoChuyenLoaiDoiTuong = false;
+                        if (sobd != 1) {
+                            $.pnotify({
+                                type: "error",
+                                title: "Lỗi",
+                                text: "Số biến động hiện tại khác 1.",
+                                opacity: .8
+                            });
+                            return false;
+                        }
+                        if (TimeForReq(ParseTime(JsonModel.NgayHuong)) != data.NgayHuong) {
+                            $.pnotify({
+                                type: "error",
+                                title: "Lỗi",
+                                text: "Vui lòng xóa hết lịch sử biến động trước khi sửa.",
+                                opacity: .8
+                            });
+                            return false;
+                        }
+                    }
+                } else {
+                    if (sobd > 1 && TimeForReq(ParseTime(JsonModel.NgayHuong)) != data.NgayHuong) {
+                        $txt_ngay_huong.focus();
+                        notify_error("Lỗi", "Ngày hưởng mới và ngày hưởng gốc khác nhau.");
+                        return false;
+                    }
                 }
             }
             $.ajax({
@@ -676,6 +735,7 @@
                 dataType: "json",
                 contentType: "application/json; charset=utf-8",
                 async: false,
+                global: false,
                 success: function (result, textStatus, jqXHR) {
                     if (result != null) {
                         var msg = "Đã tồn tại đối tượng với thông tin:\n";
@@ -712,8 +772,7 @@
                         });
                     }
                     if (result.RedirectUrl != null) {
-                        // TODO: location.href = result.RedirectUrl;
-                        console.log("Redirect Url: " + result.RedirectUrl);
+                        location.href = result.RedirectUrl;
                     }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
@@ -734,7 +793,8 @@
     <div class="mws-panel-body no-padding">
         @using (Html.BeginForm("Update", "WebsiteProduct", FormMethod.Post, new { enctype = "multipart/form-data", @id = "obj-info-common", @class = "mws-form" }))
         {
-            @Html.HiddenFor(m => m.Id);
+            @Html.HiddenFor(m => m.Id)
+            @Html.HiddenFor(m => m.IsThayDoiDoChuyenLoaiDoiTuong)
             <div class="mws-form-inline">
                 <div class="mws-form-row">
                     <label class="mws-form-label">Tỉnh</label>
@@ -885,10 +945,10 @@
                                         <tr row-id="@Guid.NewGuid()"
                                             data-id="@item.Id"
                                             data-full-name="@item.Type3_FullName"
-                                            data-date-of-birth="@item.Type3_DateOfBirth"
+                                            data-date-of-birth="@string.Format("{0:dd/MM/yyyy}", item.Type3_DateOfBirth)"
                                             data-date-of-birth-is-month="@if (item.Type3_DateOfBirth_IsMonth) {<text>1</text>} else {<text>0</text>}"
                                             data-date-of-birth-is-date="@if (item.Type3_DateOfBirth_IsMonth) {<text>1</text>} else {<text>0</text>}"
-                                            data-gender="@item.Type3_Gender.GetGender()"
+                                            data-gender="@item.Type3_Gender"
                                             data-curr-addr="@item.Type3_CurrAddr"
                                             data-status-learn="@item.Type3_StatusLearn">
                                             <td><span>@item.Type3_FullName</span></td>
@@ -1007,6 +1067,28 @@
                     <label class="mws-form-label">Ghi chú</label>
                     <div class="mws-form-item">
                         @Html.TextAreaFor(model => model.GhiChu, new { @class = "large" })
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">Tình trạng</label>
+                    <div class="mws-form-item">
+                        <select class="mws-select2 large" name="TinhTrang">
+                            <option value="" selected="selected">- - Chọn - -</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">&nbsp;</label>
+                    <div class="mws-form-item">
+                        @if (Model.IsDuyet || !CurrentUser.HasRole(RoleEnum.District))
+                        {
+                            @: <input class="hide" name="IsDuyet" value="true" type="checkbox" readonly="readonly" @if (Model.IsDuyet) { <text> checked="checked" </text> } >
+                            @: <input class="ibutton" type="checkbox" data-label-on="Đã duyệt" data-label-off="Chưa duyệt" disabled="disabled" @if (Model.IsDuyet) { <text> checked="checked" </text> } />
+                        }
+                        else
+                        {
+                            @: <input class="ibutton" name="IsDuyet" value="true" type="checkbox" data-label-on="Đã duyệt" data-label-off="Chưa duyệt" @if (Model.IsDuyet) { <text> checked="checked" </text>  } />
+                        }
                     </div>
                 </div>
             </div>

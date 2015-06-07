@@ -532,6 +532,15 @@ namespace PhotoBookmart.Controllers
             return Db.Select<DanhMuc_DiaChi>(x => x.MaHC == maHC);
         }
         
+        public List<DanhMuc_TinhTrangDT> GetTinhTrangDTsByParams(bool IsDuyet)
+        {
+            if (IsDuyet)
+            {
+                return Db.Select<DanhMuc_TinhTrangDT>().OrderBy(x => x.Id).ToList();
+            }
+            return Db.Select<DanhMuc_TinhTrangDT>(x => x.Where(y => Sql.In(y.MaTT, new string[2] { "HDH", "HDE" })).OrderBy(z => z.Id));
+        }
+        
         public List<DoiTuong_LoaiDoiTuong_CT> GetMaLDT_DetailsByParams(Guid CodeObj, string CodeType)
         {
             var p = PredicateBuilder.True<DoiTuong_LoaiDoiTuong_CT>();
@@ -575,6 +584,11 @@ namespace PhotoBookmart.Controllers
         public ActionResult Svc_GetSettingsByScope(string Scope)
         {
             return Json(GetSettingsByScope((Enum_Settings_Scope)Enum.Parse(typeof(Enum_Settings_Scope), Scope)));
+        }
+
+        public ActionResult Svc_GetTinhTrangDTsByParams(bool IsDuyet)
+        {
+            return Json(GetTinhTrangDTsByParams(IsDuyet));
         }
 
         public ActionResult Svc_GetMaLDT_DetailsByParams(Guid CodeObj, string CodeType)

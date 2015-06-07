@@ -1,4 +1,0 @@
-# HTTrack Website Copier Cookie File
-# This file format is compatible with Netscape cookies
-.zopim.com	TRUE	/	FALSE	1999999999	__cfduid	d569d437a723b445ad2583c097feee94a1404299832559
-

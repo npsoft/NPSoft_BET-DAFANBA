@@ -1730,3 +1730,30 @@ margin-right: 1%;
 	box-shadow:0 0 5px 2px #C4C4C4;
 }
 /*-- End LISTING --*/
+
+/* Sta: For Content/css/style.css */
+.bannerVV {
+    line-height: 0;
+}
+/* End: For Content/css/style.css */
+
+/* Sta: For Views/Home/SignIn.cshtml */
+th {
+    text-align: left;
+}
+#divEditBox {
+    display: none;
+    position: absolute;
+    left: 30%;
+    top: 30%;
+}
+.highlightRow {
+    background-color: Yellow;
+}
+.select {
+    background-color: #c0c0c0;
+}
+.right-container .accordion {
+    position: relative;   
+}
+/* End: For Views/Home/SignIn.cshtml */
