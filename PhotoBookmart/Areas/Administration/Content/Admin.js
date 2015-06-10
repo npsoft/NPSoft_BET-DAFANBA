@@ -4,6 +4,10 @@
 
 var mainList_Website = [];
 var SVC_GETSETTINGSBYSCOPE = "/Administration/WebAdmin/Svc_GetSettingsByScope";
+var SVC_GETALLPROVINCES = "/Administration/WebAdmin/Svc_GetAllProvinces";
+var SVC_GETDISTRICTSBYPROVINCE = "/Administration/WebAdmin/Svc_GetDistrictsByProvince";
+var SVC_GETVILLAGESBYDISTRICT = "/Administration/WebAdmin/Svc_GetVillagesByDistrict";
+var SVC_GETHAMLETSBYVILLAGE = "/Administration/WebAdmin/Svc_GetHamletsByVillage";
 var SVC_GETTINHTRANGDTSBYPARAMS = "/Administration/WebAdmin/Svc_GetTinhTrangDTsByParams";
 var SVC_GETDOITUONGBYPARAMS = "/Administration/WebAdmin/Svc_GetDoiTuongByParams";
 var SVC_GETMUCTROCAPCOBANBYPARAMS = "/Administration/WebAdmin/Svc_GetMucTroCapCoBanByParams";
@@ -355,4 +359,15 @@ function CheckDateOfBirth_MaLDT(_data) {
         default:
             return true;
     }
+};
+
+function RefillDataForSelect2(_data) {
+    var $ddl = _data.$ddl, val = _data.val, data = _data.data, id = _data.id, name = _data.name;
+    var opts = "";
+    data.forEach(function (element, index, array) {
+        opts += "<option value='" + element[id] + "'>" + element[name] + "</option>";
+    });
+    $ddl.children(":not(:first-child)").remove();
+    $ddl.append(opts);
+    $ddl.select2().select2("val", _data.val);
 };

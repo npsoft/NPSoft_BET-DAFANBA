@@ -8,10 +8,6 @@
     var JsonModel = @Html.Raw(JsonConvert.SerializeObject(Model));
     JsonModel.IDDiaChi = IsNullOrEmpty(JsonModel.IDDiaChi) ? "" : JsonModel.IDDiaChi.replace(/-/g, "");
     JsonModel.DangKT = IsNullOrEmpty(JsonModel.DangKT) ? "" : JsonModel.DangKT.replace(/-/g, "");
-    var Url_GetProvincesForFilter = "@Url.Action("GetProvincesForFilter", "WebsiteProduct")";
-    var Url_GetDistrictsForFilter = "@Url.Action("GetDistrictsForFilter", "WebsiteProduct")";
-    var Url_GetVillagesForFilter = "@Url.Action("GetVillagesForFilter", "WebsiteProduct")";
-    var Url_GetHamletsForFilter = "@Url.Action("GetHamletsForFilter", "WebsiteProduct")";
     var Url_GetEthnicsForFilter = "@Url.Action("GetEthnicsForFilter", "WebsiteProduct")";
     var Url_GetTypesDisabilityForFilter = "@Url.Action("GetTypesDisabilityForFilter", "WebsiteProduct")";
     var Url_GetLevelsDisabilityForFilter = "@Url.Action("GetLevelsDisabilityForFilter", "WebsiteProduct")";
@@ -75,16 +71,16 @@
         $ddl_IDDiaChi = $("#obj-info-common [name='IDDiaChi']");
         $ddl_MaLDT = $("#obj-info-common [name='MaLDT']");
 
-        $.post(Url_GetProvincesForFilter, {}, function (data) {
+        $.post(SVC_GETALLPROVINCES, {}, function (data) {
             FillDataForSelect2({ $ddl: $ddl_province, val: Code_Province, data: data, id: "MaHC", name: "TenHC" });
             if (!IsNullOrEmpty(Code_Province)) {
-                $.post(Url_GetDistrictsForFilter, { MaHC: Code_Province }, function (data) {
+                $.post(SVC_GETDISTRICTSBYPROVINCE, { MaHC: Code_Province }, function (data) {
                     FillDataForSelect2({ $ddl: $ddl_district, val: Code_District, data: data, id: "MaHC", name: "TenHC" });
                     if (!IsNullOrEmpty(Code_District)) {
-                        $.post(Url_GetVillagesForFilter, { MaHC: Code_District }, function (data) {
+                        $.post(SVC_GETVILLAGESBYDISTRICT, { MaHC: Code_District }, function (data) {
                             FillDataForSelect2({ $ddl: $ddl_MaHC, val: MaHC, data: data, id: "MaHC", name: "TenHC" });
                             if (!IsNullOrEmpty(MaHC)) {
-                                $.post(Url_GetHamletsForFilter, { MaHC: MaHC }, function (data) {
+                                $.post(SVC_GETHAMLETSBYVILLAGE, { MaHC: MaHC }, function (data) {
                                     FillDataForSelect2({ $ddl: $ddl_IDDiaChi, val: JsonModel.IDDiaChi, data: data, id: "IDDiaChi", name: "TenDiaChi" });
                                 });
                                 if (Id == 0) { UpdDataForAddrs({}); };
@@ -155,7 +151,7 @@
                 Settings.TL02 = null;
                 Settings.TL11 = null;
             } else {
-                $.post(Url_GetDistrictsForFilter, data, function (data) {
+                $.post(SVC_GETDISTRICTSBYPROVINCE, data, function (data) {
                     FillDataForSelect2({ $ddl: $ddl_district, val: "", data: data, id: "MaHC", name: "TenHC" });
                     $ddl_district.trigger("change");
                 });
@@ -173,7 +169,7 @@
                 FillDataForSelect2({ $ddl: $ddl_MaHC, val: "", data: [], id: "", name: "" });
                 $ddl_MaHC.trigger("change");
             } else {
-                $.post(Url_GetVillagesForFilter, data, function (data) {
+                $.post(SVC_GETVILLAGESBYDISTRICT, data, function (data) {
                     FillDataForSelect2({ $ddl: $ddl_MaHC, val: "", data: data, id: "MaHC", name: "TenHC" });
                     $ddl_MaHC.trigger("change");
                 });
@@ -192,7 +188,7 @@
                 FillDataForSelect2({ $ddl: $ddl_IDDiaChi, val: "", data: [], id: "", name: "" });
                 $ddl_IDDiaChi.trigger("change");
             } else {
-                $.post(Url_GetHamletsForFilter, data, function (data) {
+                $.post(SVC_GETHAMLETSBYVILLAGE, data, function (data) {
                     FillDataForSelect2({ $ddl: $ddl_IDDiaChi, val: "", data: data, id: "IDDiaChi", name: "TenDiaChi" });
                     $ddl_IDDiaChi.trigger("change");
                 });

@@ -30,72 +30,16 @@ namespace PhotoBookmart.Areas.Administration.Controllers
     [ABRequiresAnyRole(RoleEnum.Admin, RoleEnum.Province, RoleEnum.District, RoleEnum.Village)]
     public class WebsiteProductController : WebAdminController
     {
-        #region Product List
+        [HttpGet]
         public ActionResult Index(int? cat_id)
         {
-            Product_Category cat = new Product_Category();
-            cat.Id = 0;
-            if (cat_id.HasValue)
-            {
-                cat = Cache_GetProductCategory().Where(m => m.Id == cat_id.Value).FirstOrDefault();
-                if (cat == null)
-                {
-                    return RedirectToAction("Index", "Management");
-                }
-            }
-
-            ViewData["Cat"] = cat;
-
-            return View();
+            DoiTuongSearchModel model = new DoiTuongSearchModel();
+            return View(model);
         }
-
-        public ActionResult List(int cat_id)
+        
+        public ActionResult List(DoiTuongSearchModel model)
         {
-            List<Product> c = new List<Product>();
-
-            JoinSqlBuilder<Product, Product> jn = new JoinSqlBuilder<Product, Product>();
-
-            if (cat_id > 0)
-            {
-                //jn = jn.Join<Product, Product_In_Category>(m => m.Id, k => k.ProductId);
-
-                jn = jn.Where<Product>(m => m.CatId == cat_id);
-            }
-            jn = jn.OrderBy<Product>(x => x.Order);
-            var sql = jn.ToSql();
-
-            c = Db.Select<Product>(sql);
-
-            var list_users = Cache_GetAllUsers();
-
-            var cats = Db.Select<Product_Category>();
-
-            foreach (var x in c)
-            {
-                var z = list_users.Where(m => m.Id == x.CreatedBy);
-                if (z.Count() > 0)
-                {
-                    var k = z.First();
-                    if (string.IsNullOrEmpty(k.FullName))
-                        x.CreatedByUsername = k.UserName;
-                    else
-                        x.CreatedByUsername = k.FullName;
-                }
-                else
-                {
-                    x.CreatedByUsername = "Deleted user";
-                }
-
-                var kk = cats.Where(q => q.Id == x.CatId).FirstOrDefault();
-                if (kk != null)
-                {
-                    x.Category_Name = kk.Name;
-                }
-                else
-                {
-                    x.Category_Name = "Deleted Category";
-                }
-            }
+            List<DoiTuong> c = new List<DoiTuong>();
             return PartialView("_List", c);
         }
 
@@ -691,9 +635,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
 
             return Json(null, JsonRequestBehavior.AllowGet);
         }
-
-        #endregion
-
+        
         #region Detail Option in Product
 
         /// <param name="id">Site ID</param>
@@ -933,31 +875,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
         #endregion
 
         #region Support
-
-        [HttpPost]
-        public ActionResult GetProvincesForFilter()
-        {
-            return Json(GetAllProvinces());
-        }
-
-        [HttpPost]
-        public ActionResult GetDistrictsForFilter(string MaHC)
-        {
-            return Json(GetDistrictsByProvince(MaHC));
-        }
-
-        [HttpPost]
-        public ActionResult GetVillagesForFilter(string MaHC)
-        {
-            return Json(GetVillagesByDistrict(MaHC));
-        }
-
-        [HttpPost]
-        public ActionResult GetHamletsForFilter(string MaHC)
-        {
-            return Json(GetHamletsByVillage(MaHC));
-        }
-
+        
         [HttpPost]
         public ActionResult GetEthnicsForFilter()
         {

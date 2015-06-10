@@ -586,6 +586,26 @@ namespace PhotoBookmart.Controllers
             return Json(GetSettingsByScope((Enum_Settings_Scope)Enum.Parse(typeof(Enum_Settings_Scope), Scope)));
         }
 
+        public ActionResult Svc_GetAllProvinces()
+        {
+            return Json(GetAllProvinces());
+        }
+
+        public ActionResult Svc_GetDistrictsByProvince(string MaHC)
+        {
+            return Json(GetDistrictsByProvince(MaHC));
+        }
+
+        public ActionResult Svc_GetVillagesByDistrict(string MaHC)
+        {
+            return Json(GetVillagesByDistrict(MaHC));
+        }
+
+        public ActionResult Svc_GetHamletsByVillage(string MaHC)
+        {
+            return Json(GetHamletsByVillage(MaHC));
+        }
+
         public ActionResult Svc_GetTinhTrangDTsByParams(bool IsDuyet)
         {
             return Json(GetTinhTrangDTsByParams(IsDuyet));

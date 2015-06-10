@@ -3469,7 +3469,7 @@
     <Content Include="Areas\Administration\Views\WebsiteProduct\_List.cshtml" />
     <Content Include="Areas\Administration\Views\WebsiteProduct\Add.cshtml" />
     <Content Include="Areas\Administration\Views\WebsiteProduct\Index.cshtml" />
-    <Content Include="Areas\Administration\Views\WebsiteProduct\_ParentIdSubNavigation.cshtml" />
+    <Content Include="Areas\Administration\Views\WebsiteProduct\_Search.cshtml" />
     <Content Include="Areas\Administration\Views\WebsiteProduct\Detail.cshtml" />
     <Content Include="Areas\Administration\Views\WebsiteProduct\Detail_Image.cshtml" />
     <Content Include="Areas\Administration\Views\WebsiteProduct\Detail_Image_List.cshtml" />

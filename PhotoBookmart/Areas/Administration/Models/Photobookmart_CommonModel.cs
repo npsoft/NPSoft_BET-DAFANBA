@@ -91,16 +91,21 @@ namespace PhotoBookmart.Areas.Administration.Models
         public string Message { get; set; }
         public bool isPrivate { get; set; }
     }
-
-    /// <summary>
-    /// Model to handle Export to Excel
-    /// </summary>
-    public class Coupon_Instance_ExportExcelModel
+    
+    public class DoiTuongSearchModel
     {
-        public long CouponId { get; set; }
-        public DateTime BetweenDate { get; set; }
-        public DateTime EndDate { get; set; }
-        public int Status { get; set; }
-        public string IssuedTo { get; set; }
+        public int Page { get; set; }
+        public string MaHC_Province { get; set; }
+        public string MaHC_District { get; set; }
+        public string MaHC_Village { get; set; }
+        public Guid? IDDiaChi { get; set; }
+        public string MaLDT { get; set; }
+        public string TinhTrang { get; set; }
+        public bool? IsDuyet { get; set; }
+        public string Keywords { get; set; }
+        public string OrderBy { get; set; }
+        public bool OrderDesc { get; set; }
+
+        public DoiTuongSearchModel() { }
     }
 }

@@ -1,0 +1,174 @@
+﻿@model DoiTuongSearchModel
+@{
+    Layout = null;
+}
+<div class="mws-panel grid_8 mws-collapsible mws-collapsed" id="PanelOrderSearch">
+    <div class="mws-panel-header">
+        <span><i class="icon-calendar"></i>Tìm kiếm đối tượng</span>
+    </div>
+    <div class="mws-panel-body no-padding">
+        @using (Html.BeginForm("List", "WebsiteProduct", FormMethod.Post, new { enctype = "multipart/form-data", @id = "Order_Search", @class = "mws-form" }))
+        {
+            <div class="mws-form-inline">
+                <div class="mws-form-row">
+                    <label class="mws-form-label">Tỉnh</label>
+                    <div class="mws-form-item">
+                        <select name="MaHC_Province" class="mws-select2 large" @if (!string.IsNullOrEmpty(Model.MaHC_Province)) { <text>disabled="disabled"</text> }>
+                            <option value="" selected="selected">- - Chọn - -</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">Huyện</label>
+                    <div class="mws-form-item">
+                        <select name="MaHC_District" class="mws-select2 large" @if (!string.IsNullOrEmpty(Model.MaHC_District)) { <text>disabled="disabled"</text> }>
+                            <option value="" selected="selected">- - Chọn - -</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">Xã</label>
+                    <div class="mws-form-item">
+                        <select name="MaHC_Village" class="mws-select2 large" @if (!string.IsNullOrEmpty(Model.MaHC_Village)) { <text>disabled="disabled"</text> }>
+                            <option value="">- - Chọn - -</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">Xóm</label>
+                    <div class="mws-form-item ">
+                        <select name="IDDiaChi" class="mws-select2 large" @if (Model.IDDiaChi.HasValue) { <text>disabled="disabled"</text> }>
+                            <option value="">- - Chọn - -</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">Loại</label>
+                    <div class="mws-form-item ">
+                        <select name="MaLDT" class="mws-select2 large">
+                            <optgroup label="">
+                                <option value="">- - Chọn - -</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">Tình trạng</label>
+                    <div class="mws-form-item ">
+                        <select name="TinhTrang" class="mws-select2 large">
+                            <option value="">- - Chọn - -</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">Duyệt?</label>
+                    <div class="mws-form-item ">
+                        <select name="IsDuyet" class="mws-select2 large">
+                            <option value="">- - Chọn - -</option>
+                            <option value="true">Đã duyệt</option>
+                            <option value="false">Chưa duyệt</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">Từ khóa</label>
+                    <div class="mws-form-item">
+                        @Html.TextBoxFor(m => m.Keywords, new { @class = "large" })
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">Sắp xếp theo</label>
+                    <div class="mws-form-item">
+                        <select name="OrderBy" class="mws-select2 large">
+                            <option value="">- - Chọn - -</option>
+                            <option value="HoTen">Họ & Tên</option>
+                            <option value="NgaySinh">Ngày sinh</option>
+                            <option value="GioiTinh">Giới tính</option>
+                            <option value="MaLDT">Loại</option>
+                            <option value="TinhTrang">Tình trạng</option>
+                            <option value="IsDuyet">Duyệt?</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mws-form-row">
+                    <label class="mws-form-label">Thứ tự sắp xếp</label>
+                    <div class="mws-form-item">
+                        <select name="OrderDesc" class="mws-select2 large">
+                            <option value="true" selected="selected">Giảm dần</option>
+                            <option value="false">Tăng dần</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="hide">
+                    <input type="text" name="Page" value="@Model.Page" />
+                </div>
+            </div>
+            <div class="mws-button-row">
+                <input type="submit" value="Tìm kiếm" class="btn btn-danger">
+                <input type="reset" value="Làm mới" class="btn ">
+            </div>
+        }
+    </div>
+</div>
+<script>
+    var $frm_search, $ddl_MaHC_Province, $ddl_MaHC_District, $ddl_MaHC_Village, $ddl_IDDiaChi;
+    function SearchInitCtrls(_data) {
+        $frm_search = $("#Order_Search");
+        $ddl_MaHC_Province = $frm_search.find("[name='MaHC_Province']");
+        $ddl_MaHC_District = $frm_search.find("[name='MaHC_District']");
+        $ddl_MaHC_Village = $frm_search.find("[name='MaHC_Village']");
+        $ddl_IDDiaChi = $frm_search.find("[name='IDDiaChi']");
+    };
+
+    function SearchInitEvents(_data) {
+
+    };
+
+    function SearchInitData(_data) {
+
+    };
+        jQuery(document).ready(function ($) {
+            $('#date_begin,#date_end').datetimepicker({
+                stepMinute: 5,
+                onSelect: function (selectedDate, instance) {
+                    if (jQuery(this).attr("id") == "date_begin") {
+                        $('#date_end').datetimepicker("option", "minDate", selectedDate);
+                    }
+                    else {
+                        $('#date_begin').datetimepicker("option", "maxDate", selectedDate);
+                    }
+                }
+            });
+
+            jQuery("#search_coupon_select").on("change", function () {
+                if (jQuery(this).val() == "1") {
+                    jQuery("#coupontype_row").show();
+                }
+                else {
+                    jQuery("#coupontype_row").hide();
+                }
+            }).trigger("change");
+
+            jQuery("#ResultType").change(function () {
+                if (jQuery(this).val() == "3") {
+                    // show shipping method
+                    jQuery("#shipping_method_row").show();
+                    // set order status to shipping
+                    jQuery("#Status").val("5");
+                }
+                else {
+                    // if production sheet
+                    if (jQuery(this).val() == "2") {
+                        // then set order status to processing
+                        jQuery("#Status").val("1");
+                    }
+                    // hide shipping method
+                    jQuery("#shipping_method_row").hide();
+                }
+            }).trigger("change");;
+
+            jQuery("#Order_Search").find("input, select").change(function () {
+                jQuery("#Order_Search input[name='page']").val("1");
+            });
+        });
+</script>

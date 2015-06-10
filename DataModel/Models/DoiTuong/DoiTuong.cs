@@ -45,6 +45,8 @@ namespace PhotoBookmart.DataLayer.Models.Products
         public bool IsDuyet { get; set; }
 
         [Ignore]
+        public string TinhTrang_Name { get; set; }
+        [Ignore]
         public string MaLDT_Name { get; set; }
         [Ignore]
         public List<DoiTuong_LoaiDoiTuong_CT> MaLDT_Details { get; set; }
@@ -54,6 +56,11 @@ namespace PhotoBookmart.DataLayer.Models.Products
         public List<DoiTuong_BienDong> BienDong_Lst_Ins { get; set; }
         [Ignore]
         public bool IsThayDoiDoChuyenLoaiDoiTuong { get; set; }
+        
+        public string ToStringNgaySinh()
+        {
+            return (string.IsNullOrEmpty(NgaySinh) ? NgaySinh : "___" + "/") + (string.IsNullOrEmpty(ThangSinh) ? ThangSinh : "___") + "/" + NamSinh;
+        }
 
         public DoiTuong()
         {
