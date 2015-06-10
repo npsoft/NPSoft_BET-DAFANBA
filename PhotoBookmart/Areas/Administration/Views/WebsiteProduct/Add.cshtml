@@ -1080,7 +1080,7 @@
                 <div class="mws-form-row">
                     <label class="mws-form-label">&nbsp;</label>
                     <div class="mws-form-item">
-                        @if (Model.IsDuyet || !CurrentUser.HasRole(RoleEnum.District))
+                        @if (Model.IsDuyet || (RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0]) == RoleEnum.Village)
                         {
                             @: <input class="hide" name="IsDuyet" value="true" type="checkbox" readonly="readonly" @if (Model.IsDuyet) { <text> checked="checked" </text> } >
                             @: <input class="ibutton" type="checkbox" data-label-on="Đã duyệt" data-label-off="Chưa duyệt" disabled="disabled" @if (Model.IsDuyet) { <text> checked="checked" </text> } />

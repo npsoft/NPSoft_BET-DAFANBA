@@ -26,9 +26,10 @@ namespace PhotoBookmart.Controllers
             return PartialView("_JavascriptCommon");
         }
 
+        [HttpGet]
         public ActionResult Index()
         {
-            return View();
+            return RedirectToAction("SignIn", "Home", new { });
         }
 
         //public ActionResult PaymentAndShipping()
@@ -41,15 +42,11 @@ namespace PhotoBookmart.Controllers
             return View();
         }
 
-        #region Login
+        [HttpGet]
         public ActionResult SignIn(string redirectTo)
         {
-            if (User.Identity.IsAuthenticated)
-            {
-                return RedirectToAction("Index");
-            }
+            if (User.Identity.IsAuthenticated) { return Redirect("/Administration/WebsiteProduct"); }
             var model = new LoginModel() { RedirectTo = redirectTo };
-
             return View("SignIn", model);
         }
 
@@ -89,10 +86,7 @@ namespace PhotoBookmart.Controllers
                         {
                             return Redirect(model.RedirectTo);
                         }
-                        else
-                        {
-                            return RedirectToAction("Index", "Order", new { });
-                        }
+                        else { return Redirect("/Administration/WebsiteProduct"); }
                     }
                     else
                     {
@@ -114,8 +108,7 @@ namespace PhotoBookmart.Controllers
 
             return View("SignIn", model);
         }
-        #endregion
-
+        
         [Authenticate]
         public ActionResult SignOut(string redirectTo)
         {

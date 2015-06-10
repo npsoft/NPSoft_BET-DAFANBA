@@ -385,8 +385,8 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 model.MucDoKT.HasValue && Db.Count<DanhMuc_MucDoKhuyetTat>(x => x.IDMucDoKT == model.MucDoKT.Value) == 0 ||
                 model.MaDanToc.HasValue && Db.Count<DanhMuc_DanToc>(x => x.Id == model.MaDanToc.Value) == 0 ||
                 model.Id > 0 && MaLDT_Details_Ids.Count > 0 && MaLDT_Details_Ids.Count != Db.Count<DoiTuong_LoaiDoiTuong_CT>(x => x.CodeObj == model.IDDT && Sql.In(x.Id, MaLDT_Details_Ids)) ||
-                (!model.IsDuyet || !old_model.IsDuyet) && !GetTinhTrangDTsByParams(false).Select(x => x.MaTT).Contains(model.TinhTrang) ||
-                !model.IsDuyet && old_model.IsDuyet || model.IsDuyet && !old_model.IsDuyet && !CurrentUser.HasRole(RoleEnum.District))
+                (!model.IsDuyet || model.Id == 0) && !GetTinhTrangDTsByParams(false).Select(x => x.MaTT).Contains(model.TinhTrang) ||
+                (model.Id > 0 && old_model.IsDuyet && !model.IsDuyet) || (model.IsDuyet && (model.Id == 0 || !old_model.IsDuyet) && (RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0]) == RoleEnum.Village))
             {
                 return JsonError("Vui lòng không hack ứng dụng.");
             }
@@ -413,7 +413,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 model.BienDong_Lst_Ins.Add(bien_dong);
             }
 
-            if (model.Id > 0 & old_model.IsDuyet)
+            if (model.Id > 0 && old_model.IsDuyet)
             {
                 #region Initialize miscellaneous
                 int sobd = GetSBD(model.Id);
@@ -592,6 +592,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 });
 
                 Db.Save(model);
+                if (model.Id == 0) { model.Id = Db.GetLastInsertId(); }
                 model.BienDong_Lst_Ins.ForEach(x => {
                     x.IDDT = model.Id;
                 });

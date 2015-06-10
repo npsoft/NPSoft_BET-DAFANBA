@@ -25,7 +25,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
 
         public ActionResult Logon()
         {
-            return View();
+            return Redirect("/");
         }
 
         [HttpPost]
