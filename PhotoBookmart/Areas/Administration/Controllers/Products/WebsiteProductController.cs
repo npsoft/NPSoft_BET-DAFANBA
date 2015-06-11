@@ -881,25 +881,13 @@ namespace PhotoBookmart.Areas.Administration.Controllers
         {
             return Json(Cache_GetAllEthnics());
         }
-
-        [HttpPost]
-        public ActionResult GetTypesDisabilityForFilter()
-        {
-            return Json(Cache_GetAllTypesDisability());
-        }
-
+        
         [HttpPost]
         public ActionResult GetLevelsDisabilityForFilter()
         {
             return Json(Cache_GetAllLevelsDisability());
         }
-
-        [HttpPost]
-        public ActionResult GetTypesObjForFilter()
-        {
-            return Json(Cache_GetAllTypesObj());
-        }
-
+        
         [HttpPost]
         public ActionResult GetMaritalStatusesForFilter()
         {

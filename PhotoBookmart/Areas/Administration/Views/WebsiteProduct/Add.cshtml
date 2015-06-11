@@ -9,11 +9,9 @@
     JsonModel.IDDiaChi = IsNullOrEmpty(JsonModel.IDDiaChi) ? "" : JsonModel.IDDiaChi.replace(/-/g, "");
     JsonModel.DangKT = IsNullOrEmpty(JsonModel.DangKT) ? "" : JsonModel.DangKT.replace(/-/g, "");
     var Url_GetEthnicsForFilter = "@Url.Action("GetEthnicsForFilter", "WebsiteProduct")";
-    var Url_GetTypesDisabilityForFilter = "@Url.Action("GetTypesDisabilityForFilter", "WebsiteProduct")";
     var Url_GetLevelsDisabilityForFilter = "@Url.Action("GetLevelsDisabilityForFilter", "WebsiteProduct")";
     var Url_GetMaritalStatusesForFilter = "@Url.Action("GetMaritalStatusesForFilter", "WebsiteProduct")";
     var Url_GetSelfServingsForFilter = "@Url.Action("GetSelfServingsForFilter", "WebsiteProduct")";
-    var Url_GetTypesObjForFilter = "@Url.Action("GetTypesObjForFilter", "WebsiteProduct")";
     var Url_GetMaLDT_DetailsByParams = "@Url.Action("Svc_GetMaLDT_DetailsByParams", "WebsiteProduct")";
     var Id = @Model.Id;
     var Code_Province = Id > 0 ? "@Model.MaHC.GetCodeProvince()" : "@CurrentUser.MaHC.GetCodeProvince()";
@@ -98,7 +96,7 @@
         $.post(Url_GetEthnicsForFilter, {}, function (data) {
             FillDataForSelect2({ $ddl: $("#obj-info-common [name='MaDanToc']"), val: "@Model.MaDanToc", data: data, id: "Id", name: "TenDanToc" });
         });
-        $.post(Url_GetTypesDisabilityForFilter, {}, function (data) {
+        $.post(SVC_GETALLTYPESDISABILITY, {}, function (data) {
             FillDataForSelect2({ $ddl: $("#obj-info-common [name='DangKT']"), val: JsonModel.DangKT, data: data, id: "IDDangTat", name: "TenDangTat" });
         });
         $.post(Url_GetLevelsDisabilityForFilter, {}, function (data) {
@@ -110,7 +108,7 @@
         $.post(Url_GetSelfServingsForFilter, {}, function (data) {
             FillDataForSelect2({ $ddl: $("#obj-info-common [name='MaLDT_Type5_SelfServing']"), val: "@if (Model.MaLDT_Details.Count > 0) {<text>@Model.MaLDT_Details[0].Type5_SelfServing</text>}", data: data, id: "IDKhaNangPV", name: "TenKhaNangPV" });
         });
-        $.post(Url_GetTypesObjForFilter, {}, function (data) {
+        $.post(SVC_GETALLTYPESOBJ, {}, function (data) {
             var opts = "";
             data.forEach(function (group, index, array) {
                 opts += "<optgroup label='" + group.Key.TenLDT + "'>";

@@ -590,7 +590,7 @@ namespace PhotoBookmart.Controllers
         {
             return Json(GetAllProvinces());
         }
-
+        
         public ActionResult Svc_GetDistrictsByProvince(string MaHC)
         {
             return Json(GetDistrictsByProvince(MaHC));
@@ -606,11 +606,21 @@ namespace PhotoBookmart.Controllers
             return Json(GetHamletsByVillage(MaHC));
         }
 
+        public ActionResult Svc_GetAllTypesObj()
+        {
+            return Json(Cache_GetAllTypesObj());
+        }
+
+        public ActionResult Svc_GetAllTypesDisability()
+        {
+            return Json(Cache_GetAllTypesDisability());
+        }
+
         public ActionResult Svc_GetTinhTrangDTsByParams(bool IsDuyet)
         {
             return Json(GetTinhTrangDTsByParams(IsDuyet));
         }
-
+        
         public ActionResult Svc_GetMaLDT_DetailsByParams(Guid CodeObj, string CodeType)
         {
             return Json(GetMaLDT_DetailsByParams(CodeObj, CodeType));
