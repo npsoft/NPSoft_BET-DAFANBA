@@ -8,7 +8,7 @@
             <th>Giới tính</th>
             <th>Loại</th>
             <th>Tình trạng</th>
-            <th>Duyệt?</th>
+            <th>TT (duyệt)</th>
             <th>Thao tác</th>
         </tr>
     </thead>
@@ -44,12 +44,14 @@
         }
     </tbody>
 </table>
+<br />#Query: @ViewData["Query"]
 @{
     int distance = 5;
-    int currPage = 1; // (int)ViewData["CurrPage"];
-    int pageSize = 5; // (int)ViewData["PageSize"];
-    int totalItem = 100; // (int)ViewData["TotalItem"];
-    int totalPage = 20; // (int)ViewData["TotalPage"];
+    int currPage = (int)ViewData["CurrPage"];
+    int pageSize = (int)ViewData["PageSize"];
+    int totalItem = (int)ViewData["TotalItem"];
+    int totalPage = (int)ViewData["TotalPage"];
+
     var viewData = new ViewDataDictionary();
     viewData.Add("Distance", distance);
     viewData.Add("CurrPage", currPage);

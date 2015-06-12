@@ -4,7 +4,7 @@
 }
 <div class="mws-panel grid_8 mws-collapsible mws-collapsed" id="PanelOrderSearch">
     <div class="mws-panel-header">
-        <span><i class="icon-calendar"></i>Tìm kiếm</span>
+        <span><i class="icon-calendar"></i>Thông tin tìm kiếm</span>
     </div>
     <div class="mws-panel-body no-padding">
         @using (Html.BeginForm("List", "WebsiteProduct", FormMethod.Post, new { enctype = "multipart/form-data", @id = "Order_Search", @class = "mws-form" }))
@@ -94,8 +94,8 @@
                     <label class="mws-form-label">Thứ tự sắp xếp</label>
                     <div class="mws-form-item">
                         <select name="OrderDesc" class="mws-select2 large">
-                            <option value="true">Giảm dần</option>
                             <option value="false">Tăng dần</option>
+                            <option value="true">Giảm dần</option>
                         </select>
                     </div>
                 </div>
@@ -112,6 +112,11 @@
 </div>
 <script>
     var $frm_search, $ddl_MaHC_Province, $ddl_MaHC_District, $ddl_MaHC_Village, $ddl_IDDiaChi, $ddl_MaLDT, $ddl_TinhTrang, $ddl_IsDuyet, $ddl_OrderBy, $ddl_OrderDesc, $txt_Keywords, $hdf_Page, $btn_submit;
+
+    function Paging(_data) {
+        $hdf_Page.val(_data);
+        $frm_search.trigger("submit");
+    };
 
     function SearchInitCtrls(_data) {
         $frm_search = $("#Order_Search");
@@ -188,6 +193,20 @@
                 return false;
             }
         });
+
+        $btn_submit.on("click", function (e) {
+            $hdf_Page.val(1);
+            $frm_search.trigger("submit");
+            return false;
+        });
+
+        $frm_search.on("submit", function (e) {
+            var data = $frm_search.serializeObject();
+            $.post("@Url.Action("List", "WebsiteProduct", new { })", data, function (data) {
+                $(".listuser").html(data);
+            });
+            return false;
+        });
     };
 
     function SearchInitData(_data) {
@@ -198,7 +217,7 @@
                     RefillDataForSelect2({ $ddl: $ddl_MaHC_District, val: "@Model.MaHC_District", data: _data, id: "MaHC", name: "TenHC" });
                     if (!IsNullOrEmpty("@Model.MaHC_District")) {
                         $.post(SVC_GETVILLAGESBYDISTRICT, { MaHC: "@Model.MaHC_District" }, function (_data) {
-                            RefillDataForSelect2({ $dd: $ddl_MaHC_Village, val: "@Model.MaHC_Village", data: _data, id: "MaHC", name: "TenHC" });
+                            RefillDataForSelect2({ $ddl: $ddl_MaHC_Village, val: "@Model.MaHC_Village", data: _data, id: "MaHC", name: "TenHC" });
                             if (!IsNullOrEmpty("@Model.MaHC_Village")) {
                                 $.post(SVC_GETHAMLETSBYVILLAGE, { MaHC: "@Model.MaHC_Village" }, function (_data) {
                                     RefillDataForSelect2({ $ddl: $ddl_IDDiaChi, val: "@if (Model.IDDiaChi.HasValue) {<text>@Model.IDDiaChi.Value</text>}", data: _data, id: "IDDiaChi", name: "TenDiaChi" });

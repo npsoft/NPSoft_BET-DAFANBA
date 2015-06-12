@@ -31,15 +31,134 @@ namespace PhotoBookmart.Areas.Administration.Controllers
     public class WebsiteProductController : WebAdminController
     {
         [HttpGet]
-        public ActionResult Index(int? cat_id)
+        public ActionResult Index(int? page)
         {
-            DoiTuongSearchModel model = new DoiTuongSearchModel();
+            DoiTuongSearchModel model = new DoiTuongSearchModel()
+            {
+                MaHC_Province = CurrentUser.MaHC.GetCodeProvince(),
+                MaHC_District = CurrentUser.MaHC.GetCodeDistrict(),
+                MaHC_Village = CurrentUser.MaHC.GetCodeVillage(),
+                Page = page.HasValue ? page.Value : 1
+            };
             return View(model);
         }
         
         public ActionResult List(DoiTuongSearchModel model)
         {
-            List<DoiTuong> c = new List<DoiTuong>();
+            JoinSqlBuilder<DoiTuong, DoiTuong> jn = new JoinSqlBuilder<DoiTuong, DoiTuong>();
+            SqlExpressionVisitor<DoiTuong> sql_exp = Db.CreateExpression<DoiTuong>();
+            var p = PredicateBuilder.True<DoiTuong>();
+
+            string ma_hc = string.IsNullOrEmpty(model.MaHC_Village) ? (string.IsNullOrEmpty(model.MaHC_District) ? (string.IsNullOrEmpty(model.MaHC_Province) ? "" : model.MaHC_Province) : model.MaHC_District) : model.MaHC_Village;
+            p = p.And(x => x.MaHC.StartsWith(ma_hc));
+            if (model.IDDiaChi.HasValue)
+            {
+                p = p.And(x => x.IDDiaChi == model.IDDiaChi.Value);
+            }
+            if (!string.IsNullOrEmpty(model.MaLDT))
+            {
+                p = p.And(x => x.MaLDT == model.MaLDT);
+            }
+            if (!string.IsNullOrEmpty(model.TinhTrang))
+            {
+                p = p.And(x => x.TinhTrang == model.TinhTrang);
+            }
+            if (model.IsDuyet.HasValue)
+            {
+                p = p.And(x => x.IsDuyet == model.IsDuyet.Value);
+            }
+            if (!string.IsNullOrEmpty(model.Keywords))
+            {
+                p = p.And(x => x.HoTen.Contains(model.Keywords));
+            }
+
+            jn = jn.Where(p);
+            string st = jn.ToSql();
+            int idx = st.IndexOf("WHERE");
+            sql_exp.SelectExpression = st.Substring(0, idx);
+            sql_exp.WhereExpression = string.Format("{0}", st.Substring(idx));
+            if (model.OrderDesc)
+            {
+                switch (model.OrderBy)
+                {
+                    case "HoTen":
+                        sql_exp = sql_exp.OrderByDescending(x => x.HoTen);
+                        break;
+                    case "NgaySinh":
+                        sql_exp = sql_exp.OrderByDescending(new { x => new { x.NamSinh }, y => new { y.ThangSinh }, z => new { z.NgaySinh }});
+                        break;
+                    case "GioiTinh":
+                        sql_exp = sql_exp.OrderByDescending(x => x.GioiTinh);
+                        break;
+                    case "MaLDT":
+                        sql_exp = sql_exp.OrderByDescending(x => x.MaLDT);
+                        break;
+                    case "TinhTrang":
+                        sql_exp = sql_exp.OrderByDescending(x => x.TinhTrang);
+                        break;
+                    case "IsDuyet":
+                        sql_exp = sql_exp.OrderByDescending(x => x.IsDuyet);
+                        break;
+                    default:
+                        sql_exp = sql_exp.OrderByDescending(x => x.Id);
+                        break;
+                }
+            }
+            else
+            {
+                switch (model.OrderBy)
+                {
+                    case "HoTen":
+                        sql_exp = sql_exp.OrderBy(x => x.HoTen);
+                        break;
+                    case "NgaySinh":
+                        sql_exp = sql_exp.OrderBy(x => new { x.NamSinh, x.ThangSinh, x.NgaySinh });
+                        break;
+                    case "GioiTinh":
+                        sql_exp = sql_exp.OrderBy(x => x.GioiTinh);
+                        break;
+                    case "MaLDT":
+                        sql_exp = sql_exp.OrderBy(x => x.MaLDT);
+                        break;
+                    case "TinhTrang":
+                        sql_exp = sql_exp.OrderBy(x => x.TinhTrang);
+                        break;
+                    case "IsDuyet":
+                        sql_exp = sql_exp.OrderBy(x => x.IsDuyet);
+                        break;
+                    default:
+                        sql_exp = sql_exp.OrderBy(x => x.Id);
+                        break;
+                }
+            }
+
+            int pageSize = ITEMS_PER_PAGE;
+            int totalItem = (int)Db.Count<DoiTuong>(p);
+            int totalPage = (int)Math.Ceiling((double)totalItem / pageSize);
+            int currPage = (model.Page > 0 && model.Page < totalPage + 1) ? model.Page : 1;
+            sql_exp = sql_exp.Limit((currPage - 1) * pageSize, pageSize);
+
+            st = sql_exp.ToSelectStatement();
+            idx = st.IndexOf("FROM");
+            st = currPage > 1 ? string.Format("SELECT * {0}", st.Substring(idx)) : st;
+            List<DoiTuong> c = Db.Select<DoiTuong>(st);
+
+            List<DanhMuc_LoaiDT> Lst_DanhMuc_LoaiDT = new List<DanhMuc_LoaiDT>();
+            List<DanhMuc_TinhTrangDT> Lst_DanhMuc_TinhTrangDT = new List<DanhMuc_TinhTrangDT>();
+            List<string> lst_maldt = c.Where(x => !string.IsNullOrEmpty(x.MaLDT)).Select(x => x.MaLDT).Distinct().ToList();
+            List<string> lst_tinhtrangdt = c.Where(x => !string.IsNullOrEmpty(x.TinhTrang)).Select(x => x.TinhTrang).Distinct().ToList();
+            if (lst_maldt.Count > 0) { Lst_DanhMuc_LoaiDT = Db.Select<DanhMuc_LoaiDT>(x => x.Where(y => Sql.In(y.MaLDT, lst_maldt)).Limit(0, lst_maldt.Count)); }
+            if (lst_tinhtrangdt.Count > 0) { Lst_DanhMuc_TinhTrangDT = Db.Select<DanhMuc_TinhTrangDT>(x => x.Where(y => Sql.In(y.MaTT, lst_tinhtrangdt)).Limit(0, lst_tinhtrangdt.Count)); }
+            c.ForEach(x => {
+                x.MaLDT_Name = string.IsNullOrEmpty(x.MaLDT) ? "" : Lst_DanhMuc_LoaiDT.Single(y => y.MaLDT == x.MaLDT).TenLDT;
+                x.TinhTrang_Name = string.IsNullOrEmpty(x.TinhTrang) ? "" : Lst_DanhMuc_TinhTrangDT.Single(y => y.MaTT == x.TinhTrang).TenTT;
+            });
+
+            ViewData["CurrPage"] = currPage;
+            ViewData["PageSize"] = pageSize;
+            ViewData["TotalItem"] = totalItem;
+            ViewData["TotalPage"] = totalPage;
+            ViewData["Query"] = st;
             return PartialView("_List", c);
         }
 
