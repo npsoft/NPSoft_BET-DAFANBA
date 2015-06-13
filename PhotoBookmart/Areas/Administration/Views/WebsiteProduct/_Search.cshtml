@@ -13,7 +13,7 @@
                 <div class="mws-form-row">
                     <label class="mws-form-label">Tỉnh</label>
                     <div class="mws-form-item">
-                        <select name="MaHC_Province" class="mws-select2 large" @if (!string.IsNullOrEmpty(Model.MaHC_Province)) { <text>disabled="disabled"</text> }>
+                        <select name="MaHC_Province" class="mws-select2 large">
                             <option value="">- - Chọn - -</option>
                         </select>
                     </div>
@@ -21,7 +21,7 @@
                 <div class="mws-form-row">
                     <label class="mws-form-label">Huyện</label>
                     <div class="mws-form-item">
-                        <select name="MaHC_District" class="mws-select2 large" @if (!string.IsNullOrEmpty(Model.MaHC_District)) { <text>disabled="disabled"</text> }>
+                        <select name="MaHC_District" class="mws-select2 large">
                             <option value="">- - Chọn - -</option>
                         </select>
                     </div>
@@ -29,7 +29,7 @@
                 <div class="mws-form-row">
                     <label class="mws-form-label">Xã</label>
                     <div class="mws-form-item">
-                        <select name="MaHC_Village" class="mws-select2 large" @if (!string.IsNullOrEmpty(Model.MaHC_Village)) { <text>disabled="disabled"</text> }>
+                        <select name="MaHC_Village" class="mws-select2 large">
                             <option value="">- - Chọn - -</option>
                         </select>
                     </div>
@@ -37,7 +37,7 @@
                 <div class="mws-form-row">
                     <label class="mws-form-label">Xóm</label>
                     <div class="mws-form-item ">
-                        <select name="IDDiaChi" class="mws-select2 large" @if (Model.IDDiaChi.HasValue) { <text>disabled="disabled"</text> }>
+                        <select name="IDDiaChi" class="mws-select2 large">
                             <option value="">- - Chọn - -</option>
                         </select>
                     </div>
@@ -112,13 +112,14 @@
 </div>
 <script>
     var $frm_search, $ddl_MaHC_Province, $ddl_MaHC_District, $ddl_MaHC_Village, $ddl_IDDiaChi, $ddl_MaLDT, $ddl_TinhTrang, $ddl_IsDuyet, $ddl_OrderBy, $ddl_OrderDesc, $txt_Keywords, $hdf_Page, $btn_submit;
+    var $list;
 
     function Paging(_data) {
         $hdf_Page.val(_data);
         $frm_search.trigger("submit");
     };
 
-    function SearchInitCtrls(_data) {
+    function InitCtrls(_data) {
         $frm_search = $("#Order_Search");
         $ddl_MaHC_Province = $frm_search.find("[name='MaHC_Province']");
         $ddl_MaHC_District = $frm_search.find("[name='MaHC_District']");
@@ -132,9 +133,10 @@
         $txt_Keywords = $frm_search.find("[name='Keywords']");
         $hdf_Page = $frm_search.find("[name='Page']");
         $btn_submit = $frm_search.find("[type='submit']");
+        $list = $(".listuser");
     };
 
-    function SearchInitEvents(_data) {
+    function InitEvents(_data) {
         $ddl_MaHC_Province.on("change", function (e) {
             var data = { MaHC: $ddl_MaHC_Province.val() };
             if (IsNullOrEmpty(data.MaHC)) {
@@ -203,13 +205,27 @@
         $frm_search.on("submit", function (e) {
             var data = $frm_search.serializeObject();
             $.post("@Url.Action("List", "WebsiteProduct", new { })", data, function (data) {
-                $(".listuser").html(data);
+                $list.html(data);
             });
             return false;
         });
+
+        $list.on("click", "[data-action='delete']", function (e) {
+            var id = $(this).closest("tr").attr("data-id");
+            if (confirm("Bạn chắc chắn muốn xóa đối tượng này?")) {
+                $.post("@Url.Action("Delete", "WebsiteProduct", new { })", { id: id }, function (data) {
+                    if (data != null && data.Status == "error") {
+                        notify_error("Lỗi", data.Message);
+                    } else {
+                        notify_info("Thông báo", "Xóa đối tượng thành công.");
+                        $frm_search.trigger("submit");
+                    }
+                });
+            }
+        });
     };
 
-    function SearchInitData(_data) {
+    function InitData(_data) {
         $.post(SVC_GETALLPROVINCES, {}, function (_data) {
             RefillDataForSelect2({ $ddl: $ddl_MaHC_Province, val: "@Model.MaHC_Province", data: _data, id: "MaHC", name: "TenHC" });
             if (!IsNullOrEmpty("@Model.MaHC_Province")) {
@@ -258,8 +274,8 @@
     };
 
     jQuery(document).ready(function ($) {
-        SearchInitCtrls({});
-        SearchInitEvents({});
-        SearchInitData({});
+        InitCtrls({});
+        InitEvents({});
+        InitData({});
     });
 </script>

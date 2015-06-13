@@ -37,14 +37,38 @@
                 <td style="text-align: center;" class="no_padding">
                     <span class="btn-group">
                         <a href="#" class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
-                        <ul class="dropdown-menu pull-right" style="text-align: left;"></ul>
+                        <ul class="dropdown-menu pull-right" style="text-align: left;">
+                            @if (item.CanView)
+                            {
+                            <li>
+                                <a rel="detail" href="@Url.Action("Detail", "WebsiteProduct", new { id = item.Id })" title="Xem chi tiết" target="_blank">
+                                    <i class="icon-eye-open"></i>&nbsp;Xem chi tiết
+                                </a>
+                            </li>
+                            }
+                            @if (item.CanEdit)
+                            {
+                            <li>
+                                <a rel="edit" href="@Url.Action("Edit", "WebsiteProduct", new { id = item.Id })" title="Chỉnh sửa" target="_blank">
+                                    <i class="icon-pencil"></i>&nbsp;Chỉnh sửa
+                                </a>
+                            </li>
+                            }
+                            @if (item.CanDelete)
+                            {
+                            <li>
+                                <a rel="delete" href="javascript:void(0);" title="Xóa bỏ" data-action="delete">
+                                    <i class="icon-trash"></i>&nbsp;&nbsp;Xóa bỏ
+                                </a>
+                            </li>
+                            }
+                        </ul>
                     </span>
                 </td>
             </tr>
         }
     </tbody>
 </table>
-<br />#Query: @ViewData["Query"]
 @{
     int distance = 5;
     int currPage = (int)ViewData["CurrPage"];

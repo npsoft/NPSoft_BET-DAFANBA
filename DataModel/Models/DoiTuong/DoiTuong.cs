@@ -56,6 +56,12 @@ namespace PhotoBookmart.DataLayer.Models.Products
         public List<DoiTuong_BienDong> BienDong_Lst_Ins { get; set; }
         [Ignore]
         public bool IsThayDoiDoChuyenLoaiDoiTuong { get; set; }
+        [Ignore]
+        public bool CanView { get; set; }
+        [Ignore]
+        public bool CanEdit { get; set; }
+        [Ignore]
+        public bool CanDelete { get; set; }
         
         public string ToStringNgaySinh()
         {

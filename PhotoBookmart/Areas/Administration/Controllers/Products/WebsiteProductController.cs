@@ -45,10 +45,13 @@ namespace PhotoBookmart.Areas.Administration.Controllers
         
         public ActionResult List(DoiTuongSearchModel model)
         {
+            #region Initialize
             JoinSqlBuilder<DoiTuong, DoiTuong> jn = new JoinSqlBuilder<DoiTuong, DoiTuong>();
             SqlExpressionVisitor<DoiTuong> sql_exp = Db.CreateExpression<DoiTuong>();
             var p = PredicateBuilder.True<DoiTuong>();
+            #endregion
 
+            #region Where clause
             string ma_hc = string.IsNullOrEmpty(model.MaHC_Village) ? (string.IsNullOrEmpty(model.MaHC_District) ? (string.IsNullOrEmpty(model.MaHC_Province) ? "" : model.MaHC_Province) : model.MaHC_District) : model.MaHC_Village;
             p = p.And(x => x.MaHC.StartsWith(ma_hc));
             if (model.IDDiaChi.HasValue)
@@ -71,7 +74,9 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             {
                 p = p.And(x => x.HoTen.Contains(model.Keywords));
             }
+            #endregion
 
+            #region Order By clause
             jn = jn.Where(p);
             string st = jn.ToSql();
             int idx = st.IndexOf("WHERE");
@@ -85,7 +90,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                         sql_exp = sql_exp.OrderByDescending(x => x.HoTen);
                         break;
                     case "NgaySinh":
-                        sql_exp = sql_exp.OrderByDescending(new { x => new { x.NamSinh }, y => new { y.ThangSinh }, z => new { z.NgaySinh }});
+                        sql_exp = sql_exp.OrderByDescending(x => new { x.NamSinh }).ThenByDescending(x => new { x.ThangSinh }).ThenByDescending(x => new { x.NgaySinh });
                         break;
                     case "GioiTinh":
                         sql_exp = sql_exp.OrderByDescending(x => x.GioiTinh);
@@ -112,7 +117,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                         sql_exp = sql_exp.OrderBy(x => x.HoTen);
                         break;
                     case "NgaySinh":
-                        sql_exp = sql_exp.OrderBy(x => new { x.NamSinh, x.ThangSinh, x.NgaySinh });
+                        sql_exp = sql_exp.OrderBy(x => new { x.NamSinh }).ThenBy(x => new { x.ThangSinh }).ThenBy(x => new { x.NgaySinh });
                         break;
                     case "GioiTinh":
                         sql_exp = sql_exp.OrderBy(x => x.GioiTinh);
@@ -131,18 +136,25 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                         break;
                 }
             }
+            #endregion
 
+            #region Paging (Top) clause
             int pageSize = ITEMS_PER_PAGE;
             int totalItem = (int)Db.Count<DoiTuong>(p);
             int totalPage = (int)Math.Ceiling((double)totalItem / pageSize);
             int currPage = (model.Page > 0 && model.Page < totalPage + 1) ? model.Page : 1;
             sql_exp = sql_exp.Limit((currPage - 1) * pageSize, pageSize);
+            #endregion
 
+            #region Retrieve data
             st = sql_exp.ToSelectStatement();
             idx = st.IndexOf("FROM");
             st = currPage > 1 ? string.Format("SELECT * {0}", st.Substring(idx)) : st;
             List<DoiTuong> c = Db.Select<DoiTuong>(st);
+            #endregion
 
+            #region Prepare data
+            PermissionChecker permission = new PermissionChecker(this);
             List<DanhMuc_LoaiDT> Lst_DanhMuc_LoaiDT = new List<DanhMuc_LoaiDT>();
             List<DanhMuc_TinhTrangDT> Lst_DanhMuc_TinhTrangDT = new List<DanhMuc_TinhTrangDT>();
             List<string> lst_maldt = c.Where(x => !string.IsNullOrEmpty(x.MaLDT)).Select(x => x.MaLDT).Distinct().ToList();
@@ -150,16 +162,21 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             if (lst_maldt.Count > 0) { Lst_DanhMuc_LoaiDT = Db.Select<DanhMuc_LoaiDT>(x => x.Where(y => Sql.In(y.MaLDT, lst_maldt)).Limit(0, lst_maldt.Count)); }
             if (lst_tinhtrangdt.Count > 0) { Lst_DanhMuc_TinhTrangDT = Db.Select<DanhMuc_TinhTrangDT>(x => x.Where(y => Sql.In(y.MaTT, lst_tinhtrangdt)).Limit(0, lst_tinhtrangdt.Count)); }
             c.ForEach(x => {
+                x.CanView = permission.CanGet(x);
+                x.CanEdit = permission.CanUpdate(x);
+                x.CanDelete = permission.CanDelete(x);
                 x.MaLDT_Name = string.IsNullOrEmpty(x.MaLDT) ? "" : Lst_DanhMuc_LoaiDT.Single(y => y.MaLDT == x.MaLDT).TenLDT;
                 x.TinhTrang_Name = string.IsNullOrEmpty(x.TinhTrang) ? "" : Lst_DanhMuc_TinhTrangDT.Single(y => y.MaTT == x.TinhTrang).TenTT;
             });
+            #endregion
 
+            #region Model data
             ViewData["CurrPage"] = currPage;
             ViewData["PageSize"] = pageSize;
             ViewData["TotalItem"] = totalItem;
             ViewData["TotalPage"] = totalPage;
-            ViewData["Query"] = st;
             return PartialView("_List", c);
+            #endregion
         }
 
         [HttpGet]
@@ -673,9 +690,17 @@ namespace PhotoBookmart.Areas.Administration.Controllers
         {
             try
             {
-                if (id > 1)
+                PermissionChecker permission = new PermissionChecker(this);
+                var entity = Db.Select<DoiTuong>(x => x.Where(y => y.Id == id).Limit(0, 1)).FirstOrDefault();
+                if (!permission.CanDelete(entity))
                 {
-                    Db.DeleteById<Product>(id);
+                    return JsonError("Vui lòng không hack ứng dụng");
+                }
+                using (IDbTransaction dbTrans = Db.OpenTransaction())
+                {
+                    Db.Delete<DoiTuong_LoaiDoiTuong_CT>(x => x.CodeObj == entity.IDDT);
+                    Db.DeleteById<DoiTuong>(id);
+                    dbTrans.Commit();
                 }
             }
             catch (Exception ex)

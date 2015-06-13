@@ -52,11 +52,11 @@ namespace PhotoBookmart.Helper
     public class PermissionChecker
     {
         WebAdminController service;
-        TypeSwitch canUpdate;
-        TypeSwitch canAdd;
         TypeSwitch canGet;
         TypeSwitch canList;
-        TypeSwitch canStatistic;
+        TypeSwitch canAdd;
+        TypeSwitch canUpdate;
+        TypeSwitch canDelete;
         public PermissionChecker(WebAdminController service)
         {
             this.service = service;
@@ -64,22 +64,22 @@ namespace PhotoBookmart.Helper
             //canUpdate = new TypeSwitch()
             //        .Case((ProspectCustomer x) => { return this.CanUpdate(x); })
             //        .Case((KIT x) => { return this.CanUpdate(x); });
+            
+            // for get
+            canGet = new TypeSwitch()
+                   .Case((DoiTuong x) => { return this.CanGet(x); });
 
             // for add
             canAdd = new TypeSwitch()
                    .Case((DoiTuong x) => { return this.CanAdd(x); });
 
-            // for Get
+            // for update
             canUpdate = new TypeSwitch()
                    .Case((DoiTuong x) => { return this.CanUpdate(x); });
 
-            //// for List
-            //canList = new TypeSwitch()
-            //       .Case((KIT x) => { return this.CanList(x); });
-
-            //// for Statistic
-            //canStatistic = new TypeSwitch()
-            //       .Case((KIT x) => { return this.CanStatistic(x); });
+            // for delete
+            canDelete = new TypeSwitch()
+                   .Case((DoiTuong x) => { return this.CanDelete(x); });
         }
 
         #region Functions
@@ -101,10 +101,7 @@ namespace PhotoBookmart.Helper
 
         public bool CanDelete<T>(T item)
         {
-            var ret = false;
-
-
-            return ret;
+            return canDelete.Switch(item);
         }
 
         public bool CanGet<T>(T item)
@@ -283,22 +280,11 @@ namespace PhotoBookmart.Helper
         //}
         //#endregion
 
-        #region TODO: Đối tượng
-
-        private bool CanView(DoiTuong item)
+        #region For: Đối tượng
+        private bool CanGet(DoiTuong item)
         {
+            if (item == null) { return false; }
             return true;
-            /* TODO: Comments
-            if (item == null)
-            {
-                return false;
-            }
-
-            var u = service.CurrentUser;
-            return (u.HasRole(RoleEnum.Administrator) ||
-                u.HasRole(RoleEnum.Super_Manager) ||
-                u.HasRole(RoleEnum.Managing_Director) ||
-                (u.HasRole(RoleEnum.Sales_Consultant) && u.Id == item.Assigned_User_Id));*/
         }
 
         private bool CanAdd(DoiTuong item)
@@ -315,28 +301,12 @@ namespace PhotoBookmart.Helper
             return curr_user.HasRole(RoleEnum.Admin) || item.MaHC.StartsWith(curr_user.MaHC);
         }
 
-        //private bool CanList(KIT item)
-        //{
-        //    var u = service.CurrentUser;
-        //    if (u.HasRole(RoleEnum.Sales_Consultant))
-        //    {
-        //        return true;
-        //    }
-
-        //    return false;
-        //}
-
-        //private bool CanStatistic(KIT item)
-        //{
-        //    var u = service.CurrentUser;
-        //    if (u.HasRole(RoleEnum.Sales_Consultant))
-        //    {
-        //        return true;
-        //    }
-
-        //    return false;
-        //}
-
+        private bool CanDelete(DoiTuong item)
+        {
+            if (item == null) { return false; }
+            ABUserAuth curr_user = service.CurrentUser;
+            return !item.IsDuyet && (curr_user.HasRole(RoleEnum.Admin) || item.MaHC.StartsWith(curr_user.MaHC));
+        }
         #endregion
     }
 }
