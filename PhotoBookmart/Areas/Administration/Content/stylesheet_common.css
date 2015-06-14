@@ -453,13 +453,13 @@ style from http://flatfull.com/themes/scale/chat.html
 .img-w-16 {
     width: 16px;
 }
-.np-align-l {
+.align-l {
     text-align: left;
 }
-.np-align-c {
+.align-c {
     text-align: center;
 }
-.np-align-r {
+.align-r {
     text-align: right;
 }
 .float-left {

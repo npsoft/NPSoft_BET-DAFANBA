@@ -4,6 +4,15 @@
 }
 <link rel="stylesheet" type="text/css" href="@Url.ContentArea("~/Content/admin_template/plugins/datatables/colvis.css")">
 <script src="@Url.ContentArea("~/Content/admin_template/plugins/datatables/ColVis.js")"></script>
+<style>
+    .mws-form .mws-form-inline .mws-form-label {
+        width: 140px !important;
+        text-align: right;
+    }
+    .mws-form .mws-form-inline .mws-form-item {
+        margin-left: 156px !important;
+    }
+</style>
 <script>
     var JsonModel = @Html.Raw(JsonConvert.SerializeObject(Model));
     JsonModel.IDDiaChi = IsNullOrEmpty(JsonModel.IDDiaChi) ? "" : JsonModel.IDDiaChi.replace(/-/g, "");
@@ -391,6 +400,10 @@
                 "aaSorting": []
             });
         }
+
+        $("[data-action='save']").on("click", function (e) {
+            $("#obj-info-common").trigger("submit");
+        });
 
         $("#obj-info-common").on("submit", function (e) {
             var $frm = $(this);
@@ -781,157 +794,186 @@
     <h3>@{ if (Model.Id > 0) { <text>Chỉnh sửa đối tượng</text> } else { <text>Thêm mới đối tượng</text> } }</h3>
 </div>
 <div class="mws-panel grid_8">
-    <div class="mws-panel-header">
-        <span>Thông tin</span>
+    <div class="mws-panel-toolbar">
+        <div class="btn-toolbar">
+            <div class="btn-group">
+                <a rel="back" href="@Url.Action("Index", "WebsiteProduct", new { })" class="btn">
+                    <i class="icol-arrow-left"></i>Quay lại
+                </a>
+                <a rel="save" href="javascript:void(0);" data-action="save" class="btn">
+                    <i class="icol-disk"></i>Lưu lại
+                </a>
+            </div>
+        </div>
     </div>
-    <div class="mws-panel-body no-padding">
+    <div class="mws-tabs">
+        <ul>
+            <li><a rel="thong-tin-chung" href="#thong-tin-chung">Thông tin chung</a></li>
+            <li><a rel="thong-tin-tro-cap" href="#thong-tin-tro-cap">Thông tin trợ cấp</a></li>
+        </ul>
         @using (Html.BeginForm("Update", "WebsiteProduct", FormMethod.Post, new { enctype = "multipart/form-data", @id = "obj-info-common", @class = "mws-form" }))
         {
-            @Html.HiddenFor(m => m.Id)
-            @Html.HiddenFor(m => m.IsThayDoiDoChuyenLoaiDoiTuong)
-            <div class="mws-form-inline">
-                <div class="mws-form-row">
-                    <label class="mws-form-label">Tỉnh</label>
-                    <div class="mws-form-item">
-                        <select id="ddl-province" class="mws-select2 large" @if (!PhotoBookmart.Controllers.BaseController.IsHigherRole(RoleEnum.Province, (RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0]))) { <text>disabled="disabled"</text>}>
-                            <option value="" selected="selected">- - Chọn - -</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="mws-form-row">
-                    <label class="mws-form-label">Huyện</label>
-                    <div class="mws-form-item">
-                        <select id="ddl-district" class="mws-select2 large" @if (!PhotoBookmart.Controllers.BaseController.IsHigherRole(RoleEnum.District, (RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0]))) { <text>disabled="disabled"</text>}>
-                            <option value="" selected="selected">- - Chọn - -</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="mws-form-row">
-                    <label class="mws-form-label">Xã</label>
-                    <div class="mws-form-item">
-                        <select class="mws-select2 large" name="MaHC" @if (!PhotoBookmart.Controllers.BaseController.IsHigherRole(RoleEnum.Village, (RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0]))) { <text>readonly="readonly"</text>}>
-                            <option value="" selected="selected">- - Chọn - -</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="mws-form-row">
-                    <label class="mws-form-label">Xóm</label>
-                    <div class="mws-form-item">
-                        <select class="mws-select2 large" name="IDDiaChi">
-                            <option value="" selected="selected">- - Chọn - -</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="mws-form-row">
-                    <label class="mws-form-label">Họ & Tên</label>
-                    <div class="mws-form-item">
-                        @Html.TextBoxFor(model => model.HoTen, new { @class = "large" })
-                    </div>
-                </div>
-                <div class="mws-form-row">
-                    <label class="mws-form-label">Ngày sinh</label>
-                    <div class="mws-form-item">
-                        <div class="row-fluid">
-                            <div class="col-xs-15">@Html.TextBoxFor(model => model.NgaySinh, new { @placeholder = "Ngày", @class = "date-of-birth-date" })</div>
-                            <span class="col-xs-15 np-align-c">&mdash;</span>
-                            <div class="col-xs-15">@Html.TextBoxFor(model => model.ThangSinh, new { @placeholder = "Tháng", @class = "date-of-birth-month" })</div>
-                            <span class="col-xs-15 np-align-c">&mdash;</span>
-                            <div class="col-xs-15">@Html.TextBoxFor(model => model.NamSinh, new { @placeholder = "Năm", @class = "date-of-birth-year" })</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="mws-form-row">
-                    <label class="mws-form-label">Giới tính</label>
-                    <div class="mws-form-item">
-                        @Html.DropDownListFor(model => model.GioiTinh, PhotoBookmart.Controllers.BaseController.Gender_GetAll(), "- - Chọn - -", new { @class = "mws-select2 large" })
-                    </div>
-                </div>
-                <div class="mws-form-row">
-                    <label class="mws-form-label">Dân tộc</label>
-                    <div class="mws-form-item">
-                        <select class="mws-select2 large" name="MaDanToc">
-                            <option value="">- - Chọn - -</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="mws-form-row">
-                    <label class="mws-form-label">CMTND</label>
-                    <div class="mws-form-item">
-                        @Html.TextBoxFor(model => model.CMTND, new { @class = "large" })
-                    </div>
-                </div>
-                <div class="mws-form-row">
-                    <label class="mws-form-label">Ngày cấp</label>
-                    <div class="mws-form-item">
-                        <input type="text" name="NgayCap" value="@string.Format("{0:dd/MM/yyyy}", Model.NgayCap)" class="large" />
-                    </div>
-                </div>
-                <div class="mws-form-row">
-                    <label class="mws-form-label">Nơi cấp</label>
-                    <div class="mws-form-item">
-                        @Html.TextBoxFor(model => model.NoiCap, new { @class = "large" })
-                    </div>
-                </div>
-                <div class="mws-form-row">
-                    <label class="mws-form-label">Trú quán</label>
-                    <div class="mws-form-item">
-                        @Html.TextBoxFor(model => model.TruQuan, new { @class = "large" })
-                    </div>
-                </div>
-                <div class="mws-form-row">
-                    <label class="mws-form-label">Nguyên quán</label>
-                    <div class="mws-form-item">
-                        @Html.TextBoxFor(model => model.NguyenQuan, new { @class = "large" })
-                    </div>
-                </div>
-                <div class="mws-form-row">
-                    <label class="mws-form-label">Loại</label>
-                    <div class="mws-form-item">
-                        <select class="mws-select2 large" name="MaLDT">
-                            <optgroup label="">
-                                <option value="">- - Chọn - -</option>
-                            </optgroup>
-                        </select>
-                    </div>
-                </div>
-                <div data-con="type" data-val="01" @if (string.IsNullOrEmpty(Model.MaLDT) || !Model.MaLDT.StartsWith("01")) {<text>class="hide"</text>}>
+            <div id="thong-tin-chung">
+                @Html.HiddenFor(m => m.Id)
+                @Html.HiddenFor(m => m.IsThayDoiDoChuyenLoaiDoiTuong)
+                @if (ViewBag.Error != null) { <div class="mws-form-message error">@ViewBag.Error</div> }
+                <div class="mws-form-inline">
                     <div class="mws-form-row">
-                        <label class="mws-form-label">Thông tin cha</label>
-                        <div class="mws-form-item">
-                            <input type="text" name="MaLDT_Type1_InfoFather" value="@if (!string.IsNullOrEmpty(Model.MaLDT) && Model.MaLDT.StartsWith("01")) {<text>@Model.MaLDT_Details[0].Type1_InfoFather</text>}" class="large" />
-                        </div>
-                    </div>
-                    <div class="mws-form-row">
-                        <label class="mws-form-label">Thông tin mẹ</label>
-                        <div class="mws-form-item">
-                            <input type="text" name="MaLDT_Type1_InfoMother" value="@if (!string.IsNullOrEmpty(Model.MaLDT) && Model.MaLDT.StartsWith("01")) {<text>@Model.MaLDT_Details[0].Type1_InfoMother</text>}" class="large" />
-                        </div>
-                    </div>
-                </div>
-                <div data-con="type" data-val="03" @if (string.IsNullOrEmpty(Model.MaLDT) || !Model.MaLDT.StartsWith("03")) {<text>class="hide"</text>}>
-                    <div class="mws-form-row">
-                        <label class="mws-form-label">Thông tin con</label>
-                        <div class="mws-form-item">
-                            <div class="mws-panel-toolbar">
-                                <div class="btn-toolbar">
-                                    <a href="javascript:void(0);" class="btn np-add">
-                                        <i class="icol-add"></i>Thêm mới
-                                    </a>
+                        <div class="mws-form-cols">
+                            <div class="mws-form-col-4-8">
+                                <label class="mws-form-label">Tỉnh</label>
+                                <div class="mws-form-item">
+                                    <select id="ddl-province" class="mws-select2 large" @if (!PhotoBookmart.Controllers.BaseController.IsHigherRole(RoleEnum.Province, (RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0]))) { <text> disabled="disabled" </text>   }>
+                                        <option value="" selected="selected">- - Chọn - -</option>
+                                    </select>
                                 </div>
                             </div>
-                            <div class="mws-panel-body">
-                                <table class="mws-table" id="ListTable">
-                                    <thead>
-                                        <tr>
-                                            <th>Họ & Tên</th>
-                                            <th>Ngày sinh</th>
-                                            <th>Giới tính</th>
-                                            <th>Nơi ở hiện tại</th>
-                                            <th>Tình trạng đi học</th>
-                                            <th>Thao tác</th>
-                                        </tr>
-                                    </thead>
-                                    @if (!string.IsNullOrEmpty(Model.MaLDT) && Model.MaLDT.StartsWith("03"))
+                            <div class="mws-form-col-4-8">
+                                <label class="mws-form-label">Huyện</label>
+                                <div class="mws-form-item">
+                                    <select id="ddl-district" class="mws-select2 large" @if (!PhotoBookmart.Controllers.BaseController.IsHigherRole(RoleEnum.District, (RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0]))) { <text> disabled="disabled" </text>   }>
+                                        <option value="" selected="selected">- - Chọn - -</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mws-form-row">
+                        <div class="mws-form-cols">
+                            <div class="mws-form-col-4-8">
+                                <label class="mws-form-label">Xã</label>
+                                <div class="mws-form-item">
+                                    <select class="mws-select2 large" name="MaHC" @if (!PhotoBookmart.Controllers.BaseController.IsHigherRole(RoleEnum.Village, (RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0]))) { <text> readonly="readonly" </text>  }>
+                                        <option value="" selected="selected">- - Chọn - -</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mws-form-col-4-8">
+                                <label class="mws-form-label">Xóm</label>
+                                <div class="mws-form-item">
+                                    <select class="mws-select2 large" name="IDDiaChi">
+                                        <option value="" selected="selected">- - Chọn - -</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mws-form-row">
+                        <label class="mws-form-label">Họ & Tên</label>
+                        <div class="mws-form-item">
+                            @Html.TextBoxFor(model => model.HoTen, new { @class = "large" })
+                        </div>
+                    </div>
+                    <div class="mws-form-row">
+                        <label class="mws-form-label">Ngày sinh</label>
+                        <div class="mws-form-item">
+                            <div class="row-fluid">
+                                <div class="col-xs-15">@Html.TextBoxFor(model => model.NgaySinh, new { @placeholder = "Ngày", @class = "date-of-birth-date" })</div>
+                                <span class="col-xs-15 align-c">&mdash;</span>
+                                <div class="col-xs-15">@Html.TextBoxFor(model => model.ThangSinh, new { @placeholder = "Tháng", @class = "date-of-birth-month" })</div>
+                                <span class="col-xs-15 align-c">&mdash;</span>
+                                <div class="col-xs-15">@Html.TextBoxFor(model => model.NamSinh, new { @placeholder = "Năm", @class = "date-of-birth-year" })</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mws-form-row">
+                        <div class="mws-form-cols">
+                            <div class="mws-form-col-4-8">
+                                <label class="mws-form-label">Giới tính</label>
+                                <div class="mws-form-item">
+                                    @Html.DropDownListFor(model => model.GioiTinh, PhotoBookmart.Controllers.BaseController.Gender_GetAll(), "- - Chọn - -", new { @class = "mws-select2 large" })
+                                </div>
+                            </div>
+                            <div class="mws-form-col-4-8">
+                                <label class="mws-form-label">Dân tộc</label>
+                                <div class="mws-form-item">
+                                    <select class="mws-select2 large" name="MaDanToc">
+                                        <option value="">- - Chọn - -</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mws-form-row">
+                        <label class="mws-form-label">CMTND</label>
+                        <div class="mws-form-item">
+                            <div class="row-fluid">
+                                <div class="col-xs-15">@Html.TextBoxFor(model => model.CMTND, new { @placeholder="Số CMTND", @class = "large" })</div>
+                                <span class="col-xs-15 align-c">&mdash;</span>
+                                <div class="col-xs-15"><input type="text" name="NgayCap" value="@string.Format("{0:dd/MM/yyyy}", Model.NgayCap)" placeholder="Ngày cấp" class="large" /></div>
+                                <span class="col-xs-15 align-c">&mdash;</span>
+                                <div class="col-xs-15">@Html.TextBoxFor(model => model.NoiCap, new { @placeholder="Nơi cấp", @class = "large" })</div>
+                            </div>  
+                        </div>
+                    </div>
+                    <div class="mws-form-row">
+                        <label class="mws-form-label">Trú quán</label>
+                        <div class="mws-form-item">
+                            @Html.TextBoxFor(model => model.TruQuan, new { @class = "large" })
+                        </div>
+                    </div>
+                    <div class="mws-form-row">
+                        <label class="mws-form-label">Nguyên quán</label>
+                        <div class="mws-form-item">
+                            @Html.TextBoxFor(model => model.NguyenQuan, new { @class = "large" })
+                        </div>
+                    </div>
+                    <div class="mws-button-row">
+                        <button type="submit" class="btn btn-danger">Lưu lại</button>
+                        <button type="button" class="btn" onclick="javascript: location.href = '@Url.Action("Index", "WebsiteProduct", new { })'">Hủy bỏ</button>
+                    </div>
+                </div>
+            </div>
+            <div id="thong-tin-tro-cap">
+                <div class="mws-form-inline">
+                    <div class="mws-form-row">
+                        <label class="mws-form-label">Loại</label>
+                        <div class="mws-form-item">
+                            <select class="mws-select2 large" name="MaLDT">
+                                <optgroup label="">
+                                    <option value="">- - Chọn - -</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+                    <div data-con="type" data-val="01" @if (string.IsNullOrEmpty(Model.MaLDT) || !Model.MaLDT.StartsWith("01")) { <text> class="hide" </text> }>
+                        <div class="mws-form-row">
+                            <label class="mws-form-label">Thông tin cha</label>
+                            <div class="mws-form-item">
+                                <input type="text" name="MaLDT_Type1_InfoFather" value="@if (!string.IsNullOrEmpty(Model.MaLDT) && Model.MaLDT.StartsWith("01")) {<text>@Model.MaLDT_Details[0].Type1_InfoFather</text>}" class="large" />
+                            </div>
+                        </div>
+                        <div class="mws-form-row">
+                            <label class="mws-form-label">Thông tin mẹ</label>
+                            <div class="mws-form-item">
+                                <input type="text" name="MaLDT_Type1_InfoMother" value="@if (!string.IsNullOrEmpty(Model.MaLDT) && Model.MaLDT.StartsWith("01")) {<text>@Model.MaLDT_Details[0].Type1_InfoMother</text>}" class="large" />
+                            </div>
+                        </div>
+                    </div>
+                    <div data-con="type" data-val="03" @if (string.IsNullOrEmpty(Model.MaLDT) || !Model.MaLDT.StartsWith("03")) { <text> class="hide" </text> }>
+                        <div class="mws-form-row">
+                            <label class="mws-form-label">Thông tin con</label>
+                            <div class="mws-form-item">
+                                <div class="mws-panel-toolbar">
+                                    <div class="btn-toolbar">
+                                        <a href="javascript:void(0);" class="btn np-add">
+                                            <i class="icol-add"></i>Thêm mới
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="mws-panel-body">
+                                    <table class="mws-table" id="ListTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Họ & Tên</th>
+                                                <th>Ngày sinh</th>
+                                                <th>Giới tính</th>
+                                                <th>Nơi ở hiện tại</th>
+                                                <th>Tình trạng đi học</th>
+                                                <th>Thao tác</th>
+                                            </tr>
+                                        </thead>
+                                        @if (!string.IsNullOrEmpty(Model.MaLDT) && Model.MaLDT.StartsWith("03"))
                                     {
                                     <tbody>
                                         @foreach (var item in Model.MaLDT_Details)
@@ -960,135 +1002,136 @@
                                         }
                                     </tbody>
                                     }
-                                </table>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div data-con="type" data-val="04" @if (string.IsNullOrEmpty(Model.MaLDT) || !Model.MaLDT.StartsWith("04")) {<text>class="hide"</text>}>
+                    <div data-con="type" data-val="04" @if (string.IsNullOrEmpty(Model.MaLDT) || !Model.MaLDT.StartsWith("04")) { <text> class="hide" </text> }>
+                        <div class="mws-form-row">
+                            <label class="mws-form-label">Tình trạng hôn nhân</label>
+                            <div class="mws-form-item">
+                                <select class="mws-select2 large" name="MaLDT_Type4_MaritalStatus">
+                                    <option value="">- - Chọn - -</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mws-form-row">
+                            <label class="mws-form-label">Thông tin thêm</label>
+                            <div class="mws-form-item">
+                                <input type="text" name="MaLDT_Type4_InfoAdditional" value="@if (!string.IsNullOrEmpty(Model.MaLDT) && Model.MaLDT.StartsWith("04")) {<text>@Model.MaLDT_Details[0].Type4_InfoAdditional</text>}" class="large" />
+                            </div>
+                        </div>
+                    </div>
+                    <div data-con="type" data-val="05" @if (string.IsNullOrEmpty(Model.MaLDT) || !Model.MaLDT.StartsWith("05")) { <text> class="hide" </text> }>
+                        <div class="mws-form-row">
+                            <label class="mws-form-label">Khả năng phục vụ</label>
+                            <div class="mws-form-item">
+                                <select class="mws-select2 large" name="MaLDT_Type5_SelfServing">
+                                    <option value="">- - Chọn - -</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mws-form-row">
+                            <label class="mws-form-label">Người chăm sóc</label>
+                            <div class="mws-form-item">
+                                <input type="text" name="MaLDT_Type5_Carer" value="@if (!string.IsNullOrEmpty(Model.MaLDT) && Model.MaLDT.StartsWith("05")) {<text>@Model.MaLDT_Details[0].Type5_Carer</text>}" class="large" />
+                            </div>
+                        </div>
+                    </div>
                     <div class="mws-form-row">
-                        <label class="mws-form-label">Tình trạng hôn nhân</label>
+                        <label class="mws-form-label">Có bảo hiểm y tế?</label>
                         <div class="mws-form-item">
-                            <select class="mws-select2 large" name="MaLDT_Type4_MaritalStatus">
-                                <option value="">- - Chọn - -</option>
+                            <input class="ibutton" name="isBHYT" value="true" type="checkbox" data-label-on="Có&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" data-label-off="Không" @if (Model.isBHYT.HasValue && Model.isBHYT.Value) { <text> checked="checked" </text> }>
+                        </div>
+                    </div>
+                    <div class="mws-form-row">
+                        <label class="mws-form-label">Thuộc hộ nghèo?</label>
+                        <div class="mws-form-item">
+                            <input class="ibutton" name="isHoNgheo" value="true" type="checkbox" data-label-on="Có&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" data-label-off="Không" @if (Model.isHoNgheo.HasValue && Model.isHoNgheo.Value) { <text> checked="checked" </text> }>
+                        </div>
+                    </div>
+                    <div class="mws-form-row">
+                        <label class="mws-form-label">Bị khuyết tật?</label>
+                        <div class="mws-form-item">
+                            <input class="ibutton" name="isKhuyetTat" value="true" type="checkbox" data-label-on="Có&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" data-label-off="Không" @if (Model.isKhuyetTat.HasValue && Model.isKhuyetTat.Value) { <text> checked="checked" </text> }>
+                        </div>
+                    </div>
+                    <div data-con="disability" @if(!Model.isKhuyetTat.HasValue || !Model.isKhuyetTat.Value) { <text> class="hide" </text> }>
+                        <div class="mws-form-row">
+                            <label class="mws-form-label">Dạng khuyết tật</label>
+                            <div class="mws-form-item">
+                                <select name="DangKT" class="mws-select2 large">
+                                    <option value="">- - Chọn - -</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mws-form-row">
+                            <label class="mws-form-label">Mức độ khuyết tật</label>
+                            <div class="mws-form-item">
+                                <select name="MucDoKT" class="mws-select2 large">
+                                    <option value="">- - Chọn - -</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mws-form-row">
+                        <label class="mws-form-label">Mức trợ cấp</label>
+                        <div class="mws-form-item">
+                            @Html.TextBoxFor(model => model.MucTC, new { @class = "large currency" })
+                        </div>
+                    </div>
+                    <div class="mws-form-row">
+                        <label class="mws-form-label">Ngày hưởng</label>
+                        <div class="mws-form-item">
+                            <input type="text" name="NgayHuong" value="@string.Format("{0:dd/MM/yyyy}", Model.NgayHuong)" class="large" />
+                        </div>
+                    </div>
+                    <div class="mws-form-row">
+                        <label class="mws-form-label">Số QĐ</label>
+                        <div class="mws-form-item">
+                            @Html.TextBoxFor(model => model.SoQD, new { @class = "large" })
+                        </div>
+                    </div>
+                    <div class="mws-form-row">
+                        <label class="mws-form-label">Ngày QĐ</label>
+                        <div class="mws-form-item">
+                            <input type="text" name="NgayQD" value="@string.Format("{0:dd/MM/yyyy}", Model.NgayQD)" class="large" />
+                        </div>
+                    </div>
+                    <div class="mws-form-row">
+                        <label class="mws-form-label">Ghi chú</label>
+                        <div class="mws-form-item">
+                            @Html.TextAreaFor(model => model.GhiChu, new { @class = "large" })
+                        </div>
+                    </div>
+                    <div class="mws-form-row">
+                        <label class="mws-form-label">Tình trạng</label>
+                        <div class="mws-form-item">
+                            <select class="mws-select2 large" name="TinhTrang">
+                                <option value="" selected="selected">- - Chọn - -</option>
                             </select>
                         </div>
                     </div>
                     <div class="mws-form-row">
-                        <label class="mws-form-label">Thông tin thêm</label>
+                        <label class="mws-form-label">&nbsp;</label>
                         <div class="mws-form-item">
-                            <input type="text" name="MaLDT_Type4_InfoAdditional" value="@if (!string.IsNullOrEmpty(Model.MaLDT) && Model.MaLDT.StartsWith("04")) {<text>@Model.MaLDT_Details[0].Type4_InfoAdditional</text>}" class="large" />
-                        </div>
-                    </div>
-                </div>
-                <div data-con="type" data-val="05" @if (string.IsNullOrEmpty(Model.MaLDT) || !Model.MaLDT.StartsWith("05")) {<text>class="hide"</text>}>
-                    <div class="mws-form-row">
-                        <label class="mws-form-label">Khả năng phục vụ</label>
-                        <div class="mws-form-item">
-                            <select class="mws-select2 large" name="MaLDT_Type5_SelfServing">
-                                <option value="">- - Chọn - -</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="mws-form-row">
-                        <label class="mws-form-label">Người chăm sóc</label>
-                        <div class="mws-form-item">
-                            <input type="text" name="MaLDT_Type5_Carer" value="@if (!string.IsNullOrEmpty(Model.MaLDT) && Model.MaLDT.StartsWith("05")) {<text>@Model.MaLDT_Details[0].Type5_Carer</text>}" class="large" />
-                        </div>
-                    </div>
-                </div>
-                <div class="mws-form-row">
-                    <label class="mws-form-label">Có bảo hiểm y tế?</label>
-                    <div class="mws-form-item">
-                        <input class="ibutton" name="isBHYT" value="true" type="checkbox" data-label-on="Có&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" data-label-off="Không" @if (Model.isBHYT.HasValue && Model.isBHYT.Value) {<text>checked="checked"</text>}>
-                    </div>
-                </div>
-                <div class="mws-form-row">
-                    <label class="mws-form-label">Thuộc hộ nghèo?</label>
-                    <div class="mws-form-item">
-                        <input class="ibutton" name="isHoNgheo" value="true" type="checkbox" data-label-on="Có&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" data-label-off="Không" @if (Model.isHoNgheo.HasValue && Model.isHoNgheo.Value) {<text>checked="checked"</text>}>
-                    </div>
-                </div>
-                <div class="mws-form-row">
-                    <label class="mws-form-label">Bị khuyết tật?</label>
-                    <div class="mws-form-item">
-                        <input class="ibutton" name="isKhuyetTat" value="true" type="checkbox" data-label-on="Có&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" data-label-off="Không" @if (Model.isKhuyetTat.HasValue && Model.isKhuyetTat.Value) {<text>checked="checked"</text>}>
-                    </div>
-                </div>
-                <div data-con="disability" @if(!Model.isKhuyetTat.HasValue || !Model.isKhuyetTat.Value) {<text>class="hide"</text>}>
-                    <div class="mws-form-row">
-                        <label class="mws-form-label">Dạng khuyết tật</label>
-                        <div class="mws-form-item">
-                            <select name="DangKT" class="mws-select2 large">
-                                <option value="">- - Chọn - -</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="mws-form-row">
-                        <label class="mws-form-label">Mức độ khuyết tật</label>
-                        <div class="mws-form-item">
-                            <select name="MucDoKT" class="mws-select2 large">
-                                <option value="">- - Chọn - -</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="mws-form-row">
-                    <label class="mws-form-label">Mức trợ cấp</label>
-                    <div class="mws-form-item">
-                        @Html.TextBoxFor(model => model.MucTC, new { @class = "large currency" })
-                    </div>
-                </div>
-                <div class="mws-form-row">
-                    <label class="mws-form-label">Ngày hưởng</label>
-                    <div class="mws-form-item">
-                        <input type="text" name="NgayHuong" value="@string.Format("{0:dd/MM/yyyy}", Model.NgayHuong)" class="large" />
-                    </div>
-                </div>
-                <div class="mws-form-row">
-                    <label class="mws-form-label">Số QĐ</label>
-                    <div class="mws-form-item">
-                        @Html.TextBoxFor(model => model.SoQD, new { @class = "large" })
-                    </div>
-                </div>
-                <div class="mws-form-row">
-                    <label class="mws-form-label">Ngày QĐ</label>
-                    <div class="mws-form-item">
-                        <input type="text" name="NgayQD" value="@string.Format("{0:dd/MM/yyyy}", Model.NgayQD)" class="large" />
-                    </div>
-                </div>
-                <div class="mws-form-row">
-                    <label class="mws-form-label">Ghi chú</label>
-                    <div class="mws-form-item">
-                        @Html.TextAreaFor(model => model.GhiChu, new { @class = "large" })
-                    </div>
-                </div>
-                <div class="mws-form-row">
-                    <label class="mws-form-label">Tình trạng</label>
-                    <div class="mws-form-item">
-                        <select class="mws-select2 large" name="TinhTrang">
-                            <option value="" selected="selected">- - Chọn - -</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="mws-form-row">
-                    <label class="mws-form-label">&nbsp;</label>
-                    <div class="mws-form-item">
                         @if (Model.IsDuyet || (RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0]) == RoleEnum.Village)
                         {
-                            @: <input class="hide" name="IsDuyet" value="true" type="checkbox" readonly="readonly" @if (Model.IsDuyet) { <text> checked="checked" </text> } >
-                            @: <input class="ibutton" type="checkbox" data-label-on="Đã duyệt" data-label-off="Chưa duyệt" disabled="disabled" @if (Model.IsDuyet) { <text> checked="checked" </text> } />
+                        @: <input class="hide" name="IsDuyet" value="true" type="checkbox" readonly="readonly" @if (Model.IsDuyet) { <text> checked="checked" </text>  }>
+                        @: <input class="ibutton" type="checkbox" data-label-on="Đã duyệt" data-label-off="Chưa duyệt" disabled="disabled" @if (Model.IsDuyet) { <text> checked="checked" </text>  } />
                         }
                         else
                         {
-                            @: <input class="ibutton" name="IsDuyet" value="true" type="checkbox" data-label-on="Đã duyệt" data-label-off="Chưa duyệt" @if (Model.IsDuyet) { <text> checked="checked" </text>  } />
+                        @: <input class="ibutton" name="IsDuyet" value="true" type="checkbox" data-label-on="Đã duyệt" data-label-off="Chưa duyệt" @if (Model.IsDuyet) { <text> checked="checked" </text>   } />
                         }
+                        </div>
+                    </div>
+                    <div class="mws-button-row">
+                        <button type="submit" class="btn btn-danger">Lưu lại</button>
+                        <button type="button" class="btn" onclick="javascript: location.href = '@Url.Action("Index", "WebsiteProduct", new { })'">Hủy bỏ</button>
                     </div>
                 </div>
-            </div>
-            <div class="mws-button-row">
-                <button type="submit" class="btn btn-danger">Lưu lại</button>
-                <button type="button" class="btn" onclick="javascript: location.href = '@Url.Action("Index", "WebsiteProduct", new { })'">Hủy bỏ</button>
             </div>
         }
     </div>
