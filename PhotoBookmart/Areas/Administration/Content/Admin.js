@@ -76,7 +76,7 @@ jQuery(document).ready(function ($) {
                 console.warn("Keep alive: " + "textStatus: " + textStatus + " | errorThrown: " + errorThrown);
             }
         });
-    }, 25 * 60 * 1000);
+    }, 1 * 60 * 1000);
 });
 
 jQuery(document).ajaxStart(function () {
