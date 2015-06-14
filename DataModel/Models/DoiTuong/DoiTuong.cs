@@ -65,7 +65,7 @@ namespace PhotoBookmart.DataLayer.Models.Products
         
         public string ToStringNgaySinh()
         {
-            return (string.IsNullOrEmpty(NgaySinh) ? "___" : NgaySinh) + "/" + (string.IsNullOrEmpty(ThangSinh) ? "___" : ThangSinh) + "/" + NamSinh;
+            return (string.IsNullOrEmpty(NgaySinh) ? "" : NgaySinh + "/") + (string.IsNullOrEmpty(ThangSinh) ? "" : ThangSinh + "/") + NamSinh;
         }
 
         public DoiTuong()

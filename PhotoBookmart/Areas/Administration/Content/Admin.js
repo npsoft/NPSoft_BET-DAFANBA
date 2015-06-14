@@ -3,6 +3,7 @@
 // Copyright: Trung Dang (trungdt@absoft.vn)
 
 var mainList_Website = [];
+var SVC_KEEP_ALIVE = "/KeepAlive";
 var SVC_GETSETTINGSBYSCOPE = "/Administration/WebAdmin/Svc_GetSettingsByScope";
 var SVC_GETALLPROVINCES = "/Administration/WebAdmin/Svc_GetAllProvinces";
 var SVC_GETDISTRICTSBYPROVINCE = "/Administration/WebAdmin/Svc_GetDistrictsByProvince";
@@ -52,6 +53,30 @@ jQuery(document).ready(function ($) {
             });
         }, 100);
     });
+
+    $("body").on("keyup", ".select2-with-searchbox > .select2-search > input.select2-input", function (e) {
+        $ddl_gender = $("[name='GioiTinh']");
+        if ($ddl_gender.data("select2").opened()) {
+            if (e.keyCode === 49) {
+                $ddl_gender.select2().select2("val", "Male");
+            } else if (e.keyCode === 50) {
+                $ddl_gender.select2().select2("val", "Female");
+            }
+        }
+    });
+
+    setInterval(function () {
+        $.ajax({
+            url: SVC_KEEP_ALIVE,
+            global: false,
+            success: function (result, textStatus, jqXHR) {
+                console.log("Keep alive: " + result);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.warn("Keep alive: " + "textStatus: " + textStatus + " | errorThrown: " + errorThrown);
+            }
+        });
+    }, 25 * 60 * 1000);
 });
 
 jQuery(document).ajaxStart(function () {

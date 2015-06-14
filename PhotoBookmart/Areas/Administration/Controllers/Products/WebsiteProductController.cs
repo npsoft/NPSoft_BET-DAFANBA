@@ -38,6 +38,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 MaHC_Province = CurrentUser.MaHC.GetCodeProvince(),
                 MaHC_District = CurrentUser.MaHC.GetCodeDistrict(),
                 MaHC_Village = CurrentUser.MaHC.GetCodeVillage(),
+                OrderDesc = true,
                 Page = page.HasValue ? page.Value : 1
             };
             return View(model);
