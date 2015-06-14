@@ -1,2 +1,0 @@
-G:\NPSoft_HTQLNHCS\Common\abScripting\bin\Release\abScripting.dll
-G:\NPSoft_HTQLNHCS\Common\abScripting\obj\Release\abScripting.dll
