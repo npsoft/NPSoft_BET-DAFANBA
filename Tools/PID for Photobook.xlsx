@@ -21,3 +21,46 @@ dbo.AQP_ProductPhotoReport(' WHERE EXISTS (SELECT top 1 1 FROM AQV_Products p1 W
 --SELECT TOP(1) dbo.udf_StripHTML([ProductDescription_Html]) FROM [Products_Descriptions] WITH (NOLOCK) WHERE [ProductID] = 630436;
 --SELECT [ProductID], [ProductCode] FROM [Products] WITH (NOLOCK) WHERE [ProductCode] = '8112055';
 --SELECT [ProductID], [ProductDescription_NoHtml], [ProductDescription_Html] FROM [Products_Descriptions] WITH (NOLOCK) WHERE [ProductID] = 489065;
+
+--
+Solid, but never simple, the Simply Solid Triangle Bikini Top is the perfect mix and match piece. Pair with your favorite solid or printed bottoms for a go-to beach look.
+
+Fabric & Care
+Hand wash cold.
+Lay flat to dry.
+82% Nylon/18% Elastane.
+
+Details
+Triangle style bikini top.
+Adjustable neck and back spaghetti ties.
+Sliding cups.
+Removable cups.
+Embroidered Volcom logo at wearer’s left top cup.
+
+
+
+Sizing & Fit
+Adjustable neck and back ties and sliding cups for fully adjustable fit.
+Removable cups for extra coverage and support.
+
+--
+<p>Solid, but never simple, the Simply Solid Triangle Bikini Top is the perfect mix and match piece. Pair with your favorite solid or printed bottoms for a go-to beach look.</p>
+<ul>
+<h2>Fabric & Care</h2>
+<li>Hand wash cold.</li>
+<li>Lay flat to dry.</li>
+<li>82% Nylon/18% Elastane.</li>
+</ul>
+<h2>Details</h2>
+<li>Triangle style bikini top.</li>
+<li>Adjustable neck and back spaghetti ties.</li>
+<li>Sliding cups.</li>
+<li>Removable cups.</li>
+<li>Embroidered Volcom logo at wearer’s left top cup.</li>
+</ul>
+<br>
+<ul>
+<h2>Sizing & Fit</h2>
+<li>Adjustable neck and back ties and sliding cups for fully adjustable fit.</li>
+<li>Removable cups for extra coverage and support.</li>
+</ul>
