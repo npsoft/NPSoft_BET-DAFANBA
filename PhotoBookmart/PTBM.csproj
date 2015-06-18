@@ -45,6 +45,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CrystalDecisions.CrystalReports.Engine, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
+    <Reference Include="CrystalDecisions.ReportSource, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
+    <Reference Include="CrystalDecisions.Shared, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
     <Reference Include="EPPlus">
       <HintPath>..\packages\EPPlus.3.1.3.3\lib\net35\EPPlus.dll</HintPath>
     </Reference>
@@ -170,6 +173,7 @@
     <Compile Include="Areas\Administration\Models\MenuList.cs" />
     <Compile Include="Areas\Administration\Models\UserModel.cs" />
     <Compile Include="Controllers\KeepAliveController.cs" />
+    <Compile Include="Controllers\StagingController.cs" />
     <Compile Include="Controllers\OrderController.cs" />
     <Compile Include="Controllers\Payment\iPay88Controller.cs">
       <SubType>Code</SubType>
@@ -199,6 +203,24 @@
     <Compile Include="Models\SMSSendModel.cs" />
     <Compile Include="Models\TopicDetail.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Reports\CrystalReportTest1.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>CrystalReportTest1.rpt</DependentUpon>
+      <SubType>component</SubType>
+    </Compile>
+    <Compile Include="Reports\DataSetTest1.Designer.cs" />
+    <Compile Include="Reports\IndividualTranscript.cs">
+      <DependentUpon>IndividualTranscript.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Reports\IndividualTranscript.Designer.cs">
+      <DependentUpon>IndividualTranscript.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Reports\IndividualTranscript1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>IndividualTranscript.xsd</DependentUpon>
+    </Compile>
     <Compile Include="ServiceInterface\LocalAPI.cs" />
     <Compile Include="ServiceInterface\RequestModel\Common.cs" />
     <Compile Include="Support\ABCaptchaImageResult.cs" />
@@ -232,6 +254,28 @@
     <Content Include="Themes\Photobookmart\Content\css\skin.css" />
     <Content Include="Themes\Photobookmart\Content\css\style.css" />
     <Content Include="Themes\Photobookmart\Views\Shared\_Layout1.cshtml" />
+    <Content Include="Reports\DataSetTest1.xsc">
+      <DependentUpon>DataSetTest1.xsd</DependentUpon>
+    </Content>
+    <None Include="Reports\DataSetTest1.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>DataSetTest11.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="Reports\DataSetTest1.xss">
+      <DependentUpon>DataSetTest1.xsd</DependentUpon>
+    </Content>
+    <Content Include="Reports\IndividualTranscript.xsc">
+      <DependentUpon>IndividualTranscript.xsd</DependentUpon>
+    </Content>
+    <None Include="Reports\IndividualTranscript.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>IndividualTranscript1.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="Reports\IndividualTranscript.xss">
+      <DependentUpon>IndividualTranscript.xsd</DependentUpon>
+    </Content>
     <None Include="Views\tpl_sync_db\Form1.cshtml" />
   </ItemGroup>
   <ItemGroup>
@@ -3304,12 +3348,12 @@
     <Content Include="Themes\Photobookmart\Views\Shared\_PageFooter.cshtml" />
     <Content Include="Themes\Photobookmart\Views\Shared\_PageHeader.cshtml" />
     <Content Include="Themes\Photobookmart\Views\Shared\_PageLoading.cshtml" />
-    <Content Include="Themes\Photobookmart\Views\Style\Detail.cshtml" />
-    <Content Include="Themes\Photobookmart\Views\Style\index.cshtml" />
-    <Content Include="Themes\Photobookmart\Views\Style\Pricing.cshtml" />
-    <Content Include="Themes\Photobookmart\Views\Style\Pricing_ProductDetail.cshtml" />
-    <Content Include="Themes\Photobookmart\Views\Style\_MaterialDetail_List.cshtml" />
-    <Content Include="Themes\Photobookmart\Views\Style\_Material_List.cshtml" />
+    <Content Include="Reports\Detail.cshtml" />
+    <Content Include="Reports\index.cshtml" />
+    <Content Include="Reports\Pricing.cshtml" />
+    <Content Include="Reports\Pricing_ProductDetail.cshtml" />
+    <Content Include="Reports\_MaterialDetail_List.cshtml" />
+    <Content Include="Reports\_Material_List.cshtml" />
     <Content Include="Themes\Photobookmart\Views\Topic\Embed.cshtml" />
     <Content Include="Themes\Photobookmart\Views\Topic\Embed_Topic_NotFound.cshtml" />
     <Content Include="Themes\Photobookmart\Views\Topic\FooterCertificates.cshtml" />
@@ -3622,8 +3666,8 @@
     <Content Include="Themes\Photobookmart\Views\Product\Payment_iPay88.cshtml" />
     <Content Include="Themes\Photobookmart\Views\Product\Payment_Paypal.cshtml" />
     <Content Include="Themes\Photobookmart\Views\Common\InvoiceDetail_Admin.cshtml" />
-    <Content Include="Themes\Photobookmart\Views\Style\PaymentShipping.cshtml" />
-    <Content Include="Themes\Photobookmart\Views\Style\PaymentShipping_ProductDetail.cshtml" />
+    <Content Include="Reports\PaymentShipping.cshtml" />
+    <Content Include="Reports\PaymentShipping_ProductDetail.cshtml" />
     <Content Include="Themes\Photobookmart\Views\Order\_FileUpload.cshtml" />
     <Content Include="Views\tpl_partial_recursive\_Navigation.cshtml" />
     <Content Include="Views\tpl_partial_recursive\_Navigation_List.cshtml" />
@@ -3659,6 +3703,15 @@
       <Project>{BF773FA2-9265-4077-A990-7C8BBE66B2CD}</Project>
       <Name>libphonenumber</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Reports\CrystalReportTest1.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>CrystalReportTest1.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{C0C07587-41A7-46C8-8FBD-3F9C8EBE2DDC}" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
