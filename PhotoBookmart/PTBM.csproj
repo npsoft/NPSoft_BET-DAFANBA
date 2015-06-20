@@ -209,7 +209,29 @@
       <DependentUpon>CrystalReportTest1.rpt</DependentUpon>
       <SubType>component</SubType>
     </Compile>
-    <Compile Include="Reports\DataSetTest1.Designer.cs" />
+    <Compile Include="Reports\CrystalReportTest2.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>CrystalReportTest2.rpt</DependentUpon>
+      <SubType>component</SubType>
+    </Compile>
+    <Compile Include="Reports\CrystalReportTest3.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>CrystalReportTest3.rpt</DependentUpon>
+      <SubType>component</SubType>
+    </Compile>
+    <Compile Include="Reports\Customers.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Customers.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Reports\DanhSachDT.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DanhSachDT.rpt</DependentUpon>
+      <SubType>component</SubType>
+    </Compile>
     <Compile Include="Reports\IndividualTranscript.cs">
       <DependentUpon>IndividualTranscript.xsd</DependentUpon>
     </Compile>
@@ -254,19 +276,19 @@
     <Content Include="Themes\Photobookmart\Content\css\skin.css" />
     <Content Include="Themes\Photobookmart\Content\css\style.css" />
     <Content Include="Themes\Photobookmart\Views\Shared\_Layout1.cshtml" />
-    <Content Include="Reports\DataSetTest1.xsc">
-      <DependentUpon>DataSetTest1.xsd</DependentUpon>
-    </Content>
-    <None Include="Reports\DataSetTest1.xsd">
-      <Generator>MSDataSetGenerator</Generator>
-      <LastGenOutput>DataSetTest11.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </None>
-    <Content Include="Reports\DataSetTest1.xss">
-      <DependentUpon>DataSetTest1.xsd</DependentUpon>
-    </Content>
     <Content Include="Reports\IndividualTranscript.xsc">
       <DependentUpon>IndividualTranscript.xsd</DependentUpon>
+    </Content>
+    <Content Include="Reports\Customers.xsc">
+      <DependentUpon>Customers.xsd</DependentUpon>
+    </Content>
+    <None Include="Reports\Customers.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>Customers.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="Reports\Customers.xss">
+      <DependentUpon>Customers.xsd</DependentUpon>
     </Content>
     <None Include="Reports\IndividualTranscript.xsd">
       <Generator>MSDataSetGenerator</Generator>
@@ -3348,12 +3370,6 @@
     <Content Include="Themes\Photobookmart\Views\Shared\_PageFooter.cshtml" />
     <Content Include="Themes\Photobookmart\Views\Shared\_PageHeader.cshtml" />
     <Content Include="Themes\Photobookmart\Views\Shared\_PageLoading.cshtml" />
-    <Content Include="Reports\Detail.cshtml" />
-    <Content Include="Reports\index.cshtml" />
-    <Content Include="Reports\Pricing.cshtml" />
-    <Content Include="Reports\Pricing_ProductDetail.cshtml" />
-    <Content Include="Reports\_MaterialDetail_List.cshtml" />
-    <Content Include="Reports\_Material_List.cshtml" />
     <Content Include="Themes\Photobookmart\Views\Topic\Embed.cshtml" />
     <Content Include="Themes\Photobookmart\Views\Topic\Embed_Topic_NotFound.cshtml" />
     <Content Include="Themes\Photobookmart\Views\Topic\FooterCertificates.cshtml" />
@@ -3666,8 +3682,6 @@
     <Content Include="Themes\Photobookmart\Views\Product\Payment_iPay88.cshtml" />
     <Content Include="Themes\Photobookmart\Views\Product\Payment_Paypal.cshtml" />
     <Content Include="Themes\Photobookmart\Views\Common\InvoiceDetail_Admin.cshtml" />
-    <Content Include="Reports\PaymentShipping.cshtml" />
-    <Content Include="Reports\PaymentShipping_ProductDetail.cshtml" />
     <Content Include="Themes\Photobookmart\Views\Order\_FileUpload.cshtml" />
     <Content Include="Views\tpl_partial_recursive\_Navigation.cshtml" />
     <Content Include="Views\tpl_partial_recursive\_Navigation_List.cshtml" />
@@ -3708,6 +3722,18 @@
     <EmbeddedResource Include="Reports\CrystalReportTest1.rpt">
       <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
       <LastGenOutput>CrystalReportTest1.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reports\CrystalReportTest2.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>CrystalReportTest2.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reports\CrystalReportTest3.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>CrystalReportTest3.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reports\DanhSachDT.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>DanhSachDT.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

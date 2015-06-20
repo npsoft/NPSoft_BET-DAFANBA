@@ -58,4 +58,15 @@ namespace PhotoBookmart.Models
         public int Pages { get; set; }
         public long Product_Id { get; set; }
     }
+
+    public class ReportModelSettings
+    {
+        public int Id { get; set; }
+        public string Key { get; set; }
+        public string Value { get; set; }
+        public string Desc { get; set; }
+        public string MaHC { get; set; }
+
+        public ReportModelSettings() { }
+    }
 }
