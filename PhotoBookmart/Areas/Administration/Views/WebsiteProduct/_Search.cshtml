@@ -2,7 +2,7 @@
 @{
     Layout = null;
 }
-<div class="mws-panel grid_8 mws-collapsible mws-collapsed" id="PanelOrderSearch">
+<div class="mws-panel grid_8 mws-collapsible hide" id="PanelOrderSearch"><!-- mws-collapsed -->
     <div class="mws-panel-header">
         <span><i class="icon-calendar"></i>Tìm kiếm nâng cao</span>
     </div>
@@ -105,22 +105,46 @@
             </div>
             <div class="mws-button-row">
                 <input type="submit" value="Tìm kiếm" class="btn btn-danger" />
-                <!--<input type="reset" value="Làm mới" class="btn">-->
+                <input data-action="search-quick" type="button" value="Đóng lại" class="btn" />
             </div>
         }
     </div>
 </div>
 <script>
-    var $frm_search, $ddl_MaHC_Province, $ddl_MaHC_District, $ddl_MaHC_Village, $ddl_IDDiaChi, $ddl_MaLDT, $ddl_TinhTrang, $ddl_IsDuyet, $ddl_OrderBy, $ddl_OrderDesc, $txt_Keywords, $hdf_Page, $btn_submit;
+    var $con_search_advanced, $frm_search, $ddl_MaHC_Province, $ddl_MaHC_District, $ddl_MaHC_Village, $ddl_IDDiaChi, $ddl_MaLDT, $ddl_TinhTrang, $ddl_IsDuyet, $ddl_OrderBy, $ddl_OrderDesc, $txt_Keywords, $hdf_Page, $btn_submit, $btn_quick;
+    var $con_search_quick, $ddl_search_quick_MaHC_Province, $ddl_search_quick_MaHC_District, $ddl_search_quick_MaHC_Village, $ddl_search_quick_IDDiaChi, $txt_search_quick_Keywords, $btn_search_quick_advanced;
     var $list;
+
+    function QuickFilter(_data) {
+        var data = $frm_search.serializeObject();
+        $.post("@Url.Action("List", "WebsiteProduct", new { })", data, function (data) {
+            $list.html(data);
+        });
+    };
+
+    function AdvancedFilter(_data) {
+        var data = $frm_search.serializeObject();
+        $.post("@Url.Action("List", "WebsiteProduct", new { })", data, function (data) {
+            $list.html(data);
+        });
+    };
+
+    function Filter(_data) {
+        if ($con_search_quick.hasClass("hide")) {
+            AdvancedFilter({});
+        } else {
+            QuickFilter({});
+        }
+    };
 
     function Paging(_data) {
         $hdf_Page.val(_data);
-        $frm_search.trigger("submit");
+        Filter({});
     };
 
     function InitCtrls(_data) {
-        $frm_search = $("#Order_Search");
+        $con_search_advanced = $("#PanelOrderSearch");
+        $frm_search = $con_search_advanced.find("#Order_Search");
         $ddl_MaHC_Province = $frm_search.find("[name='MaHC_Province']");
         $ddl_MaHC_District = $frm_search.find("[name='MaHC_District']");
         $ddl_MaHC_Village = $frm_search.find("[name='MaHC_Village']");
@@ -133,10 +157,24 @@
         $txt_Keywords = $frm_search.find("[name='Keywords']");
         $hdf_Page = $frm_search.find("[name='Page']");
         $btn_submit = $frm_search.find("[type='submit']");
+        $btn_quick = $frm_search.find("[data-action='search-quick']");
+
+        $con_search_quick = $(".search-quick");
+        $ddl_search_quick_MaHC_Province = $con_search_quick.find("#quick-MaHC_Province");
+        $ddl_search_quick_MaHC_District = $con_search_quick.find("#quick-MaHC_District");
+        $ddl_search_quick_MaHC_Village = $con_search_quick.find("#quick-MaHC_Village");
+        $ddl_search_quick_IDDiaChi = $con_search_quick.find("#quick-IDDiaChi");
+        $txt_search_quick_Keywords = $con_search_quick.find("#quick-Keywords");
+        $btn_search_quick_advanced = $con_search_quick.find("[data-action='search-advanced']");
+
         $list = $(".listuser");
     };
 
     function InitEvents(_data) {
+        $btn_quick.add($btn_search_quick_advanced).on("click", function (e) {
+            $con_search_advanced.add($con_search_quick).toggleClass("hide");
+        });
+
         $ddl_MaHC_Province.on("change", function (e) {
             var data = { MaHC: $ddl_MaHC_Province.val() };
             if (IsNullOrEmpty(data.MaHC)) {
@@ -203,11 +241,98 @@
         });
 
         $frm_search.on("submit", function (e) {
-            var data = $frm_search.serializeObject();
-            $.post("@Url.Action("List", "WebsiteProduct", new { })", data, function (data) {
-                $list.html(data);
-            });
+            Filter({});
             return false;
+        });
+
+        $ddl_search_quick_MaHC_Province.on("change", function (e) {
+            var data = { MaHC: $ddl_search_quick_MaHC_Province.val() };
+            if (IsNullOrEmpty(data.MaHC)) {
+                RefillDataForSelect2({ $ddl: $ddl_MaHC_District, val: "", data: [], id: "MaHC", name: "TenHC" });
+                RefillDataForSelect2({ $ddl: $ddl_search_quick_MaHC_District, val: "", data: [], id: "MaHC", name: "TenHC" });
+                $ddl_MaHC_District.trigger("change");
+                $ddl_search_quick_MaHC_District.trigger("change");
+            } else {
+                $.post(SVC_GETDISTRICTSBYPROVINCE, data, function (data) {
+                    RefillDataForSelect2({ $ddl: $ddl_MaHC_District, val: "", data: data, id: "MaHC", name: "TenHC" });
+                    RefillDataForSelect2({ $ddl: $ddl_search_quick_MaHC_District, val: "", data: data, id: "MaHC", name: "TenHC" });
+                    $ddl_MaHC_District.trigger("change");
+                    $ddl_search_quick_MaHC_District.trigger("change");
+                });
+            }
+            $ddl_MaHC_Province.select2().select2("val", data.MaHC);
+        });
+
+        $ddl_search_quick_MaHC_District.on("change", function (e) {
+            var data = { MaHC: $ddl_search_quick_MaHC_District.val() };
+            if (IsNullOrEmpty(data.MaHC)) {
+                RefillDataForSelect2({ $ddl: $ddl_MaHC_Village, val: "", data: [], id: "MaHC", name: "TenHC" });
+                RefillDataForSelect2({ $ddl: $ddl_search_quick_MaHC_Village, val: "", data: [], id: "MaHC", name: "TenHC" });
+                $ddl_MaHC_Village.trigger("change");
+                $ddl_search_quick_MaHC_Village.trigger("change");
+            } else {
+                $.post(SVC_GETVILLAGESBYDISTRICT, data, function (data) {
+                    RefillDataForSelect2({ $ddl: $ddl_MaHC_Village, val: "", data: data, id: "MaHC", name: "TenHC" });
+                    RefillDataForSelect2({ $ddl: $ddl_search_quick_MaHC_Village, val: "", data: data, id: "MaHC", name: "TenHC" });
+                    $ddl_MaHC_Village.trigger("change");
+                    $ddl_search_quick_MaHC_Village.trigger("change");
+                });
+            }
+            $ddl_MaHC_District.select2().select2("val", data.MaHC);
+        }).on("open", function (e) {
+            if (IsNullOrEmpty($ddl_search_quick_MaHC_Province.val())) {
+                notify_info("Thông báo", "Vui lòng chọn tỉnh trước.");
+                setTimeout(function () { $ddl_search_quick_MaHC_Province.select2("open"); }, 200);
+                return false;
+            }
+        });
+
+        $ddl_search_quick_MaHC_Village.on("change", function (e) {
+            var data = { MaHC: $ddl_search_quick_MaHC_Village.val() };
+            if (IsNullOrEmpty(data.MaHC)) {
+                RefillDataForSelect2({ $ddl: $ddl_IDDiaChi, val: "", data: [], id: "IDDiaChi", name: "TenDiaChi" });
+                RefillDataForSelect2({ $ddl: $ddl_search_quick_IDDiaChi, val: "", data: [], id: "IDDiaChi", name: "TenDiaChi" });
+                $ddl_IDDiaChi.trigger("change");
+                $ddl_search_quick_IDDiaChi.trigger("change");
+            } else {
+                $.post(SVC_GETHAMLETSBYVILLAGE, data, function (data) {
+                    RefillDataForSelect2({ $ddl: $ddl_IDDiaChi, val: "", data: data, id: "IDDiaChi", name: "TenDiaChi" });
+                    RefillDataForSelect2({ $ddl: $ddl_search_quick_IDDiaChi, val: "", data: data, id: "IDDiaChi", name: "TenDiaChi" });
+                    $ddl_IDDiaChi.trigger("change");
+                    $ddl_search_quick_IDDiaChi.trigger("change");
+                });
+            }
+            $ddl_MaHC_Village.select2().select2("val", data.MaHC);
+        }).on("open", function (e) {
+            if (IsNullOrEmpty($ddl_search_quick_MaHC_District.val())) {
+                notify_info("Thông báo", "Vui lòng chọn huyện trước.");
+                setTimeout(function () { $ddl_search_quick_MaHC_District.select2("open"); }, 200);
+                return false;
+            }
+        });
+
+        $ddl_search_quick_IDDiaChi.on("change", function (e) {
+            $ddl_IDDiaChi.select2().select2("val", $ddl_search_quick_IDDiaChi.val());
+            $hdf_Page.val(1);
+            Filter({});
+        }).on("open", function (e) {
+            if (IsNullOrEmpty($ddl_search_quick_MaHC_Village.val())) {
+                notify_info("Thông báo", "Vui lòng chọn xã trước.");
+                setTimeout(function () { $ddl_search_quick_MaHC_Village.select2("open"); }, 200);
+                return false;
+            }
+        });
+
+        $txt_search_quick_Keywords.on("change", function (e) {
+            $txt_Keywords.val($txt_search_quick_Keywords.val());
+        });
+
+        $txt_search_quick_Keywords.keypress(function (e) {
+            if (e.which == 13) {
+                $txt_Keywords.val($txt_search_quick_Keywords.val());
+                $hdf_Page.val(1);
+                Filter({});
+            }
         });
 
         $list.on("click", "[data-action='delete']", function (e) {
@@ -218,7 +343,7 @@
                         notify_error("Lỗi", data.Message);
                     } else {
                         notify_info("Thông báo", "Xóa đối tượng thành công.");
-                        $frm_search.trigger("submit");
+                        Filter({});
                     }
                 });
             }
@@ -228,15 +353,19 @@
     function InitData(_data) {
         $.post(SVC_GETALLPROVINCES, {}, function (_data) {
             RefillDataForSelect2({ $ddl: $ddl_MaHC_Province, val: "@Model.MaHC_Province", data: _data, id: "MaHC", name: "TenHC" });
+            RefillDataForSelect2({ $ddl: $ddl_search_quick_MaHC_Province, val: "@Model.MaHC_Province", data: _data, id: "MaHC", name: "TenHC" });
             if (!IsNullOrEmpty("@Model.MaHC_Province")) {
                 $.post(SVC_GETDISTRICTSBYPROVINCE, { MaHC: "@Model.MaHC_Province" }, function (_data) {
                     RefillDataForSelect2({ $ddl: $ddl_MaHC_District, val: "@Model.MaHC_District", data: _data, id: "MaHC", name: "TenHC" });
+                    RefillDataForSelect2({ $ddl: $ddl_search_quick_MaHC_District, val: "@Model.MaHC_District", data: _data, id: "MaHC", name: "TenHC" });
                     if (!IsNullOrEmpty("@Model.MaHC_District")) {
                         $.post(SVC_GETVILLAGESBYDISTRICT, { MaHC: "@Model.MaHC_District" }, function (_data) {
                             RefillDataForSelect2({ $ddl: $ddl_MaHC_Village, val: "@Model.MaHC_Village", data: _data, id: "MaHC", name: "TenHC" });
+                            RefillDataForSelect2({ $ddl: $ddl_search_quick_MaHC_Village, val: "@Model.MaHC_Village", data: _data, id: "MaHC", name: "TenHC" });
                             if (!IsNullOrEmpty("@Model.MaHC_Village")) {
                                 $.post(SVC_GETHAMLETSBYVILLAGE, { MaHC: "@Model.MaHC_Village" }, function (_data) {
                                     RefillDataForSelect2({ $ddl: $ddl_IDDiaChi, val: "@if (Model.IDDiaChi.HasValue) {<text>@Model.IDDiaChi.Value</text>}", data: _data, id: "IDDiaChi", name: "TenDiaChi" });
+                                    RefillDataForSelect2({ $ddl: $ddl_search_quick_IDDiaChi, val: "@if (Model.IDDiaChi.HasValue) {<text>@Model.IDDiaChi.Value</text>}", data: _data, id: "IDDiaChi", name: "TenDiaChi" });
                                 });
                             }
                         });
@@ -248,9 +377,9 @@
         $.post(SVC_GETALLTYPESOBJ, {}, function (data) {
             var opts = "";
             data.forEach(function (group, index, array) {
-                opts += "<optgroup label='" + group.Key.TenLDT + "'>";
+                opts += "<optgroup label='" + group.Key.MaLDT + " - " + group.Key.TenLDT + "'>";
                 group.Value.forEach(function (type, index, array) {
-                    opts += "<option value='" + type.MaLDT + "' data-heso='" + type.HeSo + "'>" + type.TenLDT + "</option>";
+                    opts += "<option value='" + type.MaLDT + "'>" + type.MaLDT + " - " + type.TenLDT + "</option>";
                 });
                 opts += "</optgroup>";
             });
@@ -263,10 +392,10 @@
         });
 
         setTimeout(function () {
-            $ddl_MaHC_Province.select2().select2("val", "@Model.MaHC_Province");
-            $ddl_MaHC_District.select2().select2("val", "@Model.MaHC_District");
-            $ddl_MaHC_Village.select2().select2("val", "@Model.MaHC_Village");
-            $ddl_IDDiaChi.select2().select2("val", "@Model.IDDiaChi");
+            $ddl_MaHC_Province.add($ddl_search_quick_MaHC_Province).select2().select2("val", "@Model.MaHC_Province");
+            $ddl_MaHC_District.add($ddl_search_quick_MaHC_District).select2().select2("val", "@Model.MaHC_District");
+            $ddl_MaHC_Village.add($ddl_search_quick_MaHC_Village).select2().select2("val", "@Model.MaHC_Village");
+            $ddl_IDDiaChi.add($ddl_search_quick_IDDiaChi).select2().select2("val", "@Model.IDDiaChi");
             $ddl_IsDuyet.select2().select2("val", "@Model.IsDuyet");
             $ddl_OrderBy.select2().select2("val", "@Model.OrderBy");
             $ddl_OrderDesc.select2().select2("val", "@if (Model.OrderDesc) {<text>true</text>} else {<text>false</text>}");

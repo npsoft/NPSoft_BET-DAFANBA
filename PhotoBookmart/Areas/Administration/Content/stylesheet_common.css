@@ -508,6 +508,15 @@ style from http://flatfull.com/themes/scale/chat.html
 }
 /* End: Common Define */
 
+/* Sta: For ~/View/WebsiteProduct/Index.cshtml */
+.search-quick {
+    margin: 10px;
+}
+.search-quick .large {
+    width: 100%;
+}
+/* End: For ~/View/WebsiteProduct/Index.cshtml */
+
 /* Sta: For ~/Views/WebsiteProduct/Add.cshtml */
 form[id="obj-info-common"] .ui-tabs-panel {
     padding: 0;

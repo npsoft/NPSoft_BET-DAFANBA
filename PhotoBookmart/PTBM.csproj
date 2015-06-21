@@ -3538,7 +3538,7 @@
     <Content Include="Areas\Administration\Views\WebsiteProduct\Detail_Image.cshtml" />
     <Content Include="Areas\Administration\Views\WebsiteProduct\Detail_Image_List.cshtml" />
     <Content Include="Areas\Administration\Views\WebsiteProduct\Detail_Sheet.cshtml" />
-    <Content Include="Areas\Administration\Views\WebsiteProduct\Detail_Sheet_List.cshtml" />
+    <Content Include="Areas\Administration\Views\WebsiteProduct\_SearchQuick.cshtml" />
     <Content Include="Areas\Administration\Views\UserManagement\ChangePassword.cshtml" />
     <Content Include="Areas\Administration\Views\WebsiteBanners\_List.cshtml" />
     <Content Include="Areas\Administration\Views\WebsiteBanners\Add.cshtml" />
