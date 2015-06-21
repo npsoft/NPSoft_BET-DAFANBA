@@ -422,12 +422,18 @@ style from http://flatfull.com/themes/scale/chat.html
 
 /* Sta: Redefine mws */
 .ui-datepicker {
-    z-index: 5 !important;
+    z-index: 100 !important;
 }
 .ui-datepicker select.ui-datepicker-month,
 .ui-datepicker select.ui-datepicker-year {
     min-height: 20px;
     width: 48%;
+}
+.ibutton-container {
+    vertical-align: middle;
+}
+.mws-tabs .ui-tabs-nav .ui-state-disabled {
+    display: none;
 }
 /* End: Redefine mws */
 
@@ -502,6 +508,24 @@ style from http://flatfull.com/themes/scale/chat.html
 }
 /* End: Common Define */
 
-/* Sta: Customize Define */
-/* Nothing :) */
-/* End: Customize Define */
+/* Sta: For ~/Views/WebsiteProduct/Add.cshtml */
+form[id="obj-info-common"] .ui-tabs-panel {
+    padding: 0;
+}
+form[id="obj-info-common"] .mws-form-row {
+    padding: 10px;
+}
+form[id="obj-info-common"] .mws-form-row .mws-form-label {
+    width: 100px !important;
+    text-align: right;
+}
+form[id="obj-info-common"] .mws-form-row .mws-form-item {
+    margin-left: 116px !important;
+}
+form[id="obj-info-common"] .decrease-10px .mws-form-label {
+    width: 90px !important;
+}
+form[id="obj-info-common"] .decrease-10px .mws-form-item {
+    margin-left: 106px !important;
+}
+/* End: For ~/Views/WebsiteProduct/Add.cshtml */

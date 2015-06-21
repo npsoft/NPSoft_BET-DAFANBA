@@ -55,14 +55,17 @@ jQuery(document).ready(function ($) {
     });
 
     $("body").on("keyup", ".select2-with-searchbox > .select2-search > input.select2-input", function (e) {
-        $ddl_gender = $("[name='GioiTinh']");
-        if ($ddl_gender.data("select2").opened()) {
-            if (e.keyCode === 49) {
-                $ddl_gender.select2().select2("val", "Male");
-            } else if (e.keyCode === 50) {
-                $ddl_gender.select2().select2("val", "Female");
+        $ddl_genders = $("[name='GioiTinh'], [name='MaLDT_Type3_Gender']");
+        $ddl_genders.each(function (index, element) {
+            var $ddl = $(element);
+            if ($ddl.data("select2").opened()) {
+                if (e.keyCode === 49) {
+                    $ddl.select2().select2("val", "Male");
+                } else if (e.keyCode === 50) {
+                    $ddl.select2().select2("val", "Female");
+                }
             }
-        }
+        });
     });
 
     setInterval(function () {
