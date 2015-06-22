@@ -25,26 +25,33 @@ namespace PhotoBookmart.Controllers
         
         public ActionResult ReportCrystalToFile()
         {
-            List<MyPhotoCreationRequest> photos = new List<MyPhotoCreationRequest>();
-            photos.Add(new MyPhotoCreationRequest() { Photobook_Code = "CODE3", Pages = 2, Product_Id = 1 });
-            photos.Add(new MyPhotoCreationRequest() { Photobook_Code = "CODE6", Pages = 5, Product_Id = 4 });
+            try
+            {
+                List<MyPhotoCreationRequest> photos = new List<MyPhotoCreationRequest>();
+                photos.Add(new MyPhotoCreationRequest() { Photobook_Code = "CODE3", Pages = 2, Product_Id = 1 });
+                photos.Add(new MyPhotoCreationRequest() { Photobook_Code = "CODE6", Pages = 5, Product_Id = 4 });
 
-            List<ReportModelSettings> settings = new List<ReportModelSettings>();
-            settings.Add(new ReportModelSettings() { Id = 1, Key = "Key1", Value = "Value1", Desc = "Desc1", MaHC = "MaHC1" });
-            settings.Add(new ReportModelSettings() { Id = 2, Key = "Key2", Value = "Value2", Desc = "Desc2", MaHC = "MaHC2" });
+                List<ReportModelSettings> settings = new List<ReportModelSettings>();
+                settings.Add(new ReportModelSettings() { Id = 1, Key = "Key1", Value = "Value1", Desc = "Desc1", MaHC = "MaHC1" });
+                settings.Add(new ReportModelSettings() { Id = 2, Key = "Key2", Value = "Value2", Desc = "Desc2", MaHC = "MaHC2" });
 
-            ReportDocument report = new ReportDocument();
-            report.Load(Path.Combine(Server.MapPath("~/Reports"), "CrystalReportTest1.rpt"));
-            report.Database.Tables["PhotoBookmart_Models_MyPhotoCreationRequest"].SetDataSource(photos);
-            report.Database.Tables["PhotoBookmart_Models_ReportModelSettings"].SetDataSource(settings);
-            
-            Response.Buffer = false;
-            Response.ClearContent();
-            Response.ClearHeaders();
+                ReportDocument report = new ReportDocument();
+                report.Load(Path.Combine(Server.MapPath("~/Reports"), "CrystalReportTest1.rpt"));
+                report.Database.Tables["PhotoBookmart_Models_MyPhotoCreationRequest"].SetDataSource(photos);
+                report.Database.Tables["PhotoBookmart_Models_ReportModelSettings"].SetDataSource(settings);
 
-            Stream stream = report.ExportToStream(CrystalDecisions.Shared.ExportFormatType.PortableDocFormat);
-            stream.Seek(0, SeekOrigin.Begin);
-            return File(stream, "application/pdf", string.Format("Remote_{0:ddMMyy}.pdf", DateTime.Today));
+                Response.Buffer = false;
+                Response.ClearContent();
+                Response.ClearHeaders();
+
+                Stream stream = report.ExportToStream(CrystalDecisions.Shared.ExportFormatType.PortableDocFormat);
+                stream.Seek(0, SeekOrigin.Begin);
+                return File(stream, "application/pdf", string.Format("Remote_{0:ddMMyy}.pdf", DateTime.Today));
+            }
+            catch (Exception ex)
+            {
+                return Content(string.Format("Here is exception: {0}", ex.Message));
+            }
         }
         
         public void ReportCrystalToHttpResponse()
