@@ -515,6 +515,16 @@ style from http://flatfull.com/themes/scale/chat.html
 .search-quick .large {
     width: 100%;
 }
+#PanelOrderSearch .mws-form-row {
+    padding: 10px;
+}
+#PanelOrderSearch .mws-form-row .mws-form-label {
+    width: 100px !important;
+    text-align: right;
+}
+#PanelOrderSearch .mws-form-row .mws-form-item {
+    margin-left: 116px !important;
+}
 /* End: For ~/View/WebsiteProduct/Index.cshtml */
 
 /* Sta: For ~/Views/WebsiteProduct/Add.cshtml */

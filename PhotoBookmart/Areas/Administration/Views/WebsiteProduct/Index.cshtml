@@ -5,20 +5,6 @@
 
 <link rel="stylesheet" type="text/css" href="@Url.ContentArea("~/Content/admin_template/plugins/datatables/colvis.css")">
 <script src="@Url.ContentArea("~/Content/admin_template/plugins/datatables/ColVis.js")"></script>
-<script>
-@*
-    jQuery(document).ready(function () {
-        jQuery("#CategorySelector").change(function () {
-            var cat_id = jQuery("#CategorySelector").val();
-            var url = "@Url.Action("Index")";
-            if (cat_id>0){
-                url+="?cat_id="+ cat_id;
-            }
-            window.location.href=url;
-        });
-    });
-*@
-</script>
 <div class="head">
     <h3>Quản lý đối tượng</h3>
 </div>
