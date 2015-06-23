@@ -1,17 +1,28 @@
+-- For: SWIMOUTLET-20213
 --select dbo.udf_StripHTML(ProductDescription_html) from products_descriptions where productid in (select productid from Products with (nolock) where Productcode = '8112055')
 --SELECT TOP(50) [ProductID], [ProductDescription_NoHtml], [ProductDescription_Html] FROM [Products_Descriptions] WITH (NOLOCK) WHERE [ProductDescription_Html] IS NOT NULL ORDER BY [ProductID] DESC;
 --SELECT TOP(1) dbo.udf_StripHTML([ProductDescription_Html]) FROM [Products_Descriptions] WITH (NOLOCK) WHERE [ProductID] = 630436;
 --SELECT [ProductID], [ProductCode] FROM [Products] WITH (NOLOCK) WHERE [ProductCode] = '8112055';
 --SELECT [ProductID], [ProductDescription_NoHtml], [ProductDescription_Html] FROM [Products_Descriptions] WITH (NOLOCK) WHERE [ProductID] = 489065;
 
--- SELECT * FROM INFORMATION_SCHEMA.COLUMNS WITH (NOLOCK) WHERE TABLE_NAME = 'Products_Extended' AND COLUMN_NAME = 's_BuyerNote';
--- SELECT * FROM INFORMATION_SCHEMA.COLUMNS WITH (NOLOCK) WHERE TABLE_NAME = 'Products' AND COLUMN_NAME = 's_imagingnotes';
--- SELECT TOP(10) * FROM AQV_PRODUCTS_BASE WITH (NOLOCK) WHERE Products_s_imagingnotes IS NOT NULL;
--- SELECT TOP(10) * FROM dbo.AQV_PRODUCTS WITH (NOLOCK) WHERE Products_s_imagingnotes IS NOT NULL;
--- dbo.AQP_ProductPhotoReport ' WHERE EXISTS (SELECT top 1 1 FROM AQV_Products p1 WITH(NOLOCK) WHERE p1.strProductCode not like ''%-%'' AND ISNULL(p1.i_PhotoCount,0) = 0 AND ISNULL(p1.i_PhotoCount,0) <= 2 AND ISNULL(p1.s_MissingSwatchPhoto,'''') <> '''' AND p1.t_BornDate < cast(DATEADD(day,1,getdate()) as DATE) AND p.strParentProductCode=p1.strProductCode )',' ORDER BY strProductCode ','1','100'
+-- For: SWIMOUTLET-20636
+--select distinct U.strEmail from dbo.AQT_USER U, dbo.AQT_USERS_AND_ROLES R where U.intId = R.intUserId and R.strRoleId = 'POER' and U.strActive = 'Y'
 
--- ALTER TABLE [Products_Extended] DROP COLUMN [s_BuyerNote];
+-- For: SWIMOUTLET-20490
+--ALTER TABLE [Products_Extended] DROP COLUMN [s_BuyerNote];
 
--- select top 10  s_imagingnotes, * from Products with(nolock) where ProductCode IN ('31184', '31182', '31183');
--- select top 10  s_ImageComingFrom, * from Products_Extended with(nolock) where s_productcode_sync IN ('31184', '31182', '31183');
--- SELECT s_ImagingNote,*FROM dbo.Products_Extended WITH(NOLOCK) WHERE s_productcode_sync IN ('31184', '31182', '31183');
+--s_ImageComingFrom = ( SELECT TOP 1 ISNULL(s_ImageComingFrom, '') + CHAR(10) + CHAR(13) + ISNULL(Products.s_imagingnotes, '') --Vu.NguyenH SWIMOUTLET-18173  
+--                        FROM      Products_Extended WITH (NOLOCK) JOIN Products WITH(NOLOCK) ON Products_Extended.ProductID = Products.ProductID  --Vu.NguyenH SWIMOUTLET-18173
+--                        WHERE     Products_Extended.ProductID = intProductId  
+--                    )
+
+--dbo.AQP_ProductPhotoReport ' WHERE EXISTS (SELECT top 1 1 FROM AQV_Products p1 WITH(NOLOCK) WHERE p1.strProductCode not like ''%-%'' AND ISNULL(p1.i_PhotoCount,0) = 0 AND ISNULL(p1.i_PhotoCount,0) <= 2 AND ISNULL(p1.s_MissingSwatchPhoto,'''') <> '''' AND p1.t_BornDate < cast(DATEADD(day,1,getdate()) as DATE) AND p.strParentProductCode=p1.strProductCode )',' ORDER BY strProductCode ','1','100';
+
+--SELECT * FROM INFORMATION_SCHEMA.COLUMNS WITH (NOLOCK) WHERE TABLE_NAME = 'Products_Extended' AND COLUMN_NAME = 's_BuyerNote';
+--SELECT * FROM INFORMATION_SCHEMA.COLUMNS WITH (NOLOCK) WHERE TABLE_NAME = 'Products' AND COLUMN_NAME = 's_imagingnotes';
+--SELECT TOP(10) * FROM AQV_PRODUCTS_BASE WITH (NOLOCK) WHERE Products_s_imagingnotes IS NOT NULL;
+--SELECT TOP(10) * FROM dbo.AQV_PRODUCTS WITH (NOLOCK) WHERE Products_s_imagingnotes IS NOT NULL;
+
+--select top 10  s_imagingnotes, * from Products with(nolock) where ProductCode IN ('31184', '31182', '31183');
+--select top 10  s_ImageComingFrom, * from Products_Extended with(nolock) where s_productcode_sync IN ('31184', '31182', '31183');
+--SELECT s_ImagingNote,*FROM dbo.Products_Extended WITH(NOLOCK) WHERE s_productcode_sync IN ('31184', '31182', '31183');

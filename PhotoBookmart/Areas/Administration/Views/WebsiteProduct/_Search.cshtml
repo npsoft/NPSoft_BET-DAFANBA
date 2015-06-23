@@ -51,60 +51,72 @@
 					</div>
 				</div>
                 <div class="mws-form-row">
-                    <label class="mws-form-label">Loại</label>
-                    <div class="mws-form-item ">
-                        <select name="MaLDT" class="mws-select2 large">
-                            <optgroup label="">
-                                <option value="">- - Chọn - -</option>
-                            </optgroup>
-                        </select>
+                    <div class="mws-form-cols">
+                        <div class="mws-form-col-4-8">
+                            <label class="mws-form-label">Loại</label>
+                            <div class="mws-form-item">
+                                <select name="MaLDT" class="mws-select2 large">
+                                    <optgroup label="">
+                                        <option value="">- - Chọn - -</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mws-form-col-4-8">
+                            <label class="mws-form-label">Tình trạng</label>
+                            <div class="mws-form-item">
+                                <select name="TinhTrang" class="mws-select2 large">
+                                    <option value="">- - Chọn - -</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="mws-form-row">
-                    <label class="mws-form-label">Tình trạng</label>
-                    <div class="mws-form-item ">
-                        <select name="TinhTrang" class="mws-select2 large">
-                            <option value="">- - Chọn - -</option>
-                        </select>
+                    <div class="mws-form-cols">
+                        <div class="mws-form-col-4-8">
+                            <label class="mws-form-label">Duyệt?</label>
+                            <div class="mws-form-item ">
+                                <select name="IsDuyet" class="mws-select2 large">
+                                    <option value="">- - Chọn - -</option>
+                                    <option value="true">Đã duyệt</option>
+                                    <option value="false">Chưa duyệt</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mws-form-col-4-8">
+                            <label class="mws-form-label">Từ khóa</label>
+                            <div class="mws-form-item">
+                                @Html.TextBoxFor(m => m.Keywords, new { @class = "large" })
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="mws-form-row">
-                    <label class="mws-form-label">Tình trạng (duyệt)</label>
-                    <div class="mws-form-item ">
-                        <select name="IsDuyet" class="mws-select2 large">
-                            <option value="">- - Chọn - -</option>
-                            <option value="true">Đã duyệt</option>
-                            <option value="false">Chưa duyệt</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="mws-form-row">
-                    <label class="mws-form-label">Từ khóa</label>
-                    <div class="mws-form-item">
-                        @Html.TextBoxFor(m => m.Keywords, new { @class = "large" })
-                    </div>
-                </div>
-                <div class="mws-form-row">
-                    <label class="mws-form-label">Sắp xếp theo</label>
-                    <div class="mws-form-item">
-                        <select name="OrderBy" class="mws-select2 large">
-                            <option value="">- - Chọn - -</option>
-                            <option value="HoTen">Họ & Tên</option>
-                            <option value="NgaySinh">Ngày sinh</option>
-                            <option value="GioiTinh">Giới tính</option>
-                            <option value="MaLDT">Loại</option>
-                            <option value="TinhTrang">Tình trạng</option>
-                            <option value="IsDuyet">Tình trạng (duyệt)</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="mws-form-row">
-                    <label class="mws-form-label">Thứ tự sắp xếp</label>
-                    <div class="mws-form-item">
-                        <select name="OrderDesc" class="mws-select2 large">
-                            <option value="false">Tăng dần</option>
-                            <option value="true">Giảm dần</option>
-                        </select>
+                    <div class="mws-form-cols">
+                        <div class="mws-form-col-4-8">
+                            <label class="mws-form-label">Sắp xếp theo</label>
+                            <div class="mws-form-item">
+                                <select name="OrderBy" class="mws-select2 large">
+                                    <option value="">- - Chọn - -</option>
+                                    <option value="HoTen">Họ & Tên</option>
+                                    <option value="NgaySinh">Ngày sinh</option>
+                                    <option value="GioiTinh">Giới tính</option>
+                                    <option value="MaLDT">Loại</option>
+                                    <option value="TinhTrang">Tình trạng</option>
+                                    <option value="IsDuyet">Tình trạng (duyệt)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mws-form-col-4-8">
+                            <label class="mws-form-label">Thứ tự sắp xếp</label>
+                            <div class="mws-form-item">
+                                <select name="OrderDesc" class="mws-select2 large">
+                                    <option value="false">Tăng dần</option>
+                                    <option value="true">Giảm dần</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="hide">

@@ -46,13 +46,19 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CrystalDecisions.CrystalReports.Engine, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <Private>True</Private>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
     <Reference Include="CrystalDecisions.ReportSource, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <Private>True</Private>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
     <Reference Include="CrystalDecisions.Shared, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <Private>True</Private>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
     <Reference Include="EPPlus">
       <HintPath>..\packages\EPPlus.3.1.3.3\lib\net35\EPPlus.dll</HintPath>
@@ -213,19 +219,25 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>CrystalReportTest1.rpt</DependentUpon>
-      <SubType>component</SubType>
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="Reports\CrystalReportTest2.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>CrystalReportTest2.rpt</DependentUpon>
-      <SubType>component</SubType>
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="Reports\CrystalReportTest3.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>CrystalReportTest3.rpt</DependentUpon>
-      <SubType>component</SubType>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Reports\CrystalReportTest4.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>CrystalReportTest4.rpt</DependentUpon>
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="Reports\Customers.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -236,10 +248,11 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>DanhSachDT.rpt</DependentUpon>
-      <SubType>component</SubType>
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="Reports\IndividualTranscript.cs">
       <DependentUpon>IndividualTranscript.xsd</DependentUpon>
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="Reports\IndividualTranscript.Designer.cs">
       <DependentUpon>IndividualTranscript.cs</DependentUpon>
@@ -3734,6 +3747,10 @@
     <EmbeddedResource Include="Reports\CrystalReportTest3.rpt">
       <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
       <LastGenOutput>CrystalReportTest3.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reports\CrystalReportTest4.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>CrystalReportTest4.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Reports\DanhSachDT.rpt">
       <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>

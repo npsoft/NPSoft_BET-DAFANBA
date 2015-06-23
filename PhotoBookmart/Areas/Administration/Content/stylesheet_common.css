@@ -515,6 +515,9 @@ style from http://flatfull.com/themes/scale/chat.html
 .search-quick .large {
     width: 100%;
 }
+#PanelOrderSearch {
+    margin-bottom: 10px;
+}
 #PanelOrderSearch .mws-form-row {
     padding: 10px;
 }
