@@ -1,6 +1,13 @@
-﻿<div class="row-fluid search-quick">
+﻿<div class="grid_8 mgb-10 row-fluid search-quick">
     <div class="span2">
         <input type="text" id="quick-Keywords" placeholder="Từ khóa tìm kiếm" class="large" />
+    </div>
+    <div class="span2">
+        <select id="quick-MaLDT" class="mws-select2 large">
+            <optgroup label="">
+                <option value="">- - Loại - -</option>
+            </optgroup>
+        </select>
     </div>
     <div class="span2">
         <select id="quick-MaHC_Province" class="mws-select2 large">
@@ -21,10 +28,5 @@
         <select id="quick-IDDiaChi" class="mws-select2 large">
             <option value="">- - Xóm - -</option>
         </select>
-    </div>
-    <div class="span2">
-        <a data-action="search-advanced" rel="search-advanced" href="javascript: void(0);" class="btn">
-            <i class="icon-list-2"></i>&nbsp;Nâng cao
-        </a>
     </div>
 </div>

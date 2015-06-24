@@ -249,7 +249,7 @@ a.thumbnail:hover{border-color:#c5d52b;-webkit-box-shadow:0 1px 4px rgba(0, 105,
 .accordion-inner{padding:9px 15px;border-top:1px solid #e5e5e5;}
 .pull-right{float:right;}
 .pull-left{float:left;}
-.hide{display:none;}
+.hide{display:none !important;}
 .show{display:block;}
 .invisible{visibility:hidden;}
 .affix{position:fixed;}

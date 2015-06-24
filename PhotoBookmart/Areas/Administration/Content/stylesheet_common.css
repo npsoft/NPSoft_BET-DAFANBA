@@ -474,6 +474,9 @@ style from http://flatfull.com/themes/scale/chat.html
 .float-right {
     float: right;
 }
+.mgb-10 {
+    margin-bottom: 10px;
+}
 .padd-t-4 {
     padding-top: 4px;
 }
@@ -497,6 +500,9 @@ style from http://flatfull.com/themes/scale/chat.html
     bottom: 0;
     min-height: 0 !important;
 }
+.cursor-pointer {
+    cursor: pointer;
+}
 .k-grid-header .k-header > .k-grid-filter {
     margin-right: -0.25em;
 }
@@ -509,9 +515,6 @@ style from http://flatfull.com/themes/scale/chat.html
 /* End: Common Define */
 
 /* Sta: For ~/View/WebsiteProduct/Index.cshtml */
-.search-quick {
-    margin: 10px;
-}
 .search-quick .large {
     width: 100%;
 }

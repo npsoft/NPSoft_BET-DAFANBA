@@ -2,9 +2,12 @@
 @{
     Layout = null;
 }
-<div class="mws-panel grid_8 mws-collapsible hide" id="PanelOrderSearch"><!-- mws-collapsed -->
+<div class="mws-panel grid_8 hide" id="PanelOrderSearch"><!-- mws-collapsible mws-collapsed -->
     <div class="mws-panel-header">
-        <span><i class="icon-calendar"></i>Tìm kiếm nâng cao</span>
+        <span>
+            <i class="icon-calendar"></i>Tìm kiếm nâng cao
+            <span data-action="search-quick" class="float-right cursor-pointer"><i class="icon-remove"></i></span>
+        </span>
     </div>
     <div class="mws-panel-body no-padding">
         @using (Html.BeginForm("List", "WebsiteProduct", FormMethod.Post, new { enctype = "multipart/form-data", @id = "Order_Search", @class = "mws-form" }))
@@ -131,9 +134,9 @@
     </div>
 </div>
 <script>
-    var $con_advanced, $btn_quick, $frm_search, $ddl_MaHC_Province, $ddl_MaHC_District, $ddl_MaHC_Village, $ddl_IDDiaChi, $ddl_MaLDT, $ddl_TinhTrang, $ddl_IsDuyet, $ddl_OrderBy, $ddl_OrderDesc, $txt_Keywords, $hdf_Page, $btn_submit;
-    var $con_quick, $btn_advanced, $ddl_quick_MaHC_Province, $ddl_quick_MaHC_District, $ddl_quick_MaHC_Village, $ddl_quick_IDDiaChi, $txt_quick_Keywords;
-    var $con_combine, $btn_combine, $ddl_combine_MaHC_Province, $ddl_combine_MaHC_District, $ddl_combine_MaHC_Village, $ddl_combine_IDDiaChi, $txt_combine_Keywords;
+    var $con_advanced, $frm_search, $ddl_MaHC_Province, $ddl_MaHC_District, $ddl_MaHC_Village, $ddl_IDDiaChi, $ddl_MaLDT, $ddl_TinhTrang, $ddl_IsDuyet, $ddl_OrderBy, $ddl_OrderDesc, $txt_Keywords, $hdf_Page, $btn_submit;
+    var $con_quick, $ddl_quick_MaHC_Province, $ddl_quick_MaHC_District, $ddl_quick_MaHC_Village, $ddl_quick_IDDiaChi, $ddl_quick_MaLDT, $txt_quick_Keywords;
+    var $con_combine, $ddl_combine_MaHC_Province, $ddl_combine_MaHC_District, $ddl_combine_MaHC_Village, $ddl_combine_IDDiaChi, $txt_combine_Keywords;
     var $list;
     var count_change_hamlet = 0; // For: Stupid trick :)
 
@@ -170,7 +173,6 @@
 
     function InitCtrls(_data) {
         $con_advanced = $("#PanelOrderSearch");
-        $btn_quick = $con_advanced.find("[data-action='search-quick']");
         $frm_search = $con_advanced.find("#Order_Search");
         $ddl_MaHC_Province = $frm_search.find("[name='MaHC_Province']");
         $ddl_MaHC_District = $frm_search.find("[name='MaHC_District']");
@@ -186,26 +188,26 @@
         $btn_submit = $frm_search.find("[type='submit']");
 
         $con_quick = $(".search-quick");
-        $btn_advanced = $con_quick.find("[data-action='search-advanced']");
         $ddl_quick_MaHC_Province = $con_quick.find("#quick-MaHC_Province");
         $ddl_quick_MaHC_District = $con_quick.find("#quick-MaHC_District");
         $ddl_quick_MaHC_Village = $con_quick.find("#quick-MaHC_Village");
         $ddl_quick_IDDiaChi = $con_quick.find("#quick-IDDiaChi");
+        $ddl_quick_MaLDT = $con_quick.find("#quick-MaLDT");
         $txt_quick_Keywords = $con_quick.find("#quick-Keywords");
 
         $con_combine = $con_advanced.add($con_quick);
-        $btn_combine = $btn_advanced.add($btn_quick);
         $ddl_combine_MaHC_Province = $ddl_MaHC_Province.add($ddl_quick_MaHC_Province);
         $ddl_combine_MaHC_District = $ddl_MaHC_District.add($ddl_quick_MaHC_District);
         $ddl_combine_MaHC_Village = $ddl_MaHC_Village.add($ddl_quick_MaHC_Village);
         $ddl_combine_IDDiaChi = $ddl_IDDiaChi.add($ddl_quick_IDDiaChi);
+        $ddl_combine_MaLDT = $ddl_MaLDT.add($ddl_quick_MaLDT);
         $txt_combine_Keywords = $txt_Keywords.add($txt_quick_Keywords);
         $list = $(".listuser");
     };
 
     function InitEvents(_data) {
-        $btn_combine.on("click", function (e) {
-            $con_combine.toggleClass("hide");
+        $("[data-action='search-quick'], [data-action='search-advanced']").on("click", function (e) {
+            $("#PanelOrderSearch, .search-quick, [data-action='search-advanced']").toggleClass("hide");
         });
 
         $ddl_combine_MaHC_Province.on("change", function (e) {
@@ -287,6 +289,14 @@
             }
         });
 
+        $ddl_combine_MaLDT.on("change", function (e) {
+            $ddl_combine_MaLDT.select2().select2("val", $(this).val());
+            if ($con_quick[0], e.target) {
+                $hdf_Page.val(1);
+                QuickFilter({});
+            }
+        });
+
         $txt_combine_Keywords.on("change", function (e) {
             $txt_combine_Keywords.val($(this).val());
         });
@@ -354,8 +364,8 @@
                 });
                 opts += "</optgroup>";
             });
-            $ddl_MaLDT.append(opts);
-            $ddl_MaLDT.select2().select2("val", "@Model.MaLDT");
+            $ddl_combine_MaLDT.append(opts);
+            $ddl_combine_MaLDT.select2().select2("val", "@Model.MaLDT");
         });
 
         $.post(SVC_GETTINHTRANGDTSBYPARAMS, { IsDuyet: true }, function (data) {
