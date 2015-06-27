@@ -7,6 +7,7 @@ using ServiceStack.DataAnnotations;
 using PhotoBookmart.DataLayer.Models.ExtraShipping;
 using PhotoBookmart.DataLayer.Models.Reports;
 using PhotoBookmart.DataLayer.Models.System;
+using PhotoBookmart.DataLayer.Models.Users_Management;
 
 namespace PhotoBookmart.DataLayer.Models.Products
 {
@@ -62,10 +63,18 @@ namespace PhotoBookmart.DataLayer.Models.Products
         public bool CanEdit { get; set; }
         [Ignore]
         public bool CanDelete { get; set; }
-        
+        [Ignore]
+        public bool CanBienDong { get; set; }
+
         public string ToStringNgaySinh()
         {
             return (string.IsNullOrEmpty(NgaySinh) ? "" : NgaySinh + "/") + (string.IsNullOrEmpty(ThangSinh) ? "" : ThangSinh + "/") + NamSinh;
+        }
+
+        public bool CheckBienDong(ABUserAuth user)
+        {
+            if (user == null) { return false; }
+            return this.IsDuyet && (user.HasRole(RoleEnum.Admin) || this.MaHC.StartsWith(user.MaHC));
         }
 
         public DoiTuong()

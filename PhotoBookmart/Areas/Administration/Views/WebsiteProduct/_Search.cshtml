@@ -137,7 +137,7 @@
     var $con_advanced, $frm_search, $ddl_MaHC_Province, $ddl_MaHC_District, $ddl_MaHC_Village, $ddl_IDDiaChi, $ddl_MaLDT, $ddl_TinhTrang, $ddl_IsDuyet, $ddl_OrderBy, $ddl_OrderDesc, $txt_Keywords, $hdf_Page, $btn_submit;
     var $con_quick, $ddl_quick_MaHC_Province, $ddl_quick_MaHC_District, $ddl_quick_MaHC_Village, $ddl_quick_IDDiaChi, $ddl_quick_MaLDT, $txt_quick_Keywords;
     var $con_combine, $ddl_combine_MaHC_Province, $ddl_combine_MaHC_District, $ddl_combine_MaHC_Village, $ddl_combine_IDDiaChi, $txt_combine_Keywords;
-    var $list;
+    var $list, $popup_bien_dong;
     var count_change_hamlet = 0; // For: Stupid trick :)
 
     function QuickFilter(_data) {
@@ -202,7 +202,9 @@
         $ddl_combine_IDDiaChi = $ddl_IDDiaChi.add($ddl_quick_IDDiaChi);
         $ddl_combine_MaLDT = $ddl_MaLDT.add($ddl_quick_MaLDT);
         $txt_combine_Keywords = $txt_Keywords.add($txt_quick_Keywords);
+
         $list = $(".listuser");
+        $popup_bien_dong = $("#dialog-bien-dong");
     };
 
     function InitEvents(_data) {
@@ -320,6 +322,17 @@
             return false;
         });
 
+        $popup_bien_dong.dialog({
+            modal: true,
+            autoOpen: false,
+            width: 800,
+            buttons: {
+                "Đóng lại": function () {
+                    $(this).dialog("close");
+                }
+            }
+        });
+
         $list.on("click", "[data-action='delete']", function (e) {
             var id = $(this).closest("tr").attr("data-id");
             if (confirm("Bạn chắc chắn muốn xóa đối tượng này?")) {
@@ -332,6 +345,14 @@
                     }
                 });
             }
+        });
+
+        $list.on("click", "[data-action='bien-dong']", function (e) {
+            var id = $(this).closest("tr").attr("data-id");
+            $.post("@Url.Action("BienDong", "WebsiteProduct", new { })", { Id: id }, function (data) {
+                $popup_bien_dong.html(data);
+                $popup_bien_dong.dialog("open");
+            });
         });
     };
 

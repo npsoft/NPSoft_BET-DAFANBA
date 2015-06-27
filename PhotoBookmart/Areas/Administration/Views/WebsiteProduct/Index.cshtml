@@ -9,7 +9,7 @@
     <h3>Quản lý đối tượng</h3>
 </div>
 @Html.Partial("_Search")
-@Html.Partial("_SearchQuick")
+@Html.Partial("_Search_Quick")
 <div class="mws-panel grid_8">
     <div class="mws-panel-header">
         <span>
@@ -30,3 +30,4 @@
         @Html.Action("List", new { Model })
     </div>
 </div>
+<div class="dialog" style="display:none;" id="dialog-bien-dong" title="Tạo biến động"></div>

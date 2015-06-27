@@ -66,6 +66,9 @@
     <Reference Include="itextsharp">
       <HintPath>..\packages\iTextSharp.5.5.2\lib\itextsharp.dll</HintPath>
     </Reference>
+    <Reference Include="libphonenumber">
+      <HintPath>..\packages\libphonenumber-source\bin\Debug\libphonenumber.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <Private>True</Private>
@@ -3541,11 +3544,11 @@
     <Content Include="Areas\Administration\Views\WebsiteProduct\Add.cshtml" />
     <Content Include="Areas\Administration\Views\WebsiteProduct\Index.cshtml" />
     <Content Include="Areas\Administration\Views\WebsiteProduct\_Search.cshtml" />
-    <Content Include="Areas\Administration\Views\WebsiteProduct\Detail.cshtml" />
-    <Content Include="Areas\Administration\Views\WebsiteProduct\Detail_Image.cshtml" />
-    <Content Include="Areas\Administration\Views\WebsiteProduct\Detail_Image_List.cshtml" />
+    <Content Include="Areas\Administration\Views\WebsiteProduct\_BienDong.cshtml" />
+    <Content Include="Areas\Administration\Views\WebsiteProduct\_BienDong_CatChet.cshtml" />
+    <Content Include="Areas\Administration\Views\WebsiteProduct\_BienDong_DungTroCap.cshtml" />
     <Content Include="Areas\Administration\Views\WebsiteProduct\Detail_Sheet.cshtml" />
-    <Content Include="Areas\Administration\Views\WebsiteProduct\_SearchQuick.cshtml" />
+    <Content Include="Areas\Administration\Views\WebsiteProduct\_Search_Quick.cshtml" />
     <Content Include="Areas\Administration\Views\UserManagement\ChangePassword.cshtml" />
     <Content Include="Areas\Administration\Views\WebsiteBanners\_List.cshtml" />
     <Content Include="Areas\Administration\Views\WebsiteBanners\Add.cshtml" />
@@ -3584,9 +3587,9 @@
     <Content Include="Areas\Administration\Views\Country\_List.cshtml" />
     <Content Include="Areas\Administration\Views\Country\Add.cshtml" />
     <Content Include="Areas\Administration\Views\Country\Index.cshtml" />
-    <Content Include="Areas\Administration\Views\WebsiteProduct\Detail_Option.cshtml" />
-    <Content Include="Areas\Administration\Views\WebsiteProduct\Detail_Option_List.cshtml" />
-    <Content Include="Areas\Administration\Views\WebsiteProduct\Detail_Option_Add.cshtml" />
+    <Content Include="Areas\Administration\Views\WebsiteProduct\_BienDong_ChuyenDiaBan.cshtml" />
+    <Content Include="Areas\Administration\Views\WebsiteProduct\_BienDong_InfoCommon.cshtml" />
+    <Content Include="Areas\Administration\Views\WebsiteProduct\_BienDong_ThayDoiLoaiDoiTuong.cshtml" />
     <Content Include="Areas\Administration\Views\Order\_List.cshtml" />
     <Content Include="Areas\Administration\Views\Order\Index.cshtml" />
     <Content Include="Areas\Administration\Views\Order\Detail.cshtml" />
@@ -3723,10 +3726,6 @@
     <ProjectReference Include="..\DataModel\DataLayer.csproj">
       <Project>{D35BA3CD-A6CF-4C2A-A15D-F6256C4FA69C}</Project>
       <Name>DataLayer %28DataLayer\DataLayer%29</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\packages\libphonenumber-source\libphonenumber.csproj">
-      <Project>{BF773FA2-9265-4077-A990-7C8BBE66B2CD}</Project>
-      <Name>libphonenumber</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

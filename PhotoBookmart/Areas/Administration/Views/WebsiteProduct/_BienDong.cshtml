@@ -1,0 +1,34 @@
+﻿@model DoiTuong
+
+<div class="head">
+    <div class="mws-panel-toolbar">
+        <div class="btn-toolbar">
+            <div class="btn-group"></div>
+        </div>
+    </div>
+</div>
+<div class="mws-panel grid_3 bien-dong-primary">
+    <div class="mws-accordion" heightStyle="auto">
+        <h3><a href="#">Cắt chết</a></h3>
+        <div>@*@Html.Partial("_BienDong_CatChet", Model)*@</div>
+        <h3><a href="#">Dừng trợ cấp</a></h3>
+        <div>@*@Html.Partial("_BienDong_DungTroCap", Model)*@</div>
+        <h3><a href="#">Chuyển địa bàn</a></h3>
+        <div>@*@Html.Partial("_BienDong_ChuyenDiaBan", Model)*@</div>
+        <h3><a href="#">Thay đổi loại đối tượng</a></h3>
+        <div>@*@Html.Partial("_BienDong_ThayDoiLoaiDoiTuong", Model)*@</div>
+    </div>
+</div>
+<div class="mws-panel grid_5 bien-dong-common">
+    <div class="mws-panel-header">
+        <span><i class="icon-list"></i>Thông tin</span>
+    </div>
+    <div class="mws-panel-body" style="padding:0;">
+        <div style="">
+            <div class="chat_list_footer"></div>
+            <div class="chat-list"></div>
+        </div>
+    </div>
+</div>
+<div class="clear"></div>
+<script src="@Url.ContentArea("~/Content/admin_template/js/core/mws.js")"></script>

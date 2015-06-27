@@ -38,6 +38,14 @@
                     <span class="btn-group">
                         <a href="#" class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
                         <ul class="dropdown-menu pull-right" style="text-align: left;">
+                            @if (item.CanBienDong)
+                            {
+                            <li>
+                                <a rel="bien-dong" href="javascript:void(0);" title="Tạo biến động" data-action="bien-dong">
+                                    <i class="icon-stats-up"></i>&nbsp;Tạo biến động
+                                </a>
+                            </li>
+                            }
                             @if (item.CanView)
                             {
                             <li>

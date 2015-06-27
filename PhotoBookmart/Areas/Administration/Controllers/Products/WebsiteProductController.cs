@@ -166,6 +166,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 x.CanView = permission.CanGet(x);
                 x.CanEdit = permission.CanUpdate(x);
                 x.CanDelete = permission.CanDelete(x);
+                x.CanBienDong = x.CheckBienDong(CurrentUser);
                 x.MaLDT_Name = string.IsNullOrEmpty(x.MaLDT) ? "" : Lst_DanhMuc_LoaiDT.Single(y => y.MaLDT == x.MaLDT).TenLDT;
                 x.TinhTrang_Name = string.IsNullOrEmpty(x.TinhTrang) ? "" : Lst_DanhMuc_TinhTrangDT.Single(y => y.MaTT == x.TinhTrang).TenTT;
             });
@@ -178,6 +179,13 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             ViewData["TotalPage"] = totalPage;
             return PartialView("_List", c);
             #endregion
+        }
+
+        public ActionResult BienDong(long Id)
+        {
+            DoiTuong model = Db.Select<DoiTuong>(x => x.Where(y => y.Id == Id).Limit(0, 1)).FirstOrDefault();
+            if (model == null || !model.CheckBienDong(CurrentUser)) { return Content("Vui lòng không hack ứng dụng."); }
+            return PartialView("_BienDong", model);
         }
 
         [HttpGet]
@@ -695,7 +703,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 var entity = Db.Select<DoiTuong>(x => x.Where(y => y.Id == id).Limit(0, 1)).FirstOrDefault();
                 if (!permission.CanDelete(entity))
                 {
-                    return JsonError("Vui lòng không hack ứng dụng");
+                    return JsonError("Vui lòng không hack ứng dụng.");
                 }
                 using (IDbTransaction dbTrans = Db.OpenTransaction())
                 {
@@ -735,50 +743,6 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             }
 
             return View(model);
-        }
-
-        public ActionResult Move(long id, int move)
-        {
-            try
-            {
-                var e = Db.SelectParam<Product>(m => (m.Id == id)).FirstOrDefault();
-
-                var a = new List<Product>();
-
-                var t = new Product();
-
-                if (move == 1)
-                {
-                    a = Db.Where<Product>(m => (m.CatId == e.CatId && m.Order < e.Order)).OrderBy(m => (m.Order)).ToList();
-
-                    if (a.Count != 0) t = a.LastOrDefault();
-                }
-                else
-                {
-                    a = Db.Where<Product>(m => (m.CatId == e.CatId && m.Order > e.Order)).OrderBy(m => (m.Order)).ToList();
-
-                    if (a.Count != 0) t = a.FirstOrDefault();
-                }
-
-                if (t.Id > 0)
-                {
-                    int i = t.Order;
-
-                    t.Order = e.Order;
-
-                    e.Order = i;
-
-                    Db.Update<Product>(t);
-
-                    Db.Update<Product>(e);
-                }
-            }
-            catch (Exception ex)
-            {
-                return JsonError(ex.Message);
-            }
-
-            return Json(null, JsonRequestBehavior.AllowGet);
         }
         
         #region Detail Option in Product
