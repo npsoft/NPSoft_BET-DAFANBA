@@ -116,6 +116,26 @@ namespace PhotoBookmart.DataLayer
             return string.IsNullOrEmpty(text) || text.Length < 10 ? "" : text.Substring(0, 10);
         }
 
+        public static string GetGender(this string text)
+        {
+            return text == "Male" ? "Nam" : (text == "Female" ? "Nữ" : "");
+        }
+
+        public static bool ChangeProvince(this string mahc_old, string mahc_new)
+        {
+            return mahc_new.Length >= 2 && mahc_old.Substring(0, 2) != mahc_new.Substring(0, 2);
+        }
+
+        public static bool ChangeDistrict(this string mahc_old, string mahc_new)
+        {
+            return mahc_new.Length >= 5 && mahc_old.Substring(0, 5) != mahc_new.Substring(0, 5);
+        }
+
+        public static bool ChangeVillage(this string mahc_old, string mahc_new)
+        {
+            return mahc_new.Length >= 10 && mahc_old.Substring(0, 10) != mahc_new.Substring(0, 10);
+        }
+
         public static bool CheckDateOfBirth(this string type, string year, string month, string date)
         {
             int y = int.Parse(year);
@@ -153,11 +173,6 @@ namespace PhotoBookmart.DataLayer
                 default:
                     return true;
             }
-        }
-
-        public static string GetGender(this string text)
-        {
-            return text == "Male" ? "Nam" : (text == "Female" ? "Nữ" : "");
         }
     }
 }

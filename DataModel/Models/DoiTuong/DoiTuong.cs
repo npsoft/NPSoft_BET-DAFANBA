@@ -45,6 +45,23 @@ namespace PhotoBookmart.DataLayer.Models.Products
         public string TinhTrang { get; set; }
         public bool IsDuyet { get; set; }
 
+        #region Ignore properties
+        [Ignore]
+        public bool CanView { get; set; }
+        [Ignore]
+        public bool CanEdit { get; set; }
+        [Ignore]
+        public bool CanDelete { get; set; }
+        [Ignore]
+        public bool CanBienDong { get; set; }
+        [Ignore]
+        public string Province_Name { get; set; }
+        [Ignore]
+        public string District_Name { get; set; }
+        [Ignore]
+        public string Village_Name { get; set; }
+        [Ignore]
+        public string Hamlet_Name { get; set; }
         [Ignore]
         public string TinhTrang_Name { get; set; }
         [Ignore]
@@ -57,15 +74,9 @@ namespace PhotoBookmart.DataLayer.Models.Products
         public List<DoiTuong_BienDong> BienDong_Lst_Ins { get; set; }
         [Ignore]
         public bool IsThayDoiDoChuyenLoaiDoiTuong { get; set; }
-        [Ignore]
-        public bool CanView { get; set; }
-        [Ignore]
-        public bool CanEdit { get; set; }
-        [Ignore]
-        public bool CanDelete { get; set; }
-        [Ignore]
-        public bool CanBienDong { get; set; }
+        #endregion
 
+        #region Support functions
         public string ToStringNgaySinh()
         {
             return (string.IsNullOrEmpty(NgaySinh) ? "" : NgaySinh + "/") + (string.IsNullOrEmpty(ThangSinh) ? "" : ThangSinh + "/") + NamSinh;
@@ -74,8 +85,9 @@ namespace PhotoBookmart.DataLayer.Models.Products
         public bool CheckBienDong(ABUserAuth user)
         {
             if (user == null) { return false; }
-            return this.IsDuyet && (user.HasRole(RoleEnum.Admin) || this.MaHC.StartsWith(user.MaHC));
+            return IsDuyet && (user.HasRole(RoleEnum.Admin) || MaHC.StartsWith(user.MaHC));
         }
+        #endregion
 
         public DoiTuong()
         {

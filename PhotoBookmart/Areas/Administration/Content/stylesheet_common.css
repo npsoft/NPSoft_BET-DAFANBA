@@ -422,7 +422,7 @@ style from http://flatfull.com/themes/scale/chat.html
 
 /* Sta: Redefine mws */
 .ui-datepicker {
-    z-index: 100 !important;
+    z-index: 1002 !important;
 }
 .ui-datepicker select.ui-datepicker-month,
 .ui-datepicker select.ui-datepicker-year {
@@ -434,6 +434,9 @@ style from http://flatfull.com/themes/scale/chat.html
 }
 .mws-tabs .ui-tabs-nav .ui-state-disabled {
     display: none;
+}
+.mws-select2.select2-4-8 {
+    width: 49%;
 }
 /* End: Redefine mws */
 
@@ -530,6 +533,36 @@ style from http://flatfull.com/themes/scale/chat.html
 }
 #PanelOrderSearch .mws-form-row .mws-form-item {
     margin-left: 116px !important;
+}
+#dialog-bien-dong {
+    padding: 15px 10px 0 10px;
+}
+#dialog-bien-dong .bien-dong-common .mws-form {
+    padding: 5px 0;
+}
+#dialog-bien-dong .bien-dong-common .mws-form-row {
+    padding: 5px;
+}
+#dialog-bien-dong .bien-dong-common .mws-form-row .mws-form-label {
+    width: 75px !important;
+    padding: 0;
+    text-align: right;
+}
+#dialog-bien-dong .bien-dong-common .mws-form-row .mws-form-item {
+    margin-left: 80px !important;
+}
+#dialog-bien-dong .bien-dong-primary .ui-accordion-content {
+    padding: 0.5em 0.5em;
+}
+#dialog-bien-dong .bien-dong-primary .ui-accordion-content .mws-form-row {
+    padding: 5px;
+}
+#dialog-bien-dong .bien-dong-primary .ui-accordion-content .mws-form-label {
+    width: 100px !important;
+    text-align: right;
+}
+#dialog-bien-dong .bien-dong-primary .ui-accordion-content .mws-form-item {
+    margin-left: 110px !important;
 }
 /* End: For ~/View/WebsiteProduct/Index.cshtml */
 

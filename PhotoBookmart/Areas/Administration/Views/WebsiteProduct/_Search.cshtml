@@ -325,7 +325,7 @@
         $popup_bien_dong.dialog({
             modal: true,
             autoOpen: false,
-            width: 800,
+            closeOnEscape: true,
             buttons: {
                 "Đóng lại": function () {
                     $(this).dialog("close");
@@ -351,6 +351,7 @@
             var id = $(this).closest("tr").attr("data-id");
             $.post("@Url.Action("BienDong", "WebsiteProduct", new { })", { Id: id }, function (data) {
                 $popup_bien_dong.html(data);
+                $popup_bien_dong.dialog("option", "width", $(document).width() * 0.9);
                 $popup_bien_dong.dialog("open");
             });
         });
