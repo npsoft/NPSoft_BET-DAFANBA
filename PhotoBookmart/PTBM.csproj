@@ -177,7 +177,7 @@
     <Compile Include="Areas\Administration\Models\OrderAutomatedShippingModel.cs" />
     <Compile Include="Areas\Administration\Models\SearchCouponModel.cs" />
     <Compile Include="Areas\Administration\Models\ExportOrderShippingModel.cs" />
-    <Compile Include="Areas\Administration\Models\CouponImportExcelModel.cs" />
+    <Compile Include="Areas\Administration\Models\DoiTuongModel.cs" />
     <Compile Include="Areas\Administration\Models\Photobookmart_CommonModel.cs" />
     <Compile Include="Areas\Administration\Models\ReviewFilterModel.cs" />
     <Compile Include="Areas\Administration\Models\TestimonialSearchModel.cs" />
@@ -3596,7 +3596,6 @@
     <Content Include="Areas\Administration\Views\Settings\CreateOrUpdate.cshtml" />
     <Content Include="Areas\Administration\Views\Settings\_List.cshtml" />
     <Content Include="Areas\Administration\Views\Shared\_PagerTable.cshtml" />
-    <Content Include="Areas\Administration\Views\PaypalConfig\Edit.cshtml" />
     <Content Include="Areas\Administration\Views\Order\_SearchOrder.cshtml" />
     <Content Include="Areas\Administration\Views\Order\Detail_Info.cshtml" />
     <Content Include="Areas\Administration\Views\Order\Coupon_Info.cshtml" />

@@ -185,6 +185,36 @@ namespace PhotoBookmart.Areas.Administration.Controllers
         {
             DoiTuong model = Db.Select<DoiTuong>(x => x.Where(y => y.Id == Id).Limit(0, 1)).FirstOrDefault();
             if (model == null || !model.CheckBienDong(CurrentUser)) { return Content("Vui lòng không hack ứng dụng."); }
+
+            string code_province = model.MaHC.GetCodeProvince();
+            string code_district = model.MaHC.GetCodeDistrict();
+            string code_village = model.MaHC.GetCodeVillage();
+            List<DanhMuc_HanhChinh> hanh_chinh = Db.Select<DanhMuc_HanhChinh>(x => 
+                x.Where(y => Sql.In(y.MaHC, new string[3] { code_province, code_district, code_village }))
+                .Limit(0, 3));
+            DanhMuc_DiaChi dia_chi = Db.Select<DanhMuc_DiaChi>(x => x.Where(y => y.IDDiaChi == model.IDDiaChi).Limit(0, 1)).FirstOrDefault();
+            DanhMuc_LoaiDT loai_dt = Db.Select<DanhMuc_LoaiDT>(x => x.Where(y => y.MaLDT == model.MaLDT).Limit(0, 1)).FirstOrDefault();
+            if (hanh_chinh.Count(x => x.MaHC == code_province) != 0)
+            {
+                model.Province_Name = hanh_chinh.Single(x => x.MaHC == code_province).TenHC;
+            }
+            if (hanh_chinh.Count(x => x.MaHC == code_district) != 0)
+            {
+                model.District_Name = hanh_chinh.Single(x => x.MaHC == code_district).TenHC;
+            }
+            if (hanh_chinh.Count(x => x.MaHC == code_village) != 0)
+            {
+                model.Village_Name = hanh_chinh.Single(x => x.MaHC == code_village).TenHC;
+            }
+            if (dia_chi != null)
+            {
+                model.Hamlet_Name = dia_chi.TenDiaChi;
+            }
+            if (loai_dt != null)
+            {
+                model.MaLDT_Name = string.Format("{0} - {1}", loai_dt.MaLDT, loai_dt.TenLDT);
+            }
+
             return PartialView("_BienDong", model);
         }
 
@@ -695,6 +725,8 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             #endregion
         }
         
+        [HttpPost]
+        [ValidateInput(false)]
         public ActionResult Delete(int id)
         {
             try
@@ -709,6 +741,185 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 {
                     Db.Delete<DoiTuong_LoaiDoiTuong_CT>(x => x.CodeObj == entity.IDDT);
                     Db.DeleteById<DoiTuong>(id);
+                    dbTrans.Commit();
+                }
+            }
+            catch (Exception ex)
+            {
+                return JsonError(ex.Message);
+            }
+            return Json(null, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        [ValidateInput(false)]
+        public ActionResult BienDong_CatChet(BienDong_CatChetModel model)
+        {
+            try
+            {
+                var entity = Db.Select<DoiTuong>(x => x.Where(y => y.Id == model.Id).Limit(0, 1)).FirstOrDefault();
+                if (entity == null || !entity.CheckBienDong(CurrentUser)) { return JsonError("Vui lòng không hack ứng dụng."); }
+                DateTime dt_old = new DateTime(entity.NgayHuong.Value.Year, entity.NgayHuong.Value.Month, 1, 0, 0, 0, 0);
+                DateTime dt_new = new DateTime(model.NgayBienDong.Year, model.NgayBienDong.Month, 1, 0, 0, 0, 0);
+                if (dt_new <= dt_old) { return JsonError("Tháng biến động phải lớn hơn tháng đang hưởng."); }
+                var loai_dt = Db.Select<DanhMuc_LoaiDT>(x => x.Where(y => y.MaLDT == entity.MaLDT).Limit(0, 1)).FirstOrDefault();
+
+                entity.TinhTrang = "KCC";
+                entity.NgayHuong = model.NgayBienDong;
+                DoiTuong_BienDong bien_dong = new DoiTuong_BienDong();
+                bien_dong.IDDT = entity.Id;
+                bien_dong.MaHC = entity.MaHC;
+                bien_dong.IDDiaChi = entity.IDDiaChi;
+                bien_dong.TinhTrang = entity.TinhTrang;
+                bien_dong.MaLDT = entity.MaLDT;
+                bien_dong.NgayHuong = entity.NgayHuong;
+                bien_dong.HeSo = decimal.Parse(string.Format("{0}", loai_dt.HeSo));
+                bien_dong.MucTC = entity.MucTC;
+                bien_dong.MucChenh = 0;
+                bien_dong.MoTa = "Cắt chết";
+                using (IDbTransaction dbTrans = Db.OpenTransaction())
+                {
+                    Db.UpdateOnly<DoiTuong>(new DoiTuong()
+                    {
+                        TinhTrang = entity.TinhTrang,
+                        NgayHuong = entity.NgayHuong
+                    }, ev => ev.Update(p => new 
+                    {
+                        p.TinhTrang,
+                        p.NgayHuong
+                    }).Where(x => x.Id == entity.Id).Limit(0, 1));
+                    Db.Save(bien_dong);
+                    dbTrans.Commit();
+                }
+            }
+            catch (Exception ex)
+            {
+                return JsonError(ex.Message);
+            }
+            return Json(null, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        [ValidateInput(false)]
+        public ActionResult BienDong_DungTroCap(BienDong_DungTroCapModel model)
+        {
+            try
+            {
+                var entity = Db.Select<DoiTuong>(x => x.Where(y => y.Id == model.Id).Limit(0, 1)).FirstOrDefault();
+                if (entity == null || !entity.CheckBienDong(CurrentUser)) { return JsonError("Vui lòng không hack ứng dụng."); }
+                DateTime dt_old = new DateTime(entity.NgayHuong.Value.Year, entity.NgayHuong.Value.Month, 1, 0, 0, 0, 0);
+                DateTime dt_new = new DateTime(model.NgayBienDong.Year, model.NgayBienDong.Month, 1, 0, 0, 0, 0);
+                if (dt_new <= dt_old) { return JsonError("Tháng biến động phải lớn hơn tháng đang hưởng."); }
+                var loai_dt = Db.Select<DanhMuc_LoaiDT>(x => x.Where(y => y.MaLDT == entity.MaLDT).Limit(0, 1)).FirstOrDefault();
+
+                entity.TinhTrang = "KTD";
+                entity.NgayHuong = model.NgayBienDong;
+                DoiTuong_BienDong bien_dong = new DoiTuong_BienDong();
+                bien_dong.IDDT = entity.Id;
+                bien_dong.MaHC = entity.MaHC;
+                bien_dong.IDDiaChi = entity.IDDiaChi;
+                bien_dong.TinhTrang = entity.TinhTrang;
+                bien_dong.MaLDT = entity.MaLDT;
+                bien_dong.NgayHuong = entity.NgayHuong;
+                bien_dong.HeSo = decimal.Parse(string.Format("{0}", loai_dt.HeSo));
+                bien_dong.MucTC = entity.MucTC;
+                bien_dong.MucChenh = 0;
+                bien_dong.MoTa = "Tạm dừng trợ cấp";
+                using (IDbTransaction dbTrans = Db.OpenTransaction())
+                {
+                    Db.UpdateOnly<DoiTuong>(new DoiTuong()
+                    {
+                        TinhTrang = entity.TinhTrang,
+                        NgayHuong = entity.NgayHuong
+                    }, ev => ev.Update(p => new
+                    {
+                        p.TinhTrang,
+                        p.NgayHuong
+                    }).Where(x => x.Id == entity.Id).Limit(0, 1));
+                    Db.Save(bien_dong);
+                    dbTrans.Commit();
+                }
+            }
+            catch (Exception ex)
+            {
+                return JsonError(ex.Message);
+            }
+            return Json(null, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        [ValidateInput(false)]
+        public ActionResult BienDong_ChuyenDiaBan(BienDong_ChuyenDiaBanModel model)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(model.MaHC)) { return JsonError("Vui lòng chọn xã."); }
+                if (!model.IDDiaChi.HasValue) { return JsonError("Vui lòng chọn xóm."); }
+                var entity = Db.Select<DoiTuong>(x => x.Where(y => y.Id == model.Id).Limit(0, 1)).FirstOrDefault();
+                if (entity == null || !entity.CheckBienDong(CurrentUser) ||
+                    !IsHigherRole(RoleEnum.Village, (RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0])) ||
+                    Db.Count<DanhMuc_HanhChinh>(x => x.MaHC == model.MaHC) == 0 ||
+                    Db.Count<DanhMuc_DiaChi>(x => x.IDDiaChi == model.IDDiaChi) == 0) { return JsonError("Vui lòng không hack ứng dụng."); }
+                DateTime dt_old = new DateTime(entity.NgayHuong.Value.Year, entity.NgayHuong.Value.Month, 1, 0, 0, 0, 0);
+                DateTime dt_new = new DateTime(model.NgayBienDong.Year, model.NgayBienDong.Month, 1, 0, 0, 0, 0);
+                if (dt_new <= dt_old) { return JsonError("Tháng biến động phải lớn hơn tháng đang hưởng."); }
+                if (!entity.MaHC.ChangeVillage(model.MaHC)) { return JsonError("Vui lòng chọn địa bàn mới."); }
+                var loai_dt = Db.Select<DanhMuc_LoaiDT>(x => x.Where(y => y.MaLDT == entity.MaLDT).Limit(0, 1)).FirstOrDefault();
+                
+                List<DoiTuong_BienDong> lst_bien_dong = new List<DoiTuong_BienDong>();
+                DoiTuong_BienDong bien_dong_kdi = new DoiTuong_BienDong();
+                DoiTuong_BienDong bien_dong_hde = new DoiTuong_BienDong();
+
+                entity.NgayHuong = model.NgayBienDong;
+                bien_dong_kdi.IDDT = bien_dong_hde.IDDT = entity.Id;
+                bien_dong_kdi.MaLDT = bien_dong_hde.MaLDT = entity.MaLDT;
+                bien_dong_kdi.NgayHuong = bien_dong_hde.NgayHuong = entity.NgayHuong;
+                bien_dong_kdi.HeSo = bien_dong_hde.HeSo = decimal.Parse(string.Format("{0}", loai_dt.HeSo));
+                bien_dong_kdi.MucTC = bien_dong_hde.MucTC = entity.MucTC;
+                bien_dong_kdi.MucChenh = bien_dong_hde.MucChenh = 0;
+
+                entity.TinhTrang = "KDI";
+                bien_dong_kdi.MaHC = entity.MaHC;
+                bien_dong_kdi.IDDiaChi = entity.IDDiaChi;
+                bien_dong_kdi.TinhTrang = entity.TinhTrang;
+                bien_dong_kdi.MoTa = "Chuyển đi";
+
+                entity.TinhTrang = "HDE";
+                entity.MaHC = model.MaHC;
+                entity.IDDiaChi = model.IDDiaChi;
+                bien_dong_hde.MaHC = entity.MaHC;
+                bien_dong_hde.IDDiaChi = entity.IDDiaChi;
+                bien_dong_hde.TinhTrang = entity.TinhTrang;
+                bien_dong_hde.MoTa = "Chuyển đến từ nơi khác";
+
+                lst_bien_dong.Add(bien_dong_kdi);
+                if (entity.MaHC.ChangeProvince(model.MaHC) || entity.MaHC.ChangeDistrict(model.MaHC))
+                {
+                    entity.IsDuyet = false;
+                }
+                else
+                {
+                    lst_bien_dong.Add(bien_dong_hde);
+                }
+                
+                using (IDbTransaction dbTrans = Db.OpenTransaction())
+                {
+                    Db.UpdateOnly<DoiTuong>(new DoiTuong()
+                    {
+                        TinhTrang = entity.TinhTrang,
+                        NgayHuong = entity.NgayHuong,
+                        MaHC = entity.MaHC,
+                        IDDiaChi = entity.IDDiaChi,
+                        IsDuyet = entity.IsDuyet
+                    }, ev => ev.Update(p => new
+                    {
+                        p.TinhTrang,
+                        p.NgayHuong,
+                        p.MaHC,
+                        p.IDDiaChi,
+                        p.IsDuyet
+                    }).Where(x => x.Id == entity.Id).Limit(0, 1));
+                    Db.InsertAll<DoiTuong_BienDong>(lst_bien_dong);
                     dbTrans.Commit();
                 }
             }
@@ -746,91 +957,6 @@ namespace PhotoBookmart.Areas.Administration.Controllers
         }
         
         #region Detail Option in Product
-
-        /// <param name="id">Site ID</param>
-        /// <returns></returns>
-        public ActionResult Detail_Option_List(int id)
-        {
-            var c = Db.Where<OptionInProduct>(m => m.ProductId == id);
-
-            // created by username
-            var list_users = Cache_GetAllUsers();
-            var options = Db.Select<Product_Option>();
-
-            foreach (var x in c)
-            {
-                var z = list_users.Where(m => m.Id == x.CreatedBy);
-                if (z.Count() > 0)
-                {
-                    var k = z.First();
-                    if (string.IsNullOrEmpty(k.FullName))
-                        x.CreatedByUsername = k.UserName;
-                    else
-                        x.CreatedByUsername = k.FullName;
-                }
-                else
-                {
-                    x.CreatedByUsername = "Deleted user";
-                }
-
-                var sk = options.Where(m => m.Id == x.ProductOptionId).FirstOrDefault();
-                if (sk != null)
-                {
-                    x.Option_Name = sk.InternalName;
-                }
-            }
-
-            return PartialView(c);
-        }
-
-        public ActionResult Detail_Option_Add(long product_id)
-        {
-            // check product exist
-            var product = Db.Select<Product>(x => x.Where(m => m.Id == product_id).Limit(1)).FirstOrDefault();
-            if (product == null)
-            {
-                return Redirect("/");
-            }
-
-            var model = new OptionInProduct();
-            model.ProductId = product.Id;
-            model.Product_Name = product.Name;
-
-            return View(model);
-        }
-
-        public ActionResult Detail_Option_Edit(long id)
-        {
-            var model = Db.Select<OptionInProduct>(x => x.Where(m => m.Id == id).Limit(1)).FirstOrDefault();
-            if (model == null)
-            {
-                return Redirect("/");
-            }
-
-            // get product name and option name 
-            var product = Db.Select<Product>(x => x.Where(m => m.Id == model.ProductId).Limit(1)).FirstOrDefault();
-            if (product == null)
-            {
-                model.Product_Name = "Deleted product";
-            }
-            else
-            {
-                model.Product_Name = product.Name;
-            }
-
-            var option = Db.Select<Product_Option>(x => x.Where(m => m.Id == model.ProductOptionId).Limit(1)).FirstOrDefault();
-            if (option == null)
-            {
-                model.Option_Name = "Deleted option";
-            }
-            else
-            {
-                model.Option_Name = option.Name;
-            }
-
-            return View("Detail_Option_Add", model);
-        }
-
 
         public ActionResult Detail_Option_Update(OptionInProduct model)
         {
