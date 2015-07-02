@@ -1,3 +1,0 @@
-10/22/2014 7:26:43 PM Folder C:\temp\digilabs\ is not existing
-10/22/2014 7:27:37 PM Auto Decryption: Input folder = C:\Users\CHINH\AppData\Local\Temp\, Output = C:\Users\CHINH\AppData\Local\Temp\
-10/22/2014 7:28:15 PM ----------------------APP CLOSING-------------------

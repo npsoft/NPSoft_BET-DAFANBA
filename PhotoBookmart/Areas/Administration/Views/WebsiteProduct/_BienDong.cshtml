@@ -13,11 +13,8 @@
         <div>@Html.Partial("_BienDong_CatChet", Model)</div>
         <h3><a href="#">Dừng trợ cấp</a></h3>
         <div>@Html.Partial("_BienDong_DungTroCap", Model)</div>
-        @if (PhotoBookmart.Controllers.BaseController.IsHigherRole(RoleEnum.Village, (RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0])))
-        {
         <h3><a href="#">Chuyển địa bàn</a></h3>
         <div>@Html.Partial("_BienDong_ChuyenDiaBan", Model)</div>
-        }
         <h3><a href="#">Thay đổi loại đối tượng</a></h3>
         <div>@*@Html.Partial("_BienDong_ThayDoiLoaiDoiTuong", Model)*@</div>
     </div>

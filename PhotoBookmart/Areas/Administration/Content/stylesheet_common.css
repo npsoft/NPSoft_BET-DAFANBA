@@ -537,6 +537,9 @@ style from http://flatfull.com/themes/scale/chat.html
 #dialog-bien-dong {
     padding: 15px 10px 0 10px;
 }
+#dialog-bien-dong .bien-dong-common hr {
+    margin: 0;
+}
 #dialog-bien-dong .bien-dong-common .mws-form {
     padding: 5px 0;
 }

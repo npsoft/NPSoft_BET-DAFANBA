@@ -15,7 +15,7 @@
     <tbody>
         @foreach (var item in Model ?? Enumerable.Empty<DoiTuong>())
         {
-            <tr data-id="@item.Id">
+            <tr data-id="@item.Id" data-name="@item.HoTen">
                 <td style="text-align:left;">
                     <span>@item.HoTen</span>
                 </td>

@@ -1,5 +1,0 @@
-10/23/2014 7:54:45 PM Auto Decryption: Input folder = C:\Users\CHINH\AppData\Local\Temp\, Output = C:\Users\CHINH\AppData\Local\Temp\
-10/23/2014 7:54:45 PM Thread has been started
-10/23/2014 7:54:45 PM Thread has been finished
-10/23/2014 7:59:45 PM Thread has been started
-10/23/2014 7:59:46 PM Thread has been finished

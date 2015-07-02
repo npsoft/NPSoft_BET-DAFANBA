@@ -349,8 +349,10 @@
 
         $list.on("click", "[data-action='bien-dong']", function (e) {
             var id = $(this).closest("tr").attr("data-id");
+            var name = $(this).closest("tr").attr("data-name");
             $.post("@Url.Action("BienDong", "WebsiteProduct", new { })", { Id: id }, function (data) {
                 $popup_bien_dong.html(data);
+                $popup_bien_dong.dialog("option", "title", "Tạo biến động » " + name);
                 $popup_bien_dong.dialog("option", "width", $(document).width() * 0.9);
                 $popup_bien_dong.dialog("open");
             });

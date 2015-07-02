@@ -85,7 +85,10 @@ namespace PhotoBookmart.DataLayer.Models.Products
         public bool CheckBienDong(ABUserAuth user)
         {
             if (user == null) { return false; }
-            return IsDuyet && (user.HasRole(RoleEnum.Admin) || MaHC.StartsWith(user.MaHC));
+            return 
+                IsDuyet && 
+                !new string[2] { "KCC", "KTD" }.Contains(TinhTrang) && 
+                (user.HasRole(RoleEnum.Admin) || !user.HasRole(RoleEnum.Village) && MaHC.StartsWith(user.MaHC));
         }
         #endregion
 
