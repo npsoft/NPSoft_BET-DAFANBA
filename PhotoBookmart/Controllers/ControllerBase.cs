@@ -616,6 +616,16 @@ namespace PhotoBookmart.Controllers
             return Json(Cache_GetAllTypesDisability());
         }
 
+        public ActionResult Svc_GetAllMaritalStatuses()
+        {
+            return Json(Cache_GetAllMaritalStatuses());
+        }
+
+        public ActionResult Svc_GetAllSelfServings()
+        {
+            return Json(Cache_GetAllSelfServings());
+        }
+
         public ActionResult Svc_GetTinhTrangDTsByParams(bool IsDuyet)
         {
             return Json(GetTinhTrangDTsByParams(IsDuyet));

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using PhotoBookmart.DataLayer.Models.Products;
 
 namespace PhotoBookmart.Areas.Administration.Models
 {
@@ -34,8 +35,14 @@ namespace PhotoBookmart.Areas.Administration.Models
     public class BienDong_ThayDoiLoaiDoiTuong
     {
         public long Id { get; set; }
+        public string MaLDT { get; set; }
+        public decimal? MucTC { get; set; }
         public DateTime NgayBienDong { get; set; }
+        public List<DoiTuong_LoaiDoiTuong_CT> MaLDT_Details { get; set; }
 
-        public BienDong_ThayDoiLoaiDoiTuong() { }
+        public BienDong_ThayDoiLoaiDoiTuong()
+        {
+            MaLDT_Details = new List<DoiTuong_LoaiDoiTuong_CT>();
+        }
     }
 }

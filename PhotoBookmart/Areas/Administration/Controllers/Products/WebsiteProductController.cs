@@ -369,11 +369,11 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 }
                 else if (model.MaLDT.StartsWith("0301") && model.MaLDT_Details.Count != 1)
                 {
-                    return JsonError("Loại 3.1 giành cho đối tượng nuôi 1 con.");
+                    return JsonError("Loại 0301 giành cho đối tượng nuôi 1 con.");
                 }
                 else if (model.MaLDT.StartsWith("0302") && model.MaLDT_Details.Count < 2)
                 {
-                    return JsonError("Loại 3.2 giành cho đối tượng nuôi 2 con trở lên.");
+                    return JsonError("Loại 0302 giành cho đối tượng nuôi 2 con trở lên.");
                 }
                 List<DoiTuong_LoaiDoiTuong_CT> details = new List<DoiTuong_LoaiDoiTuong_CT>();
                 foreach (DoiTuong_LoaiDoiTuong_CT item in model.MaLDT_Details)
@@ -429,7 +429,11 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 if (string.IsNullOrEmpty(detail.Type4_MaritalStatus))
                 {
                     return JsonError("Vui lòng chọn tình trạng hôn nhân.");
-                };
+                }
+                if (Db.Count<DanhMuc_TinhTrangHonNhan>(x => x.IDTinhTrangHN == Guid.Parse(detail.Type4_MaritalStatus)) == 0)
+                {
+                    return JsonError("Vui lòng không hack ứng dụng.");
+                }
                 model.MaLDT_Details[0] = detail;
                 #endregion
             }
@@ -447,12 +451,16 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 {
                     return JsonError("Vui lòng chọn khả năng phục vụ.");
                 }
+                if (Db.Count<DanhMuc_KhaNangPhucVu>(x => x.IDKhaNangPV == Guid.Parse(detail.Type5_SelfServing)) == 0)
+                {
+                    return JsonError("Vui lòng không hack ứng dụng.");
+                }
                 model.MaLDT_Details[0] = detail;
                 #endregion
             }
             else
             {
-                #region TODO: Others
+                    #region TODO: Others
                 if (model.MaLDT_Details.Count > 0)
                 {
                     return JsonError("Vui lòng không hack ứng dụng.");
@@ -857,7 +865,6 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 if (!model.IDDiaChi.HasValue) { return JsonError("Vui lòng chọn xóm."); }
                 var entity = Db.Select<DoiTuong>(x => x.Where(y => y.Id == model.Id).Limit(0, 1)).FirstOrDefault();
                 if (entity == null || !entity.CheckBienDong(CurrentUser) ||
-                    !IsHigherRole(RoleEnum.Village, (RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0])) ||
                     Db.Count<DanhMuc_HanhChinh>(x => x.MaHC == model.MaHC) == 0 ||
                     Db.Count<DanhMuc_DiaChi>(x => x.IDDiaChi == model.IDDiaChi) == 0) { return JsonError("Vui lòng không hack ứng dụng."); }
                 DateTime dt_old = new DateTime(entity.NgayHuong.Value.Year, entity.NgayHuong.Value.Month, 1, 0, 0, 0, 0);
@@ -930,6 +937,255 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             return Json(null, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost]
+        [ValidateInput(false)]
+        public ActionResult BienDong_ThayDoiLoaiDoiTuong(BienDong_ThayDoiLoaiDoiTuong model)
+        {
+            try
+            {                
+                #region Block #1
+                List<DoiTuong_LoaiDoiTuong_CT> maldt_details = new List<DoiTuong_LoaiDoiTuong_CT>();
+                if (string.IsNullOrEmpty(model.MaLDT))
+                {
+                    return JsonError("Vui lòng chọn loại.");
+                }
+                if (model.MaLDT.StartsWith("01"))
+                {
+                    #region TODO: 01
+                    if (model.MaLDT_Details.Count != 1)
+                    {
+                        return JsonError("Vui lòng không hack ứng dụng.");
+                    }
+                    DoiTuong_LoaiDoiTuong_CT detail = new DoiTuong_LoaiDoiTuong_CT();
+                    detail.Type1_InfoFather = string.Format("{0}", model.MaLDT_Details[0].Type1_InfoFather).Trim();
+                    detail.Type1_InfoMother = string.Format("{0}", model.MaLDT_Details[0].Type1_InfoMother).Trim();
+                    if (string.IsNullOrEmpty(detail.Type1_InfoFather))
+                    {
+                        return JsonError("Vui lòng nhập thông tin cha.");
+                    }
+                    if (string.IsNullOrEmpty(detail.Type1_InfoMother))
+                    {
+                        return JsonError("Vui lòng nhập thông tin mẹ.");
+                    }
+                    maldt_details.Add(detail);
+                    #endregion
+                }
+                else if (model.MaLDT.StartsWith("03"))
+                {
+                    #region TODO: 03
+                    if (model.MaLDT_Details.Count == 0)
+                    {
+                        return JsonError("Vui lòng thêm thông tin » con.");
+                    }
+                    else if (model.MaLDT.StartsWith("0301") && model.MaLDT_Details.Count != 1)
+                    {
+                        return JsonError("Loại 0301 giành cho đối tượng nuôi 1 con.");
+                    }
+                    else if (model.MaLDT.StartsWith("0302") && model.MaLDT_Details.Count < 2)
+                    {
+                        return JsonError("Loại 0302 giành cho đối tượng nuôi 2 con trở lên.");
+                    }
+                    List<DoiTuong_LoaiDoiTuong_CT> details = new List<DoiTuong_LoaiDoiTuong_CT>();
+                    foreach (DoiTuong_LoaiDoiTuong_CT item in model.MaLDT_Details)
+                    {
+                        DoiTuong_LoaiDoiTuong_CT detail = new DoiTuong_LoaiDoiTuong_CT();
+                        detail.Id = item.Id;
+                        detail.Type3_FullName = string.Format("{0}", item.Type3_FullName).Trim();
+                        detail.Type3_DateOfBirth = item.Type3_DateOfBirth;
+                        detail.Type3_DateOfBirth_IsMonth = item.Type3_DateOfBirth_IsMonth;
+                        detail.Type3_DateOfBirth_IsDate = item.Type3_DateOfBirth_IsDate;
+                        detail.Type3_Gender = item.Type3_Gender;
+                        detail.Type3_CurrAddr = string.Format("{0}", item.Type3_CurrAddr).Trim();
+                        detail.Type3_StatusLearn = string.Format("{0}", item.Type3_StatusLearn).Trim();
+                        if (string.IsNullOrEmpty(detail.Type3_FullName))
+                        {
+                            return JsonError("Vui lòng kiểm tra lại họ & tên cho các con.");
+                        }
+                        if (detail.Type3_DateOfBirth.Year == DateTime.MinValue.Year)
+                        {
+                            return JsonError("Vui lòng kiểm tra lại ngày sinh cho các con » Năm.");
+                        }
+                        if (!detail.Type3_DateOfBirth_IsMonth && detail.Type3_DateOfBirth.Month != 1)
+                        {
+                            return JsonError("Vui lòng kiểm tra lại ngày sinh cho các con » Tháng.");
+                        }
+                        if (!detail.Type3_DateOfBirth_IsDate && detail.Type3_DateOfBirth.Day != 1)
+                        {
+                            return JsonError("Vui lòng kiểm tra lại ngày sinh cho các con » Ngày.");
+                        }
+                        if (string.IsNullOrEmpty(detail.Type3_Gender) || !new string[] { "Male", "Female" }.Contains(detail.Type3_Gender))
+                        {
+                            return JsonError("Vui lòng kiểm tra lại giới tính cho các con.");
+                        }
+                        details.Add(detail);
+                    }
+                    maldt_details.AddRange(details);
+                    #endregion
+                }
+                else if (model.MaLDT.StartsWith("04"))
+                {
+                    #region TODO: 04
+                    if (model.MaLDT_Details.Count != 1)
+                    {
+                        return JsonError("Vui lòng không hack ứng dụng.");
+                    }
+                    DoiTuong_LoaiDoiTuong_CT detail = new DoiTuong_LoaiDoiTuong_CT();
+                    detail.Type4_MaritalStatus = model.MaLDT_Details[0].Type4_MaritalStatus;
+                    detail.Type4_InfoAdditional = string.Format("{0}", model.MaLDT_Details[0].Type4_InfoAdditional).Trim();
+                    if (string.IsNullOrEmpty(detail.Type4_MaritalStatus))
+                    {
+                        return JsonError("Vui lòng chọn tình trạng hôn nhân.");
+                    }
+                    if (Db.Count<DanhMuc_TinhTrangHonNhan>(x => x.IDTinhTrangHN == Guid.Parse(detail.Type4_MaritalStatus)) == 0)
+                    {
+                        return JsonError("Vui lòng không hack ứng dụng.");
+                    }
+                    maldt_details.Add(detail);
+                    #endregion
+                }
+                else if (model.MaLDT.StartsWith("05"))
+                {
+                    #region TODO: 05
+                    if (model.MaLDT_Details.Count != 1)
+                    {
+                        return JsonError("Vui lòng không hack ứng dụng.");
+                    }
+                    DoiTuong_LoaiDoiTuong_CT detail = new DoiTuong_LoaiDoiTuong_CT();
+                    detail.Type5_SelfServing = model.MaLDT_Details[0].Type5_SelfServing;
+                    detail.Type5_Carer = string.Format("{0}", model.MaLDT_Details[0].Type5_Carer).Trim();
+                    if (string.IsNullOrEmpty(detail.Type5_SelfServing))
+                    {
+                        return JsonError("Vui lòng chọn khả năng phục vụ.");
+                    }
+                    if (Db.Count<DanhMuc_KhaNangPhucVu>(x => x.IDKhaNangPV == Guid.Parse(detail.Type5_SelfServing)) == 0)
+                    {
+                        return JsonError("Vui lòng không hack ứng dụng.");
+                    }
+                    maldt_details.Add(detail);
+                    #endregion
+                }
+                else
+                {
+                    #region TODO: Others
+                    if (model.MaLDT_Details.Count > 0)
+                    {
+                        return JsonError("Vui lòng không hack ứng dụng.");
+                    }
+                    #endregion
+                }
+                if (!model.MucTC.HasValue)
+                {
+                    return JsonError("Vui lòng nhập mức trợ cấp.");
+                }
+                if (model.MucTC.Value < 0)
+                {
+                    return JsonError("Mức trợ cấp không đúng định dạng.");
+                }
+                #endregion
+                #region Block #2
+                var entity = Db.Select<DoiTuong>(x => x.Where(y => y.Id == model.Id).Limit(0, 1)).FirstOrDefault();
+                if (entity == null || !entity.CheckBienDong(CurrentUser) ||
+                    Db.Count<DanhMuc_LoaiDT>(x => x.MaLDT == model.MaLDT) == 0)
+                {
+                    return JsonError("Vui lòng không hack ứng dụng.");
+                }
+                DateTime dt_old = new DateTime(entity.NgayHuong.Value.Year, entity.NgayHuong.Value.Month, 1, 0, 0, 0, 0);
+                DateTime dt_new = new DateTime(model.NgayBienDong.Year, model.NgayBienDong.Month, 1, 0, 0, 0, 0);
+                if (dt_new <= dt_old)
+                {
+                    return JsonError("Tháng biến động phải lớn hơn tháng đang hưởng.");
+                }
+                if (model.MaLDT == entity.MaLDT)
+                {
+                    return JsonError("Vui lòng chọn loại mới.");
+                }
+                if (!model.MaLDT.CheckDateOfBirth(entity.NamSinh, entity.ThangSinh, entity.NgaySinh))
+                {
+                    return JsonError("Ngày sinh không phù hợp với loại.");
+                }
+                #endregion
+                #region Block #3
+                var loai_dts = Db.Select<DanhMuc_LoaiDT>(x => x.Where(y => y.MaLDT == entity.MaLDT || y.MaLDT == model.MaLDT).Limit(0, 2));
+                var loai_dt_old = loai_dts.Single(x => x.MaLDT == entity.MaLDT);
+                var loai_dt_new = loai_dts.Single(x => x.MaLDT == model.MaLDT);
+
+                DoiTuong_BienDong bien_dong_cat = new DoiTuong_BienDong();
+                DoiTuong_BienDong bien_dong_them = new DoiTuong_BienDong();
+
+                entity.NgayHuong = model.NgayBienDong;
+                bien_dong_cat.IDDT = bien_dong_them.IDDT = entity.Id;
+                bien_dong_cat.MaHC = bien_dong_them.MaHC = entity.MaHC;
+                bien_dong_cat.IDDiaChi = bien_dong_them.IDDiaChi = entity.IDDiaChi;
+                bien_dong_cat.NgayHuong = bien_dong_them.NgayHuong = entity.NgayHuong;
+                bien_dong_cat.MucChenh = bien_dong_them.MucChenh = Math.Abs(model.MucTC.Value - entity.MucTC.Value);
+
+                bien_dong_cat.MaLDT = entity.MaLDT;
+                bien_dong_cat.HeSo = decimal.Parse(string.Format("{0}", loai_dt_old.HeSo));
+
+                entity.MaLDT = model.MaLDT;
+                bien_dong_them.MaLDT = entity.MaLDT;
+                bien_dong_them.HeSo = decimal.Parse(string.Format("{0}", loai_dt_new.HeSo));
+
+                if (model.MucTC > entity.MucTC)
+                {
+                    bien_dong_cat.TinhTrang = "KCT";
+                    bien_dong_cat.MoTa = "Cắt do chuyển loại trợ cấp tăng";
+                    bien_dong_them.TinhTrang = "HCT";
+                    bien_dong_them.MoTa = "Thêm do chuyển loại trợ cấp tăng";
+                    entity.TinhTrang = "HCT";
+                }
+                else if (model.MucTC < entity.MucTC)
+                {
+                    bien_dong_cat.TinhTrang = "KCG";
+                    bien_dong_cat.MoTa = "Cắt do chuyển loại trợ cấp giảm";
+                    bien_dong_them.TinhTrang = "HCG";
+                    bien_dong_them.MoTa = "Thêm do chuyển loại trợ cấp giảm";
+                    entity.TinhTrang = "HCG";
+                }
+                else
+                {
+                    bien_dong_cat.TinhTrang = "KCK";
+                    bien_dong_cat.MoTa = "Cắt do chuyển loại trợ cấp";
+                    bien_dong_them.TinhTrang = "HCK";
+                    bien_dong_them.MoTa = "Thêm do chuyển loại trợ cấp";
+                    entity.TinhTrang = "HCK";
+                }
+                entity.MucTC = model.MucTC;
+                bien_dong_cat.MucTC = bien_dong_them.MucTC = entity.MucTC;
+
+                entity.BienDong_Lst_Ins.Add(bien_dong_cat);
+                entity.BienDong_Lst_Ins.Add(bien_dong_them);
+
+                entity.MaLDT_Details = maldt_details;
+                entity.MaLDT_Details.ForEach(x => {
+                    x.CodeObj = entity.IDDT;
+                    x.CodeType = entity.MaLDT;
+                });
+                #endregion
+                #region Block #4
+                using (IDbTransaction dbTrans = Db.OpenTransaction())
+                {
+                    Db.UpdateOnly<DoiTuong>(entity, ev => ev.Update(p => new 
+                    {
+                        p.TinhTrang,
+                        p.NgayHuong,
+                        p.MaLDT,
+                        p.MucTC
+                    }).Where(x => x.Id == entity.Id).Limit(0, 1));
+                    Db.Delete<DoiTuong_LoaiDoiTuong_CT>(x => x.CodeObj == entity.IDDT);
+                    Db.InsertAll<DoiTuong_LoaiDoiTuong_CT>(entity.MaLDT_Details);
+                    Db.InsertAll<DoiTuong_BienDong>(entity.BienDong_Lst_Ins);
+                    dbTrans.Commit();
+                }
+                #endregion
+            }
+            catch (Exception ex)
+            {
+                return JsonError(ex.Message);
+            }
+            return Json(null, JsonRequestBehavior.AllowGet);
+        }
+
         public ActionResult Detail(int id)
         {
             var model = Db.Where<Product>(m => m.Id == id).FirstOrDefault();
@@ -957,49 +1213,6 @@ namespace PhotoBookmart.Areas.Administration.Controllers
         }
         
         #region Detail Option in Product
-
-        public ActionResult Detail_Option_Update(OptionInProduct model)
-        {
-            var curent_item = new OptionInProduct();
-            if (model.Id > 0)
-            {
-                curent_item = Db.Where<OptionInProduct>(m => m.Id == model.Id).FirstOrDefault();
-                if (curent_item == null)
-                {
-                    return Redirect("/");
-                }
-            }
-            else
-            {
-                // if we add new, make sure no dupplication
-                var x = Db.Where<OptionInProduct>(m => m.ProductOptionId == model.ProductOptionId && m.ProductId == model.ProductId);
-                if (x.Count > 0)
-                {
-                    return JsonError("Duplicated option.");
-                }
-                curent_item.CreatedBy = AuthenticatedUserID;
-                curent_item.CreatedOn = DateTime.Now;
-            }
-
-            curent_item.ProductId = model.ProductId;
-            curent_item.ProductOptionId = model.ProductOptionId;
-
-            curent_item.isRequire = model.isRequire;
-            curent_item.DefaultQuantity = model.DefaultQuantity;
-            curent_item.MaxQuantity = model.MaxQuantity;
-            curent_item.MinQuantity = model.MinQuantity;
-            curent_item.CanApplyCoupon = model.CanApplyCoupon;
-
-            if (model.Id > 0)
-            {
-                Db.Update<OptionInProduct>(curent_item);
-            }
-            else
-            {
-                Db.Insert<OptionInProduct>(curent_item);
-            }
-            return JsonSuccess(Url.Action("Detail", new { id = curent_item.ProductId }));
-        }
 
         public ActionResult Detail_Option_Delete(int id)
         {
@@ -1123,18 +1336,6 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             return Json(Cache_GetAllLevelsDisability());
         }
         
-        [HttpPost]
-        public ActionResult GetMaritalStatusesForFilter()
-        {
-            return Json(Cache_GetAllMaritalStatuses());
-        }
-
-        [HttpPost]
-        public ActionResult GetSelfServingsForFilter()
-        {
-            return Json(Cache_GetAllSelfServings());
-        }
-
         private ActionResult ExportListProduct()
         {
             var package = new ExcelPackage();

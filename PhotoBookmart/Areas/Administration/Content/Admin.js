@@ -11,6 +11,8 @@ var SVC_GETVILLAGESBYDISTRICT = "/Administration/WebAdmin/Svc_GetVillagesByDistr
 var SVC_GETHAMLETSBYVILLAGE = "/Administration/WebAdmin/Svc_GetHamletsByVillage";
 var SVC_GETALLTYPESOBJ = "/Administration/WebAdmin/Svc_GetAllTypesObj";
 var SVC_GETALLTYPESDISABILITY = "/Administration/WebAdmin/Svc_GetAllTypesDisability";
+var SVC_GETALLMARITALSTATUSES = "/Administration/WebAdmin/Svc_GetAllMaritalStatuses";
+var SVC_GETALLSELFSERVINGS = "/Administration/WebAdmin/Svc_GetAllSelfServings";
 var SVC_GETTINHTRANGDTSBYPARAMS = "/Administration/WebAdmin/Svc_GetTinhTrangDTsByParams";
 var SVC_GETDOITUONGBYPARAMS = "/Administration/WebAdmin/Svc_GetDoiTuongByParams";
 var SVC_GETMUCTROCAPCOBANBYPARAMS = "/Administration/WebAdmin/Svc_GetMucTroCapCoBanByParams";
@@ -44,7 +46,7 @@ jQuery(document).ready(function ($) {
         numberFormat: "n"
     });
 
-    $("form").on("reset", function (e) {
+    $("body").on("reset", "form", function (e) {
         var $frm = $(this);
         setTimeout(function (e) {
             $frm.find("select.mws-select2[data-init]").each(function (index, element) {

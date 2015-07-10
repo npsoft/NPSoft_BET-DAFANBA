@@ -16,7 +16,7 @@
         <h3><a href="#">Chuyển địa bàn</a></h3>
         <div>@Html.Partial("_BienDong_ChuyenDiaBan", Model)</div>
         <h3><a href="#">Thay đổi loại đối tượng</a></h3>
-        <div>@*@Html.Partial("_BienDong_ThayDoiLoaiDoiTuong", Model)*@</div>
+        <div>@Html.Partial("_BienDong_ThayDoiLoaiDoiTuong", Model)</div>
     </div>
 </div>
 <div class="mws-panel grid_4 bien-dong-common">
@@ -32,4 +32,18 @@
     $.fn.select2 && $("#dialog-bien-dong select.mws-select2").select2();
     $.fn.accordion && $("#dialog-bien-dong .mws-accordion").accordion();
     $("#dialog-bien-dong .ui-accordion-content").css("height", "auto");
+    $("#dialog-bien-dong #popup-maldt-children").dialog({
+        modal: true,
+        autoOpen: false,
+        closeOnEscape: true,
+        width: 800,
+        buttons: {
+            "Lưu lại": function () {
+                $(this).find("form").trigger("submit");
+            },
+            "Hủy bỏ": function () {
+                $(this).dialog("close");
+            }
+        }
+    });
 </script>

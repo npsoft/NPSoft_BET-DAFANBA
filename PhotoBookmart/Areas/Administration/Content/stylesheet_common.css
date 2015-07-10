@@ -477,6 +477,9 @@ style from http://flatfull.com/themes/scale/chat.html
 .float-right {
     float: right;
 }
+.mg-0 {
+    margin: 0;
+}
 .mgb-10 {
     margin-bottom: 10px;
 }

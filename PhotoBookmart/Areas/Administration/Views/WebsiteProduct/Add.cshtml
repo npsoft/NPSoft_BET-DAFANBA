@@ -10,8 +10,6 @@
     JsonModel.DangKT = IsNullOrEmpty(JsonModel.DangKT) ? "" : JsonModel.DangKT.replace(/-/g, "");
     var Url_GetEthnicsForFilter = "@Url.Action("GetEthnicsForFilter", "WebsiteProduct")";
     var Url_GetLevelsDisabilityForFilter = "@Url.Action("GetLevelsDisabilityForFilter", "WebsiteProduct")";
-    var Url_GetMaritalStatusesForFilter = "@Url.Action("GetMaritalStatusesForFilter", "WebsiteProduct")";
-    var Url_GetSelfServingsForFilter = "@Url.Action("GetSelfServingsForFilter", "WebsiteProduct")";
     var Url_GetMaLDT_DetailsByParams = "@Url.Action("Svc_GetMaLDT_DetailsByParams", "WebsiteProduct")";
     var Id = @Model.Id;
     var Code_Province = Id > 0 ? "@Model.MaHC.GetCodeProvince()" : "@CurrentUser.MaHC.GetCodeProvince()";
@@ -102,10 +100,10 @@
         $.post(Url_GetLevelsDisabilityForFilter, {}, function (data) {
             FillDataForSelect2({ $ddl: $("#obj-info-common [name='MucDoKT']"), val: "@Model.MucDoKT", data: data, id: "Id", name: "Name" });
         });
-        $.post(Url_GetMaritalStatusesForFilter, {}, function (data) {
+        $.post(SVC_GETALLMARITALSTATUSES, {}, function (data) {
             FillDataForSelect2({ $ddl: $("#obj-info-common [name='MaLDT_Type4_MaritalStatus']"), val: "@if (Model.MaLDT_Details.Count > 0) {<text>@Model.MaLDT_Details[0].Type4_MaritalStatus</text>}", data: data, id: "IDTinhTrangHN", name: "TenTinhTrangHN" });
         });
-        $.post(Url_GetSelfServingsForFilter, {}, function (data) {
+        $.post(SVC_GETALLSELFSERVINGS, {}, function (data) {
             FillDataForSelect2({ $ddl: $("#obj-info-common [name='MaLDT_Type5_SelfServing']"), val: "@if (Model.MaLDT_Details.Count > 0) {<text>@Model.MaLDT_Details[0].Type5_SelfServing</text>}", data: data, id: "IDKhaNangPV", name: "TenKhaNangPV" });
         });
         $.post(SVC_GETALLTYPESOBJ, {}, function (data) {
@@ -339,12 +337,12 @@
                 $txt_full_name.focus();
                 return false;
             }
-            if (!CheckDateOfBirth({ $txt_year: $txt_date_of_birth_year, $txt_month: $txt_date_of_birth_month, $txt_date: $txt_date_of_birth_date })) {
-                return false;
-            }
             if (IsNullOrEmpty($ddl_gender.val())) {
                 notify_error("Lỗi", "Vui lòng chọn giới tính.");
                 $ddl_gender.select2("open");
+                return false;
+            }
+            if (!CheckDateOfBirth({ $txt_year: $txt_date_of_birth_year, $txt_month: $txt_date_of_birth_month, $txt_date: $txt_date_of_birth_date })) {
                 return false;
             }
 
@@ -1217,7 +1215,7 @@
         }
     </div>
 </div>
-<div class="dialog" id="popup-maldt-child" class="hide" title="">
+<div class="dialog" id="popup-maldt-child" title="">
     @using (Html.BeginForm("", "", FormMethod.Get, new { @id = "", enctype = "multipart/form-data", @class = "mws-form" }))
     {
     <div id="mws-validate-error" class="mws-form-message error" style="display: none;"></div>
