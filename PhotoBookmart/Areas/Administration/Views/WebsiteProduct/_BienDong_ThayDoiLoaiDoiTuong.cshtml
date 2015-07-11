@@ -344,8 +344,6 @@
             data.NgayBienDong = TimeForReq(ParseTime(data.NgayBienDong));
             var dt_old = ParseTime("@Model.NgayHuong");
             var dt_new = ParseTime(data.NgayBienDong);
-            console.log(dt_old);
-            console.log(dt_new);
             dt_old = new Date(dt_old.getFullYear(), dt_old.getMonth() - 1, 1, 0, 0, 0, 0);
             dt_new = new Date(dt_new.getFullYear(), dt_new.getMonth() - 1, 1, 0, 0, 0, 0);
             if (dt_new <= dt_old) {

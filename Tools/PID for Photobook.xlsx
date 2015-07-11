@@ -8,7 +8,7 @@ kel@spiraledge.com :: 5warm1fy
 s1.replace(/(<img[^<>]+src *= *)(["']+)([^<>]*(\.gif|\.jpeg|\.jpg|\.png))(["']+)([^<>]*>)/, "$1$2http://assets.swarmcdn.com/images/1x1.gif$5 data-cdn-src=$2$3$5$6");
 
 -- For: SWIMOUTLET-20213
-select dbo.udf_StripHTML(ProductDescription_html) from products_descriptions where productid in (select productid from Products with (nolock) where Productcode = '8112055')
+select dbo.udf_StripHTML(ProductDescription_html) from products_descriptions where productid in (select productid from Products with (nolock) where Productcode = '8112055');
 SELECT TOP(50) [ProductID], [ProductDescription_NoHtml], [ProductDescription_Html] FROM [Products_Descriptions] WITH (NOLOCK) WHERE [ProductDescription_Html] IS NOT NULL ORDER BY [ProductID] DESC;
 SELECT TOP(1) dbo.udf_StripHTML([ProductDescription_Html]) FROM [Products_Descriptions] WITH (NOLOCK) WHERE [ProductID] = 630436;
 SELECT [ProductID], [ProductCode] FROM [Products] WITH (NOLOCK) WHERE [ProductCode] = '8112055';
@@ -17,47 +17,47 @@ SELECT [ProductID], [ProductDescription_NoHtml], [ProductDescription_Html] FROM 
 -- For: SWIMOUTLET-20490
 dbo.AQP_ProductPhotoReport ' WHERE EXISTS (SELECT top 1 1 FROM AQV_Products p1 WITH(NOLOCK) WHERE p1.strProductCode not like ''%-%'' AND ISNULL(p1.i_PhotoCount,0) = 0 AND ISNULL(p1.i_PhotoCount,0) <= 2 AND ISNULL(p1.s_MissingSwatchPhoto,'''') <> '''' AND p1.t_BornDate < cast(DATEADD(day,1,getdate()) as DATE) AND p.strParentProductCode=p1.strProductCode )',' ORDER BY strProductCode ','1','100';
 
-SELECT * FROM INFORMATION_SCHEMA.COLUMNS WITH (NOLOCK) WHERE TABLE_NAME = 'Products_Extended' AND COLUMN_NAME = 's_BuyerNote';
-SELECT * FROM INFORMATION_SCHEMA.COLUMNS WITH (NOLOCK) WHERE TABLE_NAME = 'Products' AND COLUMN_NAME = 's_imagingnotes';
-SELECT TOP(10) * FROM AQV_PRODUCTS_BASE WITH (NOLOCK) WHERE Products_s_imagingnotes IS NOT NULL;
-SELECT TOP(10) * FROM dbo.AQV_PRODUCTS WITH (NOLOCK) WHERE Products_s_imagingnotes IS NOT NULL;
-
 select top 10  s_imagingnotes, * from Products with(nolock) where ProductCode IN ('31184', '31182', '31183');
 select top 10  s_ImageComingFrom, * from Products_Extended with(nolock) where s_productcode_sync IN ('31184', '31182', '31183');
 SELECT s_ImagingNote,*FROM dbo.Products_Extended WITH(NOLOCK) WHERE s_productcode_sync IN ('31184', '31182', '31183');
 
+-- For: SWIMOUTLET-20209
+--http://alpha-insiders.swimoutlet.com/appfiles/AutomateCSScorecardCombineReport.asp
+--ALTER TABLE AQT_AUTOMATE_CS_SCORECARD ADD i_TotalAvgWait INT NULL;
+--SELECT * FROM INFORMATION_SCHEMA.COLUMNS WITH (NOLOCK) WHERE TABLE_NAME = 'AQT_AUTOMATE_CS_SCORECARD';
+--sp_helptext AQP_CS_SCORECARD_HOLDTIME_REPORT;
+--SELECT TOP(10) * FROM AQT_AUTOMATE_CS_SCORECARD WITH (NOLOCK) WHERE DATEPART(HOUR, t_AddedDate) <> 0 OR DATEPART(MINUTE, t_AddedDate) <> 0 OR DATEPART(SECOND, t_AddedDate) <> 0 ORDER BY l_Id DESC;
+--SELECT TOP(10) * FROM AQT_AUTOMATE_CS_SCORECARD WITH (NOLOCK) ORDER BY l_Id DESC;
+--SELECT COUNT(*) FROM AQT_AUTOMATE_CS_SCORECARD WITH (NOLOCK);
+--SELECT * FROM AQT_AUTOMATE_CS_SCORECARD WITH (NOLOCK) ORDER BY t_AddedDate ASC;
+--SELECT MIN(t_AddedDate), MAX(t_AddedDate) FROM AQT_AUTOMATE_CS_SCORECARD WITH (NOLOCK);
+--Maximum: 2015-07-06 00:00:00.000
+--Minimum: 2015-06-03 00:00:00.000
+--PRINT cast('2015-07-06 00:00:00.000' as date)
+--PRINT cast('2015-07-06 00:00:00.000' as datetime)
+--PRINT cast('2015-07-05T08:00:00-07:00' as date)
+--PRINT cast('2015-07-05T08:00:00-07:00' as datetime)
+--https://mycontactual.com/api/stats/queues/106/statistics?d=today-1d&n=1
+--https://mycontactual.com/api/stats/queues/106/statistics?d=2015-07-07&n=1
+
 -- For: SWIMOUTLET-20718
-SELECT * FROM [dbo].[AQT_AUTOMATE_CS_SCORECARD] WITH (NOLOCK);
-ALTER TABLE [dbo].[AQT_AUTOMATE_CS_SCORECARD] ADD [i_CreatedTickets] INT NULL;
-
-SELECT DISTINCT o1.name from sys.syscomments c1
-INNER JOIN sys.sysobjects o1 ON c1.id=o1.id
-
-AQP_CS_SCORECARD_HOLDTIME_REPORT
-EXEC [dbo].[AQP_CS_SCORECARD_HOLDTIME_REPORT] @FromDate = '2014-06-23', @ToDate = '2016-06-30', @TOP = 10000, @PAGE = 1, @SortBy = 't_AddedDate', @SortDirection = 'ASC';
-
-/Tools/AutomateCSScoreCard
+--AQP_CS_SCORECARD_HOLDTIME_REPORT
+--SELECT DISTINCT o1.name from sys.syscomments c1
+--INNER JOIN sys.sysobjects o1 ON c1.id=o1.id
+phuoc.tran@spiraledge.com :: sanjose#110
+https://swimoutlet.zendesk.com/api/v2/search.json?query=type:ticket brand_id:458754 created_at:2015-07-06 group_id:21101134 group_id:20968570 group_id:20793614 group_id:21610144 group_id:21849900 -assignee_id:none -assignee_id:793869944 via:web via:email via:api custom_field_21524075:email&page=1&per_page=1
+https://swimoutlet.zendesk.com/api/v2/search.json?query=type:ticket brand_id:458754 created_at:2015-07-06 group_id:21101134 group_id:20968570 group_id:20793614 group_id:21610144 group_id:21849900 -assignee_id:none -assignee_id:793869944 -via:chat custom_field_21524075:email&page=1&per_page=1
 
 -- For: SWIMOUTLET-20757
 avi@clubswim.com :: swimsoft
-Headers:
 App-Key :: g90lesiuknyy2chbuy7jn866sq1eijhm
-https://api.pingdom.com/api/2.0/checks
 https://api.pingdom.com/api/2.0/results/85975?limit=5
-{"error":{"statuscode":403,"statusdesc":"Forbidden","errormessage":"Missing application key. Please see the documentation."}}
-{"error":{"statuscode":403,"statusdesc":"Forbidden","errormessage":"Invalid application key"}}
 
-var options = {
-	"hostname" : "api.pingdom.com",
-	"path" : "/api/2.0/checks?"+"userpwd=user@example.com"+":"+"password",
-	"method" : "GET",
-	"headers" : {
-		"userpwd" : "user@example.com"+":"+"password",
-		"App-Key" : "key"
-	},
-	"userpwd" : "user@example.com"+":"+"password"
-};
 SO = 841007 [SO Server # 6 .31 (72.32.83.53)]
 SO(mobile) = 1433676 [SO Mobile #1 (72.3.223.25)]
 YO = 528621 [YogaOutlet.com]
 YO(mobile) = 1369895 [YO Mobile - server #1]
+
+-- For: SWIMOUTLET-20833
+AQP_FORECAST_TO_ACTUAL_REPORT: VendorId
+AQP_FORCASTING_12_MONTH: VendorId, BuyerId, SportId, VendorType, strRetired, strSearchMode, strKeySearch, strMonthGroup, PageIndex, PageSize, IsExport

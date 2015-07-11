@@ -167,8 +167,8 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 x.CanEdit = permission.CanUpdate(x);
                 x.CanDelete = permission.CanDelete(x);
                 x.CanBienDong = x.CheckBienDong(CurrentUser);
-                x.MaLDT_Name = string.IsNullOrEmpty(x.MaLDT) ? "" : Lst_DanhMuc_LoaiDT.Single(y => y.MaLDT == x.MaLDT).TenLDT;
-                x.TinhTrang_Name = string.IsNullOrEmpty(x.TinhTrang) ? "" : Lst_DanhMuc_TinhTrangDT.Single(y => y.MaTT == x.TinhTrang).TenTT;
+                x.MaLDT_Name = string.IsNullOrEmpty(x.MaLDT) || Lst_DanhMuc_LoaiDT.Count(y => y.MaLDT == x.MaLDT) == 0 ? "" : Lst_DanhMuc_LoaiDT.Single(y => y.MaLDT == x.MaLDT).TenLDT;
+                x.TinhTrang_Name = string.IsNullOrEmpty(x.TinhTrang) || Lst_DanhMuc_TinhTrangDT.Count(y => y.MaTT == x.TinhTrang) == 0 ? "" : Lst_DanhMuc_TinhTrangDT.Single(y => y.MaTT == x.TinhTrang).TenTT;
             });
             #endregion
 

@@ -253,10 +253,10 @@ function ParseTime(_data) {
             if (/^(0[1-9]|1[012])\/(0[1-9]|[12][0-9]|3[01])\/([1-9]\d{3}) ([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/g.test(_data)) {
                 var y = parseInt(_data.substr(6, 4));
                 var M = parseInt(_data.substr(0, 2));
-                var d = parseInt(_data.substr(4, 2));
-                var H = parseInt(_data.substr(10, 2));
-                var m = parseInt(_data.substr(12, 2));
-                var s = parseInt(_data.substr(14, 2));
+                var d = parseInt(_data.substr(3, 2));
+                var H = parseInt(_data.substr(11, 2));
+                var m = parseInt(_data.substr(14, 2));
+                var s = parseInt(_data.substr(17, 2));
                 return new Date(y, M - 1, d, H, m, s, 0);
             }
             // Template: "dd/MM/yyyy"
