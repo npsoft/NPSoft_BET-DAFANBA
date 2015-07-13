@@ -61,20 +61,41 @@ namespace PhotoBookmart.Controllers
         
         public void ExportFileWordToHttpResponse()
         {
-            Response.Clear();
-            Response.Buffer = true;
-            Response.AddHeader("content-disposition", "attachmnet;filename=GridToWord.doc");
-            Response.Charset = "";
-            Response.ContentType = "application/vn.ms-word";
+            #region Export vn.ms-word
+            //Response.Clear();
+            //Response.Buffer = true;
+            //Response.AddHeader("content-disposition", "attachmnet;filename=GridToWord.doc");
+            //Response.Charset = "";
+            //Response.ContentType = "application/vn.ms-word";
 
-            StringWriter sw = new StringWriter();
-            HtmlTextWriter hw = new HtmlTextWriter(sw);
-            hw.Write("<b>Email</b>:<a rel='email' href='mailto:npe.etc@gmail.com'>npe.etc@gmail.com</a>");
+            //StringWriter sw = new StringWriter();
+            //HtmlTextWriter hw = new HtmlTextWriter(sw);
+            //hw.Write("<b>Email</b>:<a rel='email' href='mailto:npe.etc@gmail.com'>npe.etc@gmail.com</a>");
 
-            Response.Output.Write(sw);
-            Response.Flush();
-            Response.Close();
-            Response.End();
+            //Response.Output.Write(sw);
+            //Response.Flush();
+            //Response.Close();
+            //Response.End();
+            #endregion
+
+            List<Source> srcs = new List<Source>();
+            srcs.Add(GetSrcForDistrict());
+            srcs.Add(GetSrcForDistrict());
+            srcs.Add(GetSrcForDistrict());
+
+            string path = Server.MapPath(string.Format("~/Report/{0}.docx", Guid.NewGuid()));
+            DocumentBuilder.BuildDocument(srcs, path);
+
+            using (MemoryStream ms = new MemoryStream())
+            {
+                ms.Write(System.IO.File.ReadAllBytes(path), 0, System.IO.File.ReadAllBytes(path).Length);
+                Response.Clear();
+                Response.AddHeader("Content-Disposition", "attachmnet; filename=" + DateTime.Now.ToFileTime() + ".docx");
+                Response.ContentType = "application/octet-stream";
+                Response.BinaryWrite(ms.ToArray());
+                Response.Flush();
+                Response.End();
+            }
         }
         
         public void ExportFileExcelToHttpResponse()
@@ -157,24 +178,57 @@ namespace PhotoBookmart.Controllers
 
         public void ExportFileWithOpenXML1()
         {
-            string path = Server.MapPath("~/Reports/BienDong.docx");
-            // if (Util.IsWordprocessingML(ext)) { }
+            string path_src1 = Server.MapPath("~/Reports/BienDong.docx");
+            string path_src2 = Server.MapPath("~/Reports/Web Brief.docx");
+            string path_src3 = Server.MapPath("~/Reports/website.docx");
+            string path_out1 = Server.MapPath("~/Report/Out1.docx");
+            string path_out2 = Server.MapPath("~/Report/Out2.docx");
+            string path_out3 = Server.MapPath("~/Report/Out3.docx");
+            string path_out4 = Server.MapPath("~/Report/Out4.docx");
+            string path_out5 = Server.MapPath("~/Report/Out5.docx");
+
+            List<Source> srcs = null;
+            
+            srcs = new List<Source>()
+            {
+                new Source(new WmlDocument(path_src1), 5, 10, true)
+            };
+            DocumentBuilder.BuildDocument(srcs, path_out1);
+
+            srcs = new List<Source>()
+            {
+                new Source(new WmlDocument(path_src1), 0, 1, false),
+                new Source(new WmlDocument(path_src1), 4, false)
+            };
+            DocumentBuilder.BuildDocument(srcs, path_out2);
+
+            srcs = new List<Source>()
+            {
+                new Source(new WmlDocument(path_src1), true),
+                new Source(new WmlDocument(path_src2), false)
+            };
+            DocumentBuilder.BuildDocument(srcs, path_out3);
+
+            srcs = new List<Source>()
+            {
+                new Source(new WmlDocument(path_src2), false),
+                new Source(new WmlDocument(path_src3), true)
+            };
+            DocumentBuilder.BuildDocument(srcs, path_out4);
+
+            srcs = new List<Source>()
+            {
+                new Source(new WmlDocument(path_src2), 0, 5, false),
+                new Source(new WmlDocument(path_src3), 0, 5, true)
+            };
+            WmlDocument out5 = DocumentBuilder.BuildDocument(srcs);
+            out5.SaveAs(path_out5);
+            
             using (MemoryStream ms = new MemoryStream())
             {
-                ms.Write(System.IO.File.ReadAllBytes(path), 0, System.IO.File.ReadAllBytes(path).Length);
-                using (WordprocessingDocument wDoc = WordprocessingDocument.Open(ms, true))
-                {
-                    var body = wDoc.MainDocumentPart.Document.Body;
-                    var lst_para = body.Elements<Paragraph>().LastOrDefault();
-                    var new_para = new Paragraph(
-                        new DocumentFormat.OpenXml.Wordprocessing.Run(
-                            new DocumentFormat.OpenXml.Wordprocessing.Text("Hello world!")));
-                    XElement p = new XElement("p", "&nbsp;&nbsp;Hello");
-                    lst_para.InsertAfterSelf(new_para);
-                    // lst_para.Append( = string.Format("{0}", p);
-                }
+                ms.Write(System.IO.File.ReadAllBytes(path_out5), 0, System.IO.File.ReadAllBytes(path_out5).Length);
                 Response.Clear();
-                Response.AddHeader("Content-Disposition", "attachmnet; filename=ExportFileWithOpenXML1.docx");
+                Response.AddHeader("Content-Disposition", "attachmnet; filename=Out5.docx");
                 Response.ContentType = "application/octet-stream";
                 Response.BinaryWrite(ms.ToArray());
                 Response.Flush();
@@ -185,19 +239,41 @@ namespace PhotoBookmart.Controllers
         public void ExportFileWithOpenXML2()
         {
             string path_file = Server.MapPath("~/Reports/BienDong.docx");
-            using (WordprocessingDocument wDoc = WordprocessingDocument.Open(path_file, true))
+            using (WordprocessingDocument wDoc = WordprocessingDocument.Open(path_file, true)) // using (WordprocessingDocument wDoc = WordprocessingDocument.Open(MemoryStream, true))
             {
-                TextReplacer.SearchAndReplace(wDoc, "DINH VAN CHINH", "ĐINH VĂN CHINH", true);
+                // TextReplacer.SearchAndReplace(wDoc, "DINH VAN CHINH", "ĐINH VĂN CHINH", true);
 
-                TextReplacer.SearchAndReplace(wDoc, "{$AFFILIATE_NAME}", "LỮ THỊ NGỌC DUYÊN", true);
+                // TextReplacer.SearchAndReplace(wDoc, "{$AFFILIATE_NAME}", "LỮ THỊ NGỌC DUYÊN", true);
 
-                wDoc.MainDocumentPart.Document.Body.Append(GetTable1());
+                // wDoc.MainDocumentPart.Document.Body.Append(GetParagraph1());
 
-                wDoc.MainDocumentPart.Document.Body.Elements<Paragraph>().LastOrDefault().InsertAfterSelf(GetParagraph1());
-                wDoc.MainDocumentPart.Document.Body.Append(GetParagraph1());
+                // wDoc.MainDocumentPart.Document.Body.Elements<Paragraph>().LastOrDefault().InsertAfterSelf(GetParagraph1());
 
-                wDoc.MainDocumentPart.Document.Body.Append(GetTable2());
-                
+                // wDoc.MainDocumentPart.Document.Body.Append(GetTable1());
+
+                // wDoc.MainDocumentPart.Document.Body.Append(GetTable2());
+
+                // DocumentFormat.OpenXml.Wordprocessing.Table tbl = wDoc.MainDocumentPart.Document.Body.Elements<DocumentFormat.OpenXml.Wordprocessing.Table>().FirstOrDefault();
+
+                // TableRow tbl_row = new TableRow();
+
+                // TableCell tbl_cell1 = new TableCell();
+                // tbl_cell1.Append(new TableCellProperties(new TableCellWidth() { Type = TableWidthUnitValues.Dxa, Width = "50" }));
+                // tbl_cell1.Append(new Paragraph(new Run(new Text("7"))));
+                // tbl_row.Append(tbl_cell1);
+
+                // TableCell tbl_cell2 = new TableCell();
+                // tbl_cell2.Append(new TableCellProperties(new TableCellWidth() { Type = TableWidthUnitValues.Dxa, Width = "100" }));
+                // tbl_cell2.Append(new Paragraph(new Run(new Text("XXX"))));
+                // tbl_row.Append(tbl_cell2);
+
+                // TableCell tbl_cell3 = new TableCell();
+                // tbl_cell3.Append(new TableCellProperties(new TableCellWidth() { Type = TableWidthUnitValues.Dxa, Width = "150" }));
+                // tbl_cell3.Append(new Paragraph(new Run(new Text("npe.etc@gmail.com"))));
+                // tbl_row.Append(tbl_cell3);
+
+                // tbl.Append(tbl_row);
+
                 wDoc.MainDocumentPart.Document.Save();
             }
         }
@@ -379,6 +455,13 @@ namespace PhotoBookmart.Controllers
             }
 
             return tbl;
+        }
+
+        public Source GetSrcForDistrict()
+        {
+            string path = Server.MapPath("~/Reports/Template-01.docx");
+            Source src = new Source(new WmlDocument(path), true);
+            return src;
         }
     }
 }
