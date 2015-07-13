@@ -1,25 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Drawing.Imaging;
 using System.IO;
 using System.IO.Packaging;
 using System.Linq;
+using System.Text;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.UI;
-using System.Data;
-using System.Data.SqlClient;
+using System.Xml.Linq;
+using ServiceStack.Common;
 using ServiceStack.Mvc;
 using ServiceStack.OrmLite;
-using ServiceStack.Common;
+using PhotoBookmart.Models;
+
+using CrystalDecisions.CrystalReports.Engine;
+using CrystalDecisions.Shared;
 
 using OpenXmlPowerTools;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Spreadsheet;
-using DocumentFormat.OpenXml.Wordprocessing;
-using System.Drawing.Imaging;
-using System.Xml.Linq;
-using System.Text;
+using DocumentFormat.OpenXml.Wordprocessing; // using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace PhotoBookmart.Controllers
 {
@@ -27,7 +30,33 @@ namespace PhotoBookmart.Controllers
     {
         public ActionResult Index()
         {
-            return Content("Here is staging controller!");
+            try
+            {
+                List<MyPhotoCreationRequest> photos = new List<MyPhotoCreationRequest>();
+                photos.Add(new MyPhotoCreationRequest() { Photobook_Code = "CODE3", Pages = 2, Product_Id = 1 });
+                photos.Add(new MyPhotoCreationRequest() { Photobook_Code = "CODE6", Pages = 5, Product_Id = 4 });
+
+                List<ReportModelSettings> settings = new List<ReportModelSettings>();
+                settings.Add(new ReportModelSettings() { Id = 1, Key = "Key1", Value = "Value1", Desc = "Desc1", MaHC = "MaHC1" });
+                settings.Add(new ReportModelSettings() { Id = 2, Key = "Key2", Value = "Value2", Desc = "Desc2", MaHC = "MaHC2" });
+
+                ReportDocument report = new ReportDocument();
+                report.Load(Path.Combine(Server.MapPath("~/Reports"), "CrystalReportTest1.rpt"));
+                report.Database.Tables["PhotoBookmart_Models_MyPhotoCreationRequest"].SetDataSource(photos);
+                report.Database.Tables["PhotoBookmart_Models_ReportModelSettings"].SetDataSource(settings);
+
+                Response.Buffer = false;
+                Response.ClearContent();
+                Response.ClearHeaders();
+
+                Stream stream = report.ExportToStream(CrystalDecisions.Shared.ExportFormatType.PortableDocFormat);
+                stream.Seek(0, SeekOrigin.Begin);
+                return File(stream, "application/pdf", string.Format("Remote_{0:ddMMyy}.pdf", DateTime.Today));
+            }
+            catch (Exception ex)
+            {
+                return Content(string.Format("Here is exception: {0}", ex.Message));
+            }
         }
         
         public void ExportFileWordToHttpResponse()
@@ -68,62 +97,62 @@ namespace PhotoBookmart.Controllers
 
         public void ExportFileExcelWithOpenXML()
         {
-            MemoryStream ms = new MemoryStream();
-            SpreadsheetDocument xl = SpreadsheetDocument.Create(ms, SpreadsheetDocumentType.Workbook);
-            WorkbookPart wbp = xl.AddWorkbookPart();
-            WorksheetPart wsp = wbp.AddNewPart<WorksheetPart>();
-            Workbook wb = new Workbook();
-            FileVersion fv = new FileVersion();
-            fv.ApplicationName = "Microsoft Office Excel";
-            Worksheet ws = new Worksheet();
+            //MemoryStream ms = new MemoryStream();
+            //SpreadsheetDocument xl = SpreadsheetDocument.Create(ms, SpreadsheetDocumentType.Workbook);
+            //WorkbookPart wbp = xl.AddWorkbookPart();
+            //WorksheetPart wsp = wbp.AddNewPart<WorksheetPart>();
+            //Workbook wb = new Workbook();
+            //FileVersion fv = new FileVersion();
+            //fv.ApplicationName = "Microsoft Office Excel";
+            //Worksheet ws = new Worksheet();
 
-            //First cell
-            SheetData sd = new SheetData();
-            Row r1 = new Row() { RowIndex = (UInt32Value)1u };
-            Cell c1 = new Cell();
-            c1.DataType = CellValues.String;
-            c1.CellValue = new CellValue("some value");
-            r1.Append(c1);
+            ////First cell
+            //SheetData sd = new SheetData();
+            //Row r1 = new Row() { RowIndex = (UInt32Value)1u };
+            //Cell c1 = new Cell();
+            //c1.DataType = CellValues.String;
+            //c1.CellValue = new CellValue("some value");
+            //r1.Append(c1);
 
-            // Second cell
-            Cell c2 = new Cell();
-            c2.CellReference = "C1";
-            c2.DataType = CellValues.String;
-            c2.CellValue = new CellValue("other value");
-            r1.Append(c2);
-            sd.Append(r1);
+            //// Second cell
+            //Cell c2 = new Cell();
+            //c2.CellReference = "C1";
+            //c2.DataType = CellValues.String;
+            //c2.CellValue = new CellValue("other value");
+            //r1.Append(c2);
+            //sd.Append(r1);
 
-            //third cell
-            Row r2 = new Row() { RowIndex = (UInt32Value)2u };
-            Cell c3 = new Cell();
-            c3.DataType = CellValues.String;
-            c3.CellValue = new CellValue("some string");
-            r2.Append(c3);
-            sd.Append(r2);
+            ////third cell
+            //Row r2 = new Row() { RowIndex = (UInt32Value)2u };
+            //Cell c3 = new Cell();
+            //c3.DataType = CellValues.String;
+            //c3.CellValue = new CellValue("some string");
+            //r2.Append(c3);
+            //sd.Append(r2);
 
-            ws.Append(sd);
-            wsp.Worksheet = ws;
-            wsp.Worksheet.Save();
-            Sheets sheets = new Sheets();
-            Sheet sheet = new Sheet();
-            sheet.Name = "first sheet";
-            sheet.SheetId = 1;
-            sheet.Id = wbp.GetIdOfPart(wsp);
-            sheets.Append(sheet);
-            wb.Append(fv);
-            wb.Append(sheets);
+            //ws.Append(sd);
+            //wsp.Worksheet = ws;
+            //wsp.Worksheet.Save();
+            //Sheets sheets = new Sheets();
+            //Sheet sheet = new Sheet();
+            //sheet.Name = "first sheet";
+            //sheet.SheetId = 1;
+            //sheet.Id = wbp.GetIdOfPart(wsp);
+            //sheets.Append(sheet);
+            //wb.Append(fv);
+            //wb.Append(sheets);
 
-            xl.WorkbookPart.Workbook = wb;
-            xl.WorkbookPart.Workbook.Save();
-            xl.Close();
-            string fileName = "testOpenXml.xlsx";
-            Response.Clear();
-            byte[] dt = ms.ToArray();
+            //xl.WorkbookPart.Workbook = wb;
+            //xl.WorkbookPart.Workbook.Save();
+            //xl.Close();
+            //string fileName = "testOpenXml.xlsx";
+            //Response.Clear();
+            //byte[] dt = ms.ToArray();
 
-            Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-            Response.AddHeader("Content-Disposition", string.Format("attachment; filename={0}", fileName));
-            Response.BinaryWrite(dt);
-            Response.End();
+            //Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            //Response.AddHeader("Content-Disposition", string.Format("attachment; filename={0}", fileName));
+            //Response.BinaryWrite(dt);
+            //Response.End();
         }
 
         public void ExportFileWithOpenXML1()
@@ -142,7 +171,7 @@ namespace PhotoBookmart.Controllers
                             new DocumentFormat.OpenXml.Wordprocessing.Text("Hello world!")));
                     XElement p = new XElement("p", "&nbsp;&nbsp;Hello");
                     lst_para.InsertAfterSelf(new_para);
-                    lst_para.Append( = string.Format("{0}", p);
+                    // lst_para.Append( = string.Format("{0}", p);
                 }
                 Response.Clear();
                 Response.AddHeader("Content-Disposition", "attachmnet; filename=ExportFileWithOpenXML1.docx");
@@ -155,19 +184,21 @@ namespace PhotoBookmart.Controllers
 
         public void ExportFileWithOpenXML2()
         {
-            string path = Server.MapPath("~/Reports/BienDong.docx");
-            using (MemoryStream ms = new MemoryStream())
+            string path_file = Server.MapPath("~/Reports/BienDong.docx");
+            using (WordprocessingDocument wDoc = WordprocessingDocument.Open(path_file, true))
             {
-                ms.Write(System.IO.File.ReadAllBytes(path), 0, System.IO.File.ReadAllBytes(path).Length);
-                using (WordprocessingDocument wDoc = WordprocessingDocument.Open(ms, true))
-                {
-                    var body = wDoc.MainDocumentPart.Document.Body;
-                    var lastPara = body.Elements<Paragraph>().LastOrDefault();
-                    var newPara = new Paragraph(
-                        new DocumentFormat.OpenXml.Wordprocessing.Run(
-                            new DocumentFormat.OpenXml.Wordprocessing.Text("Hello world!")));
-                    lastPara.InsertAfterSelf(newPara);
-                }
+                TextReplacer.SearchAndReplace(wDoc, "DINH VAN CHINH", "ĐINH VĂN CHINH", true);
+
+                TextReplacer.SearchAndReplace(wDoc, "{$AFFILIATE_NAME}", "LỮ THỊ NGỌC DUYÊN", true);
+
+                wDoc.MainDocumentPart.Document.Body.Append(GetTable1());
+
+                wDoc.MainDocumentPart.Document.Body.Elements<Paragraph>().LastOrDefault().InsertAfterSelf(GetParagraph1());
+                wDoc.MainDocumentPart.Document.Body.Append(GetParagraph1());
+
+                wDoc.MainDocumentPart.Document.Body.Append(GetTable2());
+                
+                wDoc.MainDocumentPart.Document.Save();
             }
         }
 
@@ -220,33 +251,33 @@ namespace PhotoBookmart.Controllers
                             if (!localDirInfo.Exists) { localDirInfo.Create(); };
                             ++imageCounter;
                             string extensions = imageInfo.ContentType.Split('/')[1].ToLower();
-                            ImageFormat imageFormat = null;
+                            System.Drawing.Imaging.ImageFormat imageFormat = null;
                             if (extensions == "png")
                             {
                                 extensions = "gif";
-                                imageFormat = ImageFormat.Gif;
+                                imageFormat = System.Drawing.Imaging.ImageFormat.Gif;
                             }
                             else if (extensions == "gif")
                             {
-                                imageFormat = ImageFormat.Gif;
+                                imageFormat = System.Drawing.Imaging.ImageFormat.Gif;
                             }
                             else if (extensions == "bmp")
                             {
-                                imageFormat = ImageFormat.Bmp;
+                                imageFormat = System.Drawing.Imaging.ImageFormat.Bmp;
                             }
                             else if (extensions == "jpeg")
                             {
-                                imageFormat = ImageFormat.Jpeg;
+                                imageFormat = System.Drawing.Imaging.ImageFormat.Jpeg;
                             }
                             else if (extensions == "tiff")
                             {
                                 extensions = "gif";
-                                imageFormat = ImageFormat.Gif;
+                                imageFormat = System.Drawing.Imaging.ImageFormat.Gif;
                             }
                             else if (extensions == "wmf")
                             {
                                 extensions = "wmf";
-                                imageFormat = ImageFormat.Wmf;
+                                imageFormat = System.Drawing.Imaging.ImageFormat.Wmf;
                             }
 
                             if (imageFormat == null) { return null; }
@@ -279,6 +310,75 @@ namespace PhotoBookmart.Controllers
                     System.IO.File.WriteAllText(fiHtml.FullName, htmlString, Encoding.UTF8);
                 }
             }
+        }
+
+        public DocumentFormat.OpenXml.Wordprocessing.Paragraph GetParagraph1()
+        {
+            DocumentFormat.OpenXml.Wordprocessing.Paragraph para = new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
+                new DocumentFormat.OpenXml.Wordprocessing.Run(
+                    new DocumentFormat.OpenXml.Wordprocessing.Text("Hello world!")));
+
+            return para;
+        }
+
+        public DocumentFormat.OpenXml.Wordprocessing.Table GetTable1()
+        {
+            DocumentFormat.OpenXml.Wordprocessing.Table tbl = new DocumentFormat.OpenXml.Wordprocessing.Table();
+
+            TableProperties tbl_pro = new TableProperties(
+                new TableBorders(
+                    new TopBorder() { Val = new EnumValue<BorderValues>(BorderValues.Dotted), Size = 10 },
+                    new BottomBorder() { Val = new EnumValue<BorderValues>(BorderValues.Dashed), Size = 15 },
+                    new LeftBorder() { Val = new EnumValue<BorderValues>(BorderValues.Double), Size = 20 },
+                    new RightBorder() { Val = new EnumValue<BorderValues>(BorderValues.Inset), Size = 25 },
+                    new InsideHorizontalBorder() { Val = new EnumValue<BorderValues>(BorderValues.Outset), Size = 2 },
+                    new InsideVerticalBorder() { Val = new EnumValue<BorderValues>(BorderValues.None), Size = 4 }));
+            tbl.AppendChild<TableProperties>(tbl_pro);
+
+            TableRow tbl_row = new TableRow();
+
+            TableCell tbl_cell1 = new TableCell();
+            tbl_cell1.Append(new TableCellProperties(new TableCellWidth() { Type = TableWidthUnitValues.Dxa, Width = "100" }));
+            tbl_cell1.Append(new Paragraph(new Run(new Text("ĐINH VĂN CHINH"))));
+            tbl_row.Append(tbl_cell1);
+
+            TableCell tbl_cell2 = new TableCell(tbl_cell1.OuterXml);
+            tbl_row.Append(tbl_cell2);
+
+            tbl.Append(tbl_row);
+
+            return tbl;
+        }
+
+        public DocumentFormat.OpenXml.Wordprocessing.Table GetTable2()
+        {
+            DocumentFormat.OpenXml.Wordprocessing.Table tbl = new DocumentFormat.OpenXml.Wordprocessing.Table();
+
+            TableProperties tbl_pro = new TableProperties(
+                new TableBorders(
+                    new TopBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                    new BottomBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                    new LeftBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                    new RightBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                    new InsideHorizontalBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 },
+                    new InsideVerticalBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 12 }));
+            tbl.AppendChild(tbl_pro);
+
+            string[,] tbl_data = new string[,] { { "Texas", "TX" }, { "California", "CA" }, { "New York", "NY" }, { "Massachusetts", "MA" } };
+            for (int i = 0; i <= tbl_data.GetUpperBound(0); i++)
+            {
+                TableRow tbl_row = new TableRow();
+                for (int j = 0; j <= tbl_data.GetUpperBound(1); j++)
+                {
+                    TableCell tbl_cell = new TableCell();
+                    tbl_cell.Append(new TableCellProperties(new TableCellWidth { Type = TableWidthUnitValues.Auto }));
+                    tbl_cell.Append(new Paragraph(new Run(new Text(tbl_data[i, j]))));
+                    tbl_row.Append(tbl_cell);
+                }
+                tbl.Append(tbl_row);
+            }
+
+            return tbl;
         }
     }
 }
