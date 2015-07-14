@@ -463,5 +463,50 @@ namespace PhotoBookmart.Controllers
             Source src = new Source(new WmlDocument(path), true);
             return src;
         }
+
+        public void DownloadReportForDistrict()
+        {
+            string path_rpt = GenerateReportForDistrict("01002", "Huyện A", new string[2] { "Xã Hồng Ngự 1", "Xã Hồng Ngự 2" });
+
+            Response.Clear();
+            Response.Buffer = true;
+            Response.AddHeader("content-disposition", string.Format("attachmnet;filename={0}.docx", DateTime.Now.ToFileTime()));
+            Response.ContentType = "application/vn.ms-word";
+            Response.Charset = "";
+            Response.BinaryWrite(System.IO.File.ReadAllBytes(path_rpt));
+            Response.Flush();
+            Response.Close();
+            Response.End();
+        }
+
+        public string GenerateReportForDistrict(string ma_hc, string ten_hc, string[] lst_village)
+        {
+            List<Source> lst_src = new List<Source>();
+            foreach (string village in lst_village)
+            {
+                lst_src.Add(new Source(new WmlDocument(GenerateReportForVillage(ma_hc, ten_hc, village)), true));
+            }
+
+            string path_rpt = Server.MapPath(string.Format("~/Report/{0}.docx", Guid.NewGuid()));
+            DocumentBuilder.BuildDocument(lst_src, path_rpt);
+            return path_rpt;
+        }
+
+        public string GenerateReportForVillage(string ma_hc_district, string ten_hc_district, string ten_hc_village)
+        {
+            string path_tpl = Server.MapPath("~/Reports/Template-01.docx");
+            string path_rpt = Server.MapPath(string.Format("~/Report/{0}.docx", Guid.NewGuid()));
+            System.IO.File.Copy(path_tpl, path_rpt);
+
+            using (WordprocessingDocument wDoc = WordprocessingDocument.Open(path_rpt, true))
+            {
+                TextReplacer.SearchAndReplace(wDoc, "{$MaHC_District}", ma_hc_district, true);
+                TextReplacer.SearchAndReplace(wDoc, "{$TenHC_District}", ten_hc_district, true);
+                TextReplacer.SearchAndReplace(wDoc, "{$TenHC_Village}", ten_hc_village, true);
+
+                wDoc.MainDocumentPart.Document.Save();
+            }
+            return path_rpt;
+        }
     }
 }
