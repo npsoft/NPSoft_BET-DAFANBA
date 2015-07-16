@@ -338,10 +338,35 @@
             modal: true,
             autoOpen: false,
             closeOnEscape: true,
+            close: function () { Filter({}); },
             buttons: {
                 "Đóng lại": function () {
                     $(this).dialog("close");
                 }
+            }
+        });
+
+        $list.on("click", "[data-action='approve']", function (e) {
+            var id = $(this).closest("tr").attr("data-id");
+            if (confirm("Bạn chắc chắn muốn duyệt đối tượng này?")) {
+                $.ajax({
+                    url: "@Url.Action("BienDong_Duyet", "WebsiteProduct", new { })",
+                    type: "post",
+                    data: JSON.stringify({ model: { Id: id } }, null, 0),
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (result, textStatus, jqXHR) {
+                        if (result != null && result.Status == "error") {
+                            notify_error("Lỗi", result.Message);
+                        } else {
+                            notify_info("Thông báo", "Duyệt đối tượng thành công.");
+                            Filter({});
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.warn("textStatus: " + textStatus + " | errorThrown: " + errorThrown);
+                    }
+                });
             }
         });
 

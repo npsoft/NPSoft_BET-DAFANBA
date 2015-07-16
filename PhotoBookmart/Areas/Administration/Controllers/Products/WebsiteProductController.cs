@@ -162,10 +162,12 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             List<string> lst_tinhtrangdt = c.Where(x => !string.IsNullOrEmpty(x.TinhTrang)).Select(x => x.TinhTrang).Distinct().ToList();
             if (lst_maldt.Count > 0) { Lst_DanhMuc_LoaiDT = Db.Select<DanhMuc_LoaiDT>(x => x.Where(y => Sql.In(y.MaLDT, lst_maldt)).Limit(0, lst_maldt.Count)); }
             if (lst_tinhtrangdt.Count > 0) { Lst_DanhMuc_TinhTrangDT = Db.Select<DanhMuc_TinhTrangDT>(x => x.Where(y => Sql.In(y.MaTT, lst_tinhtrangdt)).Limit(0, lst_tinhtrangdt.Count)); }
+            List<DanhMuc_TinhTrangDT> lst_tinhtrang_noneapprove = GetTinhTrangDTsByParams(false);
             c.ForEach(x => {
                 x.CanView = permission.CanGet(x);
                 x.CanEdit = permission.CanUpdate(x);
                 x.CanDelete = permission.CanDelete(x);
+                x.CanApprove = x.CheckApprove(CurrentUser, lst_tinhtrang_noneapprove);
                 x.CanBienDong = x.CheckBienDong(CurrentUser);
                 x.MaLDT_Name = string.IsNullOrEmpty(x.MaLDT) || Lst_DanhMuc_LoaiDT.Count(y => y.MaLDT == x.MaLDT) == 0 ? "" : Lst_DanhMuc_LoaiDT.Single(y => y.MaLDT == x.MaLDT).TenLDT;
                 x.TinhTrang_Name = string.IsNullOrEmpty(x.TinhTrang) || Lst_DanhMuc_TinhTrangDT.Count(y => y.MaTT == x.TinhTrang) == 0 ? "" : Lst_DanhMuc_TinhTrangDT.Single(y => y.MaTT == x.TinhTrang).TenTT;
@@ -241,6 +243,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             int total_page = (int)Math.Ceiling((double)total_item / page_size);
             int curr_page = total_page;
 
+            ViewData["Id"] = Id;
             ViewData["CurrPage"] = curr_page;
             ViewData["PageSize"] = page_size;
             ViewData["TotalItem"] = total_item;
@@ -789,6 +792,44 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             return Json(null, JsonRequestBehavior.AllowGet);
         }
 
+        public ActionResult BienDong_Duyet(BienDong_DuyetModel model)
+        {
+            try
+            {
+                DoiTuong entity = Db.Select<DoiTuong>(x => x.Where(y => y.Id == model.Id).Limit(0, 1)).FirstOrDefault();
+                if (entity == null || !entity.CheckApprove(CurrentUser, GetTinhTrangDTsByParams(false))) { return JsonError("Vui lòng không hack ứng dụng."); }
+
+                entity.IsDuyet = !entity.IsDuyet;
+                DoiTuong_BienDong bien_dong = null;
+                if (Db.Count<DoiTuong_BienDong>(x => x.IDDT == entity.Id) == 0)
+                {
+                    DanhMuc_LoaiDT loai_dt = Db.Select<DanhMuc_LoaiDT>(x => x.Where(y => y.MaLDT == entity.MaLDT).Limit(0, 1)).FirstOrDefault();
+                    bien_dong = new DoiTuong_BienDong();
+                    bien_dong.IDDT = entity.Id;
+                    bien_dong.MaHC = entity.MaHC;
+                    bien_dong.IDDiaChi = entity.IDDiaChi;
+                    bien_dong.TinhTrang = entity.TinhTrang;
+                    bien_dong.MaLDT = entity.MaLDT;
+                    bien_dong.NgayHuong = entity.NgayHuong;
+                    bien_dong.HeSo = decimal.Parse(string.Format("{0}", loai_dt.HeSo));
+                    bien_dong.MucTC = entity.MucTC;
+                    bien_dong.MucChenh = entity.MucTC;
+                    bien_dong.MoTa = entity.TinhTrang == "HDH" ? "Đang hưởng" : entity.TinhTrang == "HDE" ? "Chuyển đến từ nơi khác" : "";
+                }
+                using (IDbTransaction dbTrans = Db.OpenTransaction())
+                {
+                    Db.UpdateOnly<DoiTuong>(entity, ev => ev.Update(p => new { p.IsDuyet }).Where(x => x.Id == entity.Id).Limit(0, 1));
+                    if (bien_dong != null) { Db.Save(bien_dong); }
+                    dbTrans.Commit();
+                }
+            }
+            catch (Exception ex)
+            {
+                return JsonError(ex.Message);
+            }
+            return Json(null, JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost]
         [ValidateInput(false)]
         public ActionResult BienDong_CatChet(BienDong_CatChetModel model)
@@ -1216,6 +1257,21 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             return Json(null, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost]
+        [ValidateInput(false)]
+        public ActionResult LichSu_Delete(int Id)
+        {
+            try
+            {
+                Db.DeleteById<OptionInProduct>(Id);
+            }
+            catch (Exception ex)
+            {
+                return JsonError(ex.Message);
+            }
+            return Json(null, JsonRequestBehavior.AllowGet);
+        }
+
         public ActionResult Detail(int id)
         {
             var model = Db.Where<Product>(m => m.Id == id).FirstOrDefault();
@@ -1242,23 +1298,6 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             return View(model);
         }
         
-        #region Detail Option in Product
-
-        public ActionResult Detail_Option_Delete(int id)
-        {
-            try
-            {
-                Db.DeleteById<OptionInProduct>(id);
-            }
-            catch (Exception ex)
-            {
-                return JsonError(ex.Message);
-            }
-            return Json(null, JsonRequestBehavior.AllowGet);
-        }
-
-        #endregion
-
         #region Detail Image
 
         /// <param name="id">Site ID</param>
@@ -1326,28 +1365,6 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 Db.Insert<Product_Images>(curent_item);
             }
             return RedirectToAction("Detail", new { id = model.ProductId });
-        }
-
-        public ActionResult Detail_Image_Delete(int id)
-        {
-            try
-            {
-                var x = Db.Where<Product_Images>(m => m.Id == id).FirstOrDefault();
-                if (x != null)
-                {
-                    var path = Server.MapPath("~/" + x.Filename);
-                    if (System.IO.File.Exists(path))
-                    {
-                        System.IO.File.Delete(path);
-                    }
-                }
-                Db.DeleteById<Product_Images>(id);
-            }
-            catch (Exception ex)
-            {
-                return JsonError(ex.Message);
-            }
-            return Json(null, JsonRequestBehavior.AllowGet);
         }
 
         #endregion

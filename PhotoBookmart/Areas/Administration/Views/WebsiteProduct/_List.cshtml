@@ -46,19 +46,27 @@
                                 </a>
                             </li>
                             }*@
+                            @if (item.CanApprove)
+                            {
+                                <li>
+                                    <a rel="approve" href="javascript:void(0);" title="Duyệt" data-action="approve">
+                                        <i class="icon-ok"></i>&nbsp;Duyệt
+                                    </a>
+                                </li>
+                            }
+                            @if (item.CanDelete)
+                            {
+                                <li>
+                                    <a rel="delete" href="javascript:void(0);" title="Xóa bỏ" data-action="delete">
+                                        <i class="icon-trash"></i>&nbsp;&nbsp;Xóa bỏ
+                                    </a>
+                                </li>
+                            }
                             @if (item.CanEdit)
                             {
                             <li>
                                 <a rel="edit" href="@Url.Action("Edit", "WebsiteProduct", new { id = item.Id })" title="Chỉnh sửa" target="_blank">
                                     <i class="icon-pencil"></i>&nbsp;Chỉnh sửa
-                                </a>
-                            </li>
-                            }
-                            @if (item.CanDelete)
-                            {
-                            <li>
-                                <a rel="delete" href="javascript:void(0);" title="Xóa bỏ" data-action="delete">
-                                    <i class="icon-trash"></i>&nbsp;&nbsp;Xóa bỏ
                                 </a>
                             </li>
                             }
@@ -71,7 +79,7 @@
                                 </li>
                             }
                             <li>
-                                <a rel="lich-su" href="javascript:void(0);" title="Lịch sử" data-action="lich-su">
+                                <a rel="lich-su" href="javascript:void(0);" title="Lịch sử biến động" data-action="lich-su">
                                     <i class="icon-list-2"></i>&nbsp;Lịch sử biến động
                                 </a>
                             </li>

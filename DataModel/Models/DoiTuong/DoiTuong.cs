@@ -53,6 +53,8 @@ namespace PhotoBookmart.DataLayer.Models.Products
         [Ignore]
         public bool CanDelete { get; set; }
         [Ignore]
+        public bool CanApprove { get; set; }
+        [Ignore]
         public bool CanBienDong { get; set; }
         [Ignore]
         public string Province_Name { get; set; }
@@ -80,6 +82,15 @@ namespace PhotoBookmart.DataLayer.Models.Products
         public string ToStringNgaySinh()
         {
             return (string.IsNullOrEmpty(NgaySinh) ? "" : NgaySinh + "/") + (string.IsNullOrEmpty(ThangSinh) ? "" : ThangSinh + "/") + NamSinh;
+        }
+
+        public bool CheckApprove(ABUserAuth user, List<DanhMuc_TinhTrangDT> lst_tinhtrang)
+        {
+            if (user == null) { return false; }
+            return
+                !IsDuyet &&
+                lst_tinhtrang.Select(x => x.MaTT).Contains(TinhTrang) &&
+                (user.HasRole(RoleEnum.Admin) || !user.HasRole(RoleEnum.Village) && MaHC.StartsWith(user.MaHC));
         }
 
         public bool CheckBienDong(ABUserAuth user)

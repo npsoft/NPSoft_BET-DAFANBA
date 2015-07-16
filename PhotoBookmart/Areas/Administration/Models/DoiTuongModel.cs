@@ -6,6 +6,13 @@ using PhotoBookmart.DataLayer.Models.Products;
 
 namespace PhotoBookmart.Areas.Administration.Models
 {
+    public class BienDong_DuyetModel
+    {
+        public long Id { get; set; }
+
+        public BienDong_DuyetModel() { }
+    }
+
     public class BienDong_CatChetModel
     {
         public long Id { get; set; }

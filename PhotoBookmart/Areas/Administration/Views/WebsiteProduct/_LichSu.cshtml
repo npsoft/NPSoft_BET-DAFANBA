@@ -1,26 +1,27 @@
 ﻿@model List<DoiTuong_BienDong>
 <script>
-
-    $(document).ready(function () {
-        $("a.delete").click(function () {
-            var $this = $(this);
-            var NameItem = $this.attr("item_name");
-            var item_id = $this.attr("item_id");
-            if (confirm("Are you sure to delete » " + NameItem + "?")) {
-                show_loading();
-                $.get("@Url.Action("Delete")?id=" + item_id, function (data) {
-
-                    $.get("@Url.Action("List")?country_id=" + $("#CountrySelector").val(), function (data) {
-
-                        $(".listuser").html(data);
-
-                        hide_loading();
-                    });
+    jQuery(document).ready(function ($) {
+        $popup_lich_su.find("#ListTable [data-action='delete']").click(function (e) {
+            var $tr = $(this).closest("tr");
+            var page = $popup_lich_su.find(".dataTables_wrapper .dataTables_paginate .paginate_active").text();
+            if (confirm("Bạn chắc chắn muốn xóa biến động này?")) {
+                $.post("@Url.Action("LichSu_Delete", "WebsiteProduct", new { })", { Id: $tr.attr("data-id") }, function (data) {
+                    if (data != null && data.Status == "error") {
+                        notify_error("Lỗi", data.Message);
+                    } else {
+                        notify_info("Thông báo", "Xóa biến động thành công.");
+                        $.post("@Url.Action("LichSu", "WebsiteProduct", new { })", { Id: @ViewData["Id"] }, function (data) {
+                            $popup_lich_su.html(data);
+                            var $btn = $popup_lich_su.find(".dataTables_wrapper .dataTables_paginate").find(".paginate_button, .paginate_active").filter(function () { return $(this).text() == page; });
+                            if ($btn.length == 0) { $btn = $popup_lich_su.find(".dataTables_wrapper .dataTables_paginate .last"); }
+                            $btn.trigger("click");
+                        });
+                    }
                 });
             }
         });
 
-       if( $.fn.dataTable ) {
+        if($.fn.dataTable) {
             $popup_lich_su.find("#ListTable").dataTable({
                 "bSort": false,
                 "sDom": 'C<"">lfrtip',
@@ -30,8 +31,8 @@
                     "sSize": "css"
                 },
                 "aoColumnDefs": [
-			        { "bVisible": false, "aTargets": [] }
-		         ],
+			        { "bVisible": false, "aTargets": [2, 4, 8] }
+                ],
                 sPaginationType: "full_numbers",
                 "aLengthMenu": [30, 50, 100]
             });
@@ -83,10 +84,10 @@
                     <span>@string.Format("{0:dd/MM/yyyy}", item.NgayHuong)</span>
                 </td>
                 <td style="text-align:right;">
-                    <span>@item.MucChenh</span>
+                    <span>@item.MucChenh.Value.ToString("#,000.00")</span>
                 </td>
                 <td style="text-align:right">
-                    <span>@item.MucTC</span>
+                    <span>@item.MucTC.Value.ToString("#,000.00")</span>
                 </td>
                 <td style="text-align:center;" class="no_padding">
                     <span class="btn-group">
