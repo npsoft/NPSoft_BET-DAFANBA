@@ -26,19 +26,14 @@ namespace PhotoBookmart.DataLayer.Models.Products
 
         #region Ignore properties
         [Ignore]
-        public string MaHC_Ten { get; set; }
-        [Ignore]
         public string MaLDT_Ten { get; set; }
         [Ignore]
-        public bool CanDelete { get; set; }
+        public string MaHC_Ten { get; set; } 
+        [Ignore]
+        public string MaHC_Ten_Village { get; set; }
         #endregion
 
         #region Ignore functions
-        public bool CheckDelete(ABUserAuth user, string ma_hc, long id)
-        {
-            if (user == null) { return false; }
-            return user.HasRole(RoleEnum.District) && ma_hc.StartsWith(user.MaHC) && Id != id;
-        }
         #endregion
 
         public DoiTuong_BienDong() { }

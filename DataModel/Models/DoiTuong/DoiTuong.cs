@@ -101,6 +101,12 @@ namespace PhotoBookmart.DataLayer.Models.Products
                 !new string[2] { "KCC", "KTD" }.Contains(TinhTrang) && 
                 (user.HasRole(RoleEnum.Admin) || !user.HasRole(RoleEnum.Village) && MaHC.StartsWith(user.MaHC));
         }
+
+        public bool CheckBiendongDelete(ABUserAuth user, List<DoiTuong_BienDong> lst_biendong)
+        {
+            if (user == null) { return false; }
+            return user.HasRole(RoleEnum.District) && MaHC.StartsWith(user.MaHC) && lst_biendong.Count > 1;
+        }
         #endregion
 
         public DoiTuong()

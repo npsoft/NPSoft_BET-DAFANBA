@@ -228,22 +228,29 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             List<DoiTuong_BienDong> model = Db.Where<DoiTuong_BienDong>(x => x.IDDT == Id);
             List<DanhMuc_LoaiDT> lst_danhmuc_loaidt = new List<DanhMuc_LoaiDT>();
             List<DanhMuc_HanhChinh> lst_danhmuc_hanhchinh = new List<DanhMuc_HanhChinh>();
-            List<string> vals_danhmuc_loaidt = model.Where(x => !string.IsNullOrEmpty(x.MaLDT)).Select(x => x.MaLDT).Distinct().ToList();
-            List<string> vals_danhmuc_hanhchinh = model.Where(x => !string.IsNullOrEmpty(x.MaHC)).Select(x => x.MaHC).Distinct().ToList();
+            List<string> vals_danhmuc_loaidt = new List<string>();
+            List<string> vals_danhmuc_hanhchinh = new List<string>();
+            model.Where(x => !string.IsNullOrEmpty(x.MaLDT)).Select(x => x.MaLDT).Distinct().ToList();
+            model.Where(x => !string.IsNullOrEmpty(x.MaHC)).ToList().ForEach(y => {
+                vals_danhmuc_hanhchinh.AddRange(new string[2] { y.MaHC, y.MaHC.GetCodeVillage() });
+            });
+            vals_danhmuc_hanhchinh.Distinct().ToList();
             if (vals_danhmuc_loaidt.Count > 0) { lst_danhmuc_loaidt = Db.Select<DanhMuc_LoaiDT>(x => x.Where(y => Sql.In(y.MaLDT, vals_danhmuc_loaidt)).Limit(0, vals_danhmuc_loaidt.Count)); }
             if (vals_danhmuc_hanhchinh.Count > 0) { lst_danhmuc_hanhchinh = Db.Select<DanhMuc_HanhChinh>(x => x.Where(y => Sql.In(y.MaHC, vals_danhmuc_hanhchinh)).Limit(0, vals_danhmuc_hanhchinh.Count)); }
+
             model.ForEach(x => {
-                x.CanDelete = x.CheckDelete(CurrentUser, doi_tuong.MaHC, model.First().Id);
                 x.MaLDT_Ten = string.IsNullOrEmpty(x.MaLDT) || lst_danhmuc_loaidt.Count(y => y.MaLDT == x.MaLDT) == 0 ? "" : lst_danhmuc_loaidt.Single(y => y.MaLDT == x.MaLDT).TenLDT;
                 x.MaHC_Ten = string.IsNullOrEmpty(x.MaHC) || lst_danhmuc_hanhchinh.Count(y => y.MaHC == x.MaHC) == 0 ? "" : lst_danhmuc_hanhchinh.Single(y => y.MaHC == x.MaHC).TenDayDu;
+                x.MaHC_Ten_Village = string.IsNullOrEmpty(x.MaHC) || lst_danhmuc_hanhchinh.Count(y => y.MaHC == x.MaHC.GetCodeVillage()) == 0 ? "" : lst_danhmuc_hanhchinh.Single(y => y.MaHC == x.MaHC.GetCodeVillage()).TenHC;
             });
-
+            
             int page_size = ITEMS_PER_PAGE;
             int total_item = model.Count();
             int total_page = (int)Math.Ceiling((double)total_item / page_size);
             int curr_page = total_page;
 
             ViewData["Id"] = Id;
+            ViewData["CanDelete"] = doi_tuong.CheckBiendongDelete(CurrentUser, model);
             ViewData["CurrPage"] = curr_page;
             ViewData["PageSize"] = page_size;
             ViewData["TotalItem"] = total_item;
@@ -792,6 +799,8 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             return Json(null, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost]
+        [ValidateInput(false)]
         public ActionResult BienDong_Duyet(BienDong_DuyetModel model)
         {
             try
@@ -858,11 +867,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 bien_dong.MoTa = "Cắt chết";
                 using (IDbTransaction dbTrans = Db.OpenTransaction())
                 {
-                    Db.UpdateOnly<DoiTuong>(new DoiTuong()
-                    {
-                        TinhTrang = entity.TinhTrang,
-                        NgayHuong = entity.NgayHuong
-                    }, ev => ev.Update(p => new 
+                    Db.UpdateOnly<DoiTuong>(entity, ev => ev.Update(p => new 
                     {
                         p.TinhTrang,
                         p.NgayHuong
@@ -906,11 +911,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 bien_dong.MoTa = "Tạm dừng trợ cấp";
                 using (IDbTransaction dbTrans = Db.OpenTransaction())
                 {
-                    Db.UpdateOnly<DoiTuong>(new DoiTuong()
-                    {
-                        TinhTrang = entity.TinhTrang,
-                        NgayHuong = entity.NgayHuong
-                    }, ev => ev.Update(p => new
+                    Db.UpdateOnly<DoiTuong>(entity, ev => ev.Update(p => new
                     {
                         p.TinhTrang,
                         p.NgayHuong
@@ -982,14 +983,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 
                 using (IDbTransaction dbTrans = Db.OpenTransaction())
                 {
-                    Db.UpdateOnly<DoiTuong>(new DoiTuong()
-                    {
-                        TinhTrang = entity.TinhTrang,
-                        NgayHuong = entity.NgayHuong,
-                        MaHC = entity.MaHC,
-                        IDDiaChi = entity.IDDiaChi,
-                        IsDuyet = entity.IsDuyet
-                    }, ev => ev.Update(p => new
+                    Db.UpdateOnly<DoiTuong>(entity, ev => ev.Update(p => new
                     {
                         p.TinhTrang,
                         p.NgayHuong,
@@ -1263,7 +1257,35 @@ namespace PhotoBookmart.Areas.Administration.Controllers
         {
             try
             {
-                Db.DeleteById<OptionInProduct>(Id);
+                DoiTuong doi_tuong = Db.Select<DoiTuong>(x => x.Where(y => y.Id == Id).Limit(0, 1)).First();
+                if (doi_tuong == null) { return JsonError("Vui lòng không hack ứng dụng."); }
+                List<DoiTuong_BienDong> lst_bien_dong = Db.Select<DoiTuong_BienDong>(x => x.Where(y => y.IDDT == doi_tuong.Id).OrderBy(z => z.Id));
+                if (!doi_tuong.CheckBiendongDelete(CurrentUser, lst_bien_dong)) { return JsonError("Vui lòng không hack ứng dụng."); }
+
+                List<DoiTuong_BienDong> lst_bien_dong_delete = new List<DoiTuong_BienDong>() { lst_bien_dong.Last() };
+                if (new string[] { "HDE", "HCT", "HCG", "HCK" }.Contains(lst_bien_dong_delete[0].TinhTrang)) { lst_bien_dong_delete.Add(lst_bien_dong[lst_bien_dong.Count - 2]); }
+
+                DoiTuong_BienDong bien_dong = lst_bien_dong[lst_bien_dong.Count - 2];
+                doi_tuong.MaHC = bien_dong.MaHC;
+                doi_tuong.IDDiaChi = bien_dong.IDDiaChi;
+                doi_tuong.TinhTrang = bien_dong.TinhTrang;
+                doi_tuong.MaLDT = bien_dong.MaLDT;
+                doi_tuong.NgayHuong = bien_dong.NgayHuong;
+                doi_tuong.MucTC = bien_dong.MucTC;
+
+                using (IDbTransaction dbTrans = Db.OpenTransaction())
+                {
+                    Db.UpdateOnly<DoiTuong>(doi_tuong, ev => ev.Update(p => new
+                    {
+                        p.MaHC,
+                        p.IDDiaChi,
+                        p.TinhTrang,
+                        p.MaLDT,
+                        p.NgayHuong,
+                        p.MucTC
+                    }));
+                    Db.Delete<DoiTuong_BienDong>(x => Sql.In(lst_bien_dong_delete.Select(y => y.Id), x.Id));
+                }
             }
             catch (Exception ex)
             {
