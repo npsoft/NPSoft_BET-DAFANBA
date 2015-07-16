@@ -218,6 +218,36 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             return PartialView("_BienDong", model);
         }
 
+        public ActionResult LichSu(long Id)
+        {
+            DoiTuong doi_tuong = Db.Select<DoiTuong>(x => x.Where(y => y.Id == Id).Limit(0, 1)).FirstOrDefault();
+            if (doi_tuong == null) { return Content("Vui lòng không hack ứng dụng."); }
+
+            List<DoiTuong_BienDong> model = Db.Where<DoiTuong_BienDong>(x => x.IDDT == Id);
+            List<DanhMuc_LoaiDT> lst_danhmuc_loaidt = new List<DanhMuc_LoaiDT>();
+            List<DanhMuc_HanhChinh> lst_danhmuc_hanhchinh = new List<DanhMuc_HanhChinh>();
+            List<string> vals_danhmuc_loaidt = model.Where(x => !string.IsNullOrEmpty(x.MaLDT)).Select(x => x.MaLDT).Distinct().ToList();
+            List<string> vals_danhmuc_hanhchinh = model.Where(x => !string.IsNullOrEmpty(x.MaHC)).Select(x => x.MaHC).Distinct().ToList();
+            if (vals_danhmuc_loaidt.Count > 0) { lst_danhmuc_loaidt = Db.Select<DanhMuc_LoaiDT>(x => x.Where(y => Sql.In(y.MaLDT, vals_danhmuc_loaidt)).Limit(0, vals_danhmuc_loaidt.Count)); }
+            if (vals_danhmuc_hanhchinh.Count > 0) { lst_danhmuc_hanhchinh = Db.Select<DanhMuc_HanhChinh>(x => x.Where(y => Sql.In(y.MaHC, vals_danhmuc_hanhchinh)).Limit(0, vals_danhmuc_hanhchinh.Count)); }
+            model.ForEach(x => {
+                x.CanDelete = x.CheckDelete(CurrentUser, doi_tuong.MaHC, model.First().Id);
+                x.MaLDT_Ten = string.IsNullOrEmpty(x.MaLDT) || lst_danhmuc_loaidt.Count(y => y.MaLDT == x.MaLDT) == 0 ? "" : lst_danhmuc_loaidt.Single(y => y.MaLDT == x.MaLDT).TenLDT;
+                x.MaHC_Ten = string.IsNullOrEmpty(x.MaHC) || lst_danhmuc_hanhchinh.Count(y => y.MaHC == x.MaHC) == 0 ? "" : lst_danhmuc_hanhchinh.Single(y => y.MaHC == x.MaHC).TenDayDu;
+            });
+
+            int page_size = ITEMS_PER_PAGE;
+            int total_item = model.Count();
+            int total_page = (int)Math.Ceiling((double)total_item / page_size);
+            int curr_page = total_page;
+
+            ViewData["CurrPage"] = curr_page;
+            ViewData["PageSize"] = page_size;
+            ViewData["TotalItem"] = total_item;
+            ViewData["TotalPage"] = total_page;
+            return PartialView("_LichSu", model);
+        }
+
         [HttpGet]
         public ActionResult Add()
         {

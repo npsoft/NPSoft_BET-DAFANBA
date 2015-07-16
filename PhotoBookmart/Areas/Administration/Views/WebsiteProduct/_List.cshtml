@@ -38,22 +38,14 @@
                     <span class="btn-group">
                         <a href="#" class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
                         <ul class="dropdown-menu pull-right" style="text-align: left;">
-                            @if (item.CanBienDong)
-                            {
-                            <li>
-                                <a rel="bien-dong" href="javascript:void(0);" title="Tạo biến động" data-action="bien-dong">
-                                    <i class="icon-stats-up"></i>&nbsp;Tạo biến động
-                                </a>
-                            </li>
-                            }
-                            @if (item.CanView)
+                            @*@if (item.CanView)
                             {
                             <li>
                                 <a rel="detail" href="@Url.Action("Detail", "WebsiteProduct", new { id = item.Id })" title="Xem chi tiết" target="_blank">
                                     <i class="icon-eye-open"></i>&nbsp;Xem chi tiết
                                 </a>
                             </li>
-                            }
+                            }*@
                             @if (item.CanEdit)
                             {
                             <li>
@@ -70,6 +62,19 @@
                                 </a>
                             </li>
                             }
+                            @if (item.CanBienDong)
+                            {
+                                <li>
+                                    <a rel="bien-dong" href="javascript:void(0);" title="Tạo biến động" data-action="bien-dong">
+                                        <i class="icon-stats-up"></i>&nbsp;Tạo biến động
+                                    </a>
+                                </li>
+                            }
+                            <li>
+                                <a rel="lich-su" href="javascript:void(0);" title="Lịch sử" data-action="lich-su">
+                                    <i class="icon-list-2"></i>&nbsp;Lịch sử biến động
+                                </a>
+                            </li>
                         </ul>
                     </span>
                 </td>

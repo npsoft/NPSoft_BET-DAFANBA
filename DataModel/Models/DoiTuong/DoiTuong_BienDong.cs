@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using ServiceStack.OrmLite;
 using ServiceStack.DataAnnotations;
+using PhotoBookmart.DataLayer.Models.Users_Management;
 
 namespace PhotoBookmart.DataLayer.Models.Products
 {
@@ -22,6 +23,23 @@ namespace PhotoBookmart.DataLayer.Models.Products
         public decimal? MucTC { get; set; }
         public string MoTa { get; set; }
         public decimal? MucChenh { get; set; }
+
+        #region Ignore properties
+        [Ignore]
+        public string MaHC_Ten { get; set; }
+        [Ignore]
+        public string MaLDT_Ten { get; set; }
+        [Ignore]
+        public bool CanDelete { get; set; }
+        #endregion
+
+        #region Ignore functions
+        public bool CheckDelete(ABUserAuth user, string ma_hc, long id)
+        {
+            if (user == null) { return false; }
+            return user.HasRole(RoleEnum.District) && ma_hc.StartsWith(user.MaHC) && Id != id;
+        }
+        #endregion
 
         public DoiTuong_BienDong() { }
     }

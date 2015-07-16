@@ -137,7 +137,7 @@
     var $con_advanced, $frm_search, $ddl_MaHC_Province, $ddl_MaHC_District, $ddl_MaHC_Village, $ddl_IDDiaChi, $ddl_MaLDT, $ddl_TinhTrang, $ddl_IsDuyet, $ddl_OrderBy, $ddl_OrderDesc, $txt_Keywords, $hdf_Page, $btn_submit;
     var $con_quick, $ddl_quick_MaHC_Province, $ddl_quick_MaHC_District, $ddl_quick_MaHC_Village, $ddl_quick_IDDiaChi, $ddl_quick_MaLDT, $txt_quick_Keywords;
     var $con_combine, $ddl_combine_MaHC_Province, $ddl_combine_MaHC_District, $ddl_combine_MaHC_Village, $ddl_combine_IDDiaChi, $txt_combine_Keywords;
-    var $list, $popup_bien_dong;
+    var $list, $popup_bien_dong, $popup_lich_su;
     var count_change_hamlet = 0; // For: Stupid trick :)
 
     function QuickFilter(_data) {
@@ -205,6 +205,7 @@
 
         $list = $(".listuser");
         $popup_bien_dong = $("#dialog-bien-dong");
+        $popup_lich_su = $("#dialog-lich-su");
     };
 
     function InitEvents(_data) {
@@ -333,6 +334,17 @@
             }
         });
 
+        $popup_lich_su.dialog({
+            modal: true,
+            autoOpen: false,
+            closeOnEscape: true,
+            buttons: {
+                "Đóng lại": function () {
+                    $(this).dialog("close");
+                }
+            }
+        });
+
         $list.on("click", "[data-action='delete']", function (e) {
             var id = $(this).closest("tr").attr("data-id");
             if (confirm("Bạn chắc chắn muốn xóa đối tượng này?")) {
@@ -355,6 +367,16 @@
                 $popup_bien_dong.dialog("option", "title", "Tạo biến động » " + name);
                 $popup_bien_dong.dialog("option", "width", $(document).width() * 0.9);
                 $popup_bien_dong.dialog("open");
+            });
+        });
+
+        $list.on("click", "[data-action='lich-su']", function (e) {
+            var $row = $(this).closest("tr");
+            $.post("@Url.Action("LichSu", "WebsiteProduct", new { })", { Id: $row.attr("data-id") }, function (data) {
+                $popup_lich_su.html(data);
+                $popup_lich_su.dialog("option", "title", "Lịch sử biến động » " + $row.attr("data-name"));
+                $popup_lich_su.dialog("option", "width", $(document).width() * 0.9);
+                $popup_lich_su.dialog("open");
             });
         });
     };

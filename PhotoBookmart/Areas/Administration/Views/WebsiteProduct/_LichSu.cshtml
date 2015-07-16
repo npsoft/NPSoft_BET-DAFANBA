@@ -1,0 +1,104 @@
+﻿@model List<DoiTuong_BienDong>
+<script>
+
+    $(document).ready(function () {
+        $("a.delete").click(function () {
+            var $this = $(this);
+            var NameItem = $this.attr("item_name");
+            var item_id = $this.attr("item_id");
+            if (confirm("Are you sure to delete » " + NameItem + "?")) {
+                show_loading();
+                $.get("@Url.Action("Delete")?id=" + item_id, function (data) {
+
+                    $.get("@Url.Action("List")?country_id=" + $("#CountrySelector").val(), function (data) {
+
+                        $(".listuser").html(data);
+
+                        hide_loading();
+                    });
+                });
+            }
+        });
+
+       if( $.fn.dataTable ) {
+            $popup_lich_su.find("#ListTable").dataTable({
+                "bSort": false,
+                "sDom": 'C<"">lfrtip',
+                "oColVis": {
+                    "buttonText": "<i class='icol-accept'></i> Change columns",
+                    "bRestore": false,
+                    "sSize": "css"
+                },
+                "aoColumnDefs": [
+			        { "bVisible": false, "aTargets": [] }
+		         ],
+                sPaginationType: "full_numbers",
+                "aLengthMenu": [30, 50, 100]
+            });
+        }
+    });
+</script>
+<table class="mws-table" id="ListTable">
+    <thead>
+        <tr>
+            <th>Mã</th>
+            <th>Mã HC</th>
+            <th>Tên HC</th>
+            <th>Mã loại</th>
+            <th>Tên loại</th>
+            <th>TT</th>
+            <th>Mô tả</th>
+            <th>Ngày hưởng</th>
+            <th>Mức chênh</th>
+            <th>Mức trợ cấp</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (DoiTuong_BienDong item in Model ?? Enumerable.Empty<DoiTuong_BienDong>())
+        {
+            <tr data-id="@item.Id">
+                <td style="text-align:center;">
+                    <span>@item.Id</span>
+                </td>
+                <td style="text-align:center;">
+                    <span>@item.MaHC</span>
+                </td>
+                <td style="text-align:left;">
+                    <span>@item.MaHC_Ten</span>
+                </td>
+                <td style="text-align:center;">
+                    <span>@item.MaLDT</span>
+                </td>
+                <td style="text-align:left;">
+                    <span>@item.MaLDT_Ten</span>
+                </td>
+                <td style="text-align:center;">
+                    <span>@item.TinhTrang</span>
+                </td>
+                <td style="text-align:left;">
+                    <span>@item.MoTa</span>
+                </td>
+                <td style="text-align:center;">
+                    <span>@string.Format("{0:dd/MM/yyyy}", item.NgayHuong)</span>
+                </td>
+                <td style="text-align:right;">
+                    <span>@item.MucChenh</span>
+                </td>
+                <td style="text-align:right">
+                    <span>@item.MucTC</span>
+                </td>
+                <td style="text-align:center;" class="no_padding">
+                    <span class="btn-group">
+                        @if (item.CanDelete)
+                        {
+                            <a rel="delete" href="javascript:void(0);" class="btn btn-small" title="Xóa biến động" data-action="delete">
+                                <i class="icon-trash"></i>
+                            </a>
+                        }
+                    </span>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
