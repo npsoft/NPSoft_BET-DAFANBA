@@ -1,26 +1,33 @@
 ﻿@model List<DoiTuong_BienDong>
 <script>
     jQuery(document).ready(function ($) {
-        $popup_lich_su.find("#ListTable [data-action='delete']").click(function (e) {
-            var $tr = $(this).closest("tr");
-            var page = $popup_lich_su.find(".dataTables_wrapper .dataTables_paginate .paginate_active").text();
-            if (confirm("Bạn chắc chắn muốn xóa biến động gần nhất?")) {
-                $.post("@Url.Action("LichSu_Delete", "WebsiteProduct", new { })", { Id: @ViewData["Id"] }, function (data) {
-                    if (data != null && data.Status == "error") {
-                        notify_error("Lỗi", data.Message);
-                    } else {
-                        notify_info("Thông báo", "Xóa biến động thành công.");
-                    }
-                    $.post("@Url.Action("LichSu", "WebsiteProduct", new { })", { Id: @ViewData["Id"] }, function (data) {
-                        $popup_lich_su.html(data);
-                        var $btn = $popup_lich_su.find(".dataTables_wrapper .dataTables_paginate").find(".paginate_button, .paginate_active").filter(function () { return $(this).text() == page; });
-                        if ($btn.length == 0) { $btn = $popup_lich_su.find(".dataTables_wrapper .dataTables_paginate .last"); }
-                        $btn.trigger("click");
-                    });
-                });
-            }
-        });
-
+        var buttons = {};
+        @if ((bool)ViewData["CanDelete"])
+        {
+            @: buttons["Xóa BĐ"]= function () {
+            @:  var page = $popup_lich_su.find(".dataTables_wrapper .dataTables_paginate .paginate_active").text();
+            @:  if (confirm("Bạn chắc chắn muốn xóa biến động gần nhất?")) {
+            @:     $.post("@Url.Action("LichSu_Delete", "WebsiteProduct", new { })", { Id: @ViewData["Id"] }, function (data) {
+            @:         if (data != null && data.Status == "error") {
+            @:             notify_error("Lỗi", data.Message);
+            @:         } else {
+            @:             notify_info("Thông báo", "Xóa biến động thành công.");
+            @:         }
+            @:         $.post("@Url.Action("LichSu", "WebsiteProduct", new { })", { Id: @ViewData["Id"] }, function (data) {
+            @:             $popup_lich_su.html(data);
+            @:             var $btn = $popup_lich_su.find(".dataTables_wrapper .dataTables_paginate").find(".paginate_button, .paginate_active").filter(function () { return $(this).text() == page; });
+            @:             if ($btn.length == 0) { $btn = $popup_lich_su.find(".dataTables_wrapper .dataTables_paginate .last"); }
+            @:             $btn.trigger("click");
+            @:         });
+            @:     });
+            @:  }
+            @: };
+        }
+        buttons["Đóng lại"] = function () {
+            $(this).dialog("close");
+        }
+        $popup_lich_su.dialog("option", "buttons", buttons);
+        
         if($.fn.dataTable) {
             $popup_lich_su.find("#ListTable").dataTable({
                 "bSort": false,

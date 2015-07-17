@@ -338,12 +338,7 @@
             modal: true,
             autoOpen: false,
             closeOnEscape: true,
-            close: function () { Filter({}); },
-            buttons: {
-                "Đóng lại": function () {
-                    $(this).dialog("close");
-                }
-            }
+            close: function () { Filter({}); }
         });
 
         $list.on("click", "[data-action='approve']", function (e) {

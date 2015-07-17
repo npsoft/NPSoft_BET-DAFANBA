@@ -230,7 +230,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             List<DanhMuc_HanhChinh> lst_danhmuc_hanhchinh = new List<DanhMuc_HanhChinh>();
             List<string> vals_danhmuc_loaidt = new List<string>();
             List<string> vals_danhmuc_hanhchinh = new List<string>();
-            model.Where(x => !string.IsNullOrEmpty(x.MaLDT)).Select(x => x.MaLDT).Distinct().ToList();
+            vals_danhmuc_loaidt = model.Where(x => !string.IsNullOrEmpty(x.MaLDT)).Select(x => x.MaLDT).Distinct().ToList();
             model.Where(x => !string.IsNullOrEmpty(x.MaHC)).ToList().ForEach(y => {
                 vals_danhmuc_hanhchinh.AddRange(new string[2] { y.MaHC, y.MaHC.GetCodeVillage() });
             });
@@ -1284,7 +1284,8 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                         p.NgayHuong,
                         p.MucTC
                     }));
-                    Db.Delete<DoiTuong_BienDong>(x => Sql.In(lst_bien_dong_delete.Select(y => y.Id), x.Id));
+                    Db.Delete<DoiTuong_BienDong>(x => Sql.In(x.Id, lst_bien_dong_delete.Select(y => y.Id)));
+                    dbTrans.Commit();
                 }
             }
             catch (Exception ex)
