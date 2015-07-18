@@ -1283,7 +1283,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                         p.MaLDT,
                         p.NgayHuong,
                         p.MucTC
-                    }));
+                    }).Where(x => x.Id == doi_tuong.Id).Limit(0, 1));
                     Db.Delete<DoiTuong_BienDong>(x => Sql.In(x.Id, lst_bien_dong_delete.Select(y => y.Id)));
                     dbTrans.Commit();
                 }
