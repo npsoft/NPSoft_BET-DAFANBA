@@ -71,17 +71,27 @@ namespace PhotoBookmart.DataLayer.Models.Products
         [Ignore]
         public List<DoiTuong_LoaiDoiTuong_CT> MaLDT_Details { get; set; }
         [Ignore]
-        public List<DoiTuong_BienDong> BienDong_Lst_Upd { get; set; }
+        public List<DoiTuong_BienDong> BienDong_Lst { get; set; }
         [Ignore]
-        public List<DoiTuong_BienDong> BienDong_Lst_Ins { get; set; }
-        [Ignore]
-        public bool IsThayDoiDoChuyenLoaiDoiTuong { get; set; }
+        public bool IsBienDongDuyet { get; set; }
         #endregion
 
         #region Support functions
         public string ToStringNgaySinh()
         {
-            return (string.IsNullOrEmpty(NgaySinh) ? "" : NgaySinh + "/") + (string.IsNullOrEmpty(ThangSinh) ? "" : ThangSinh + "/") + NamSinh;
+            return string.Format("{0}{1}{2}",
+                string.IsNullOrEmpty(NgaySinh) ? "" : NgaySinh + "/",
+                string.IsNullOrEmpty(ThangSinh) ? "" : ThangSinh + "/",
+                NamSinh);
+        }
+
+        public bool HasBienDong()
+        {
+            IDbConnection db = ModelBase.ServiceAppHost.TryResolve<IDbConnection>();
+            if (db.State != ConnectionState.Open) { db = ModelBase.ServiceAppHost.TryResolve<IDbConnectionFactory>().Open(); }
+            bool has = db.Count<DoiTuong_BienDong>(x => x.IDDT == Id) != 0;
+            db.Close();
+            return has;
         }
 
         public bool CheckApprove(ABUserAuth user, List<DanhMuc_TinhTrangDT> lst_tinhtrang)
@@ -93,7 +103,7 @@ namespace PhotoBookmart.DataLayer.Models.Products
                 (user.HasRole(RoleEnum.Admin) || !user.HasRole(RoleEnum.Village) && MaHC.StartsWith(user.MaHC));
         }
 
-        public bool CheckBienDong(ABUserAuth user)
+        public bool CheckBienDongCreate(ABUserAuth user)
         {
             if (user == null) { return false; }
             return 
@@ -102,7 +112,7 @@ namespace PhotoBookmart.DataLayer.Models.Products
                 (user.HasRole(RoleEnum.Admin) || !user.HasRole(RoleEnum.Village) && MaHC.StartsWith(user.MaHC));
         }
 
-        public bool CheckBiendongDelete(ABUserAuth user, List<DoiTuong_BienDong> lst_biendong)
+        public bool CheckBienDongDelete(ABUserAuth user, List<DoiTuong_BienDong> lst_biendong)
         {
             if (user == null) { return false; }
             return user.HasRole(RoleEnum.District) && MaHC.StartsWith(user.MaHC) && lst_biendong.Count > 1;
@@ -112,8 +122,7 @@ namespace PhotoBookmart.DataLayer.Models.Products
         public DoiTuong()
         {
             MaLDT_Details = new List<DoiTuong_LoaiDoiTuong_CT>();
-            BienDong_Lst_Upd = new List<DoiTuong_BienDong>();
-            BienDong_Lst_Ins = new List<DoiTuong_BienDong>();
+            BienDong_Lst = new List<DoiTuong_BienDong>();
         }
     }
 

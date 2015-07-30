@@ -649,114 +649,30 @@
             }
 
             var is_continue = true;
-            if (JsonModel.Id > 0 && JsonModel.IsDuyet) {
-                var sobd = 0;
-                var is_change_details = true;
-                if (JsonModel.MaLDT == $ddl_MaLDT.val() &&
-                    JsonModel.MaLDT_Details.length == data.MaLDT_Details.length) {
-                    if (data.MaLDT.startsWith("01")) {
-                        if (JsonModel.MaLDT_Details[0].Type1_InfoFather == data.MaLDT_Details[0].Type1_InfoFather &&
-                            JsonModel.MaLDT_Details[0].Type1_InfoMother == data.MaLDT_Details[0].Type1_InfoMother) {
-                            is_change_details = false;
-                        }
-                    } else if (data.MaLDT.startsWith("03")) {
-                        var rst_every = JsonModel.MaLDT_Details.every(function (element_old, index_old, array_old){
-                            var element_tmp;
-                            var rst_some = data.MaLDT_Details.some(function (element_new, index_new, array_new) {
-                                if (element_old.Id == element_new.Id) {
-                                    element_tmp = element_new;
-                                    return true;
-                                }
-                                return false;
-                            });
-                            if (rst_some &&
-                                element_old.Type3_FullName == element_tmp.Type3_FullName &&
-                                TimeForReq(ParseTime(element_old.Type3_DateOfBirth)) == element_tmp.Type3_DateOfBirth &&
-                                element_old.Type3_DateOfBirth_IsMonth == element_tmp.Type3_DateOfBirth_IsMonth &&
-                                element_old.Type3_DateOfBirth_IsDate == element_tmp.Type3_DateOfBirth_IsDate &&
-                                element_old.Type3_Gender == element_tmp.Type3_Gender &&
-                                element_old.Type3_CurrAddr == element_tmp.Type3_CurrAddr &&
-                                element_old.Type3_StatusLearn == element_tmp.Type3_StatusLearn) {
-                                return true;
-                            }
-                            return false;
-                        });
-                        is_change_details = !rst_every;
-                    } else if (data.MaLDT.startsWith("04")) {
-                        if (JsonModel.MaLDT_Details[0].Type4_MaritalStatus == data.MaLDT_Details[0].Type4_MaritalStatus &&
-                            JsonModel.MaLDT_Details[0].Type4_InfoAdditional == data.MaLDT_Details[0].Type4_InfoAdditional) {
-                            is_change_details = false;
-                        }
-                    } else if (data.MaLDT.startsWith("05")) {
-                        if (JsonModel.MaLDT_Details[0].Type5_SelfServing == data.MaLDT_Details[0].Type5_SelfServing &&
-                            JsonModel.MaLDT_Details[0].Type5_Carer == data.MaLDT_Details[0].Type5_Carer) {
-                            is_change_details = false;
-                        }
-                    } else {
-                        is_change_details = false;
-                    }
+            if (JsonModel.Id > 0 &&
+                JsonModel.IsDuyet &&
+                JsonModel.MaLDT != $ddl_MaLDT.val()) {
+                @if (!Model.CheckBienDongCreate(CurrentUser)) {
+                    @: $.pnotify({
+                    @:    type: "error",
+                    @:    title: "Lỗi",
+                    @:    text: "Vui lòng xóa hết lịch sử biến động trước khi sửa.",
+                    @:    opacity: .8
+                    @: });
+                    @: return false;
                 }
-                $.ajax({
-                    url: SVC_GETSBD,
-                    type: "post",
-                    data: JSON.stringify({ IDDT: JsonModel.Id }),
-                    dataType: "json",
-                    contentType: "application/json; charset=utf-8",
-                    async: false,
-                    global: false,
-                    success: function (result, textStatus, jqXHR) {
-                        sobd = result;
-                    },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        console.warn("textStatus: " + textStatus + " | errorThrown: " + errorThrown);
-                    }
-                });
-
-                if (is_change_details) {
-                    var msg = "Thay đổi bình thường [Hủy] hay Thay đổi do chuyển loại đối tượng [OK]?";
-                    if (confirm(msg)) {
-                        data.IsThayDoiDoChuyenLoaiDoiTuong = true;
-                        var dt_old = ParseTime(JsonModel.NgayHuong);
-                        var dt_new = ParseTime(data.NgayHuong);
-                        dt_old = new Date(dt_old.getFullYear(), dt_old.getMonth() - 1, 1, 0, 0, 0, 0);
-                        dt_new = new Date(dt_new.getFullYear(), dt_new.getMonth() - 1, 1, 0, 0, 0, 0);
-                        if (dt_new <= dt_old) {
-                            $.pnotify({
-                                type: "error",
-                                title: "Lỗi",
-                                text: "Tháng biến động phải lớn hơn tháng đang hưởng.",
-                                opacity: .8
-                            });
-                            return false;
-                        }
-                    } else {
-                        data.IsThayDoiDoChuyenLoaiDoiTuong = false;
-                        if (sobd != 1) {
-                            $.pnotify({
-                                type: "error",
-                                title: "Lỗi",
-                                text: "Số biến động hiện tại khác 1.",
-                                opacity: .8
-                            });
-                            return false;
-                        }
-                        if (TimeForReq(ParseTime(JsonModel.NgayHuong)) != data.NgayHuong) {
-                            $.pnotify({
-                                type: "error",
-                                title: "Lỗi",
-                                text: "Vui lòng xóa hết lịch sử biến động trước khi sửa.",
-                                opacity: .8
-                            });
-                            return false;
-                        }
-                    }
-                } else {
-                    if (sobd > 1 && TimeForReq(ParseTime(JsonModel.NgayHuong)) != data.NgayHuong) {
-                        ChangeTab("#thong-tin-tro-cap");
-                        $txt_ngay_huong.focus();
-                        notify_error("Lỗi", "Ngày hưởng mới và ngày hưởng gốc khác nhau.");
-                        return false;
-                    }
+                var dt_old = ParseTime(JsonModel.NgayHuong);
+                var dt_new = ParseTime(data.NgayHuong);
+                dt_old = new Date(dt_old.getFullYear(), dt_old.getMonth() - 1, 1, 0, 0, 0, 0);
+                dt_new = new Date(dt_new.getFullYear(), dt_new.getMonth() - 1, 1, 0, 0, 0, 0);
+                if (dt_new <= dt_old) {
+                    $.pnotify({
+                        type: "error",
+                        title: "Lỗi",
+                        text: "Tháng biến động phải lớn hơn tháng đang hưởng.",
+                        opacity: .8
+                    });
+                    return false;
                 }
             }
             $.ajax({
@@ -849,7 +765,6 @@
         {
             <div id="thong-tin-chung">
                 @Html.HiddenFor(m => m.Id)
-                @Html.HiddenFor(m => m.IsThayDoiDoChuyenLoaiDoiTuong)
                 @if (ViewBag.Error != null) { <div class="mws-form-message error">@ViewBag.Error</div> }
                 <div class="mws-form-inline">
                     <div class="mws-form-row">
@@ -1065,14 +980,14 @@
                             <div class="mws-form-col-4-8">
                                 <label class="mws-form-label">&nbsp;</label>
                                 <div class="mws-form-item">
-                                @if (Model.IsDuyet || (RoleEnum)Enum.Parse(typeof(RoleEnum), CurrentUser.Roles[0]) == RoleEnum.Village)
+                                @if (Model.CanApprove)
                                 {
-                                @: <input class="hide" name="IsDuyet" value="true" type="checkbox" readonly="readonly" @if (Model.IsDuyet) { <text> checked="checked" </text>  }>
-                                @: <input class="ibutton" type="checkbox" data-label-on="Đã duyệt" data-label-off="Chưa duyệt" disabled="disabled" @if (Model.IsDuyet) { <text> checked="checked" </text>  } />
+                                    @: <input class="ibutton" name="IsDuyet" value="true" type="checkbox" data-label-on="Đã duyệt" data-label-off="Chưa duyệt" @if (Model.IsDuyet) { <text> checked="checked" </text>   } />
                                 }
                                 else
-                                {
-                                @: <input class="ibutton" name="IsDuyet" value="true" type="checkbox" data-label-on="Đã duyệt" data-label-off="Chưa duyệt" @if (Model.IsDuyet) { <text> checked="checked" </text>   } />
+                                {    
+                                    @: <input class="hide" name="IsDuyet" value="true" type="checkbox" readonly="readonly" @if (Model.IsDuyet) { <text> checked="checked" </text>  }>
+                                    @: <input class="ibutton" type="checkbox" data-label-on="Đã duyệt" data-label-off="Chưa duyệt" disabled="disabled" @if (Model.IsDuyet) { <text> checked="checked" </text>  } />
                                 }
                                 </div>
                             </div>

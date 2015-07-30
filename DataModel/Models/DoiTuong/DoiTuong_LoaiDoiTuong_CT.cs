@@ -12,6 +12,7 @@ namespace PhotoBookmart.DataLayer.Models.Products
     {
         public Guid CodeObj { get; set; }
         public string CodeType { get; set; }
+        public bool IsDelete { get; set; }
 
         public string Type1_InfoFather { get; set; }
         public string Type1_InfoMother { get; set; }
