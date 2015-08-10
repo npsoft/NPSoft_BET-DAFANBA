@@ -14,6 +14,7 @@ using System.Xml.Linq;
 using ServiceStack.Common;
 using ServiceStack.Mvc;
 using ServiceStack.OrmLite;
+using PhotoBookmart.DataLayer;
 using PhotoBookmart.Models;
 
 using CrystalDecisions.CrystalReports.Engine;
