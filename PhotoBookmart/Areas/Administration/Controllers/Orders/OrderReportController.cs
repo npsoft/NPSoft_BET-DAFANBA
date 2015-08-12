@@ -14,15 +14,17 @@ using OfficeOpenXml.Style;
 using PhotoBookmart.Areas.Administration.Controllers;
 using PhotoBookmart.Areas.Administration.Models;
 using PhotoBookmart.DataLayer.Models.Products;
+using PhotoBookmart.DataLayer.Models.Users_Management;
 
 namespace PhotoBookmart.Areas.Administration.Controllers
 {
+    [ABRequiresAnyRole(RoleEnum.Admin, RoleEnum.Province, RoleEnum.District)]
     public class OrderReportController : WebAdminController
     {
+        [HttpGet]
         public ActionResult Index()
         {
-            var model = new OrderReportFilterModel();
-
+            var model = new BaoCao_DSChiTraTroCapModel();
             return View(model);
         }
 

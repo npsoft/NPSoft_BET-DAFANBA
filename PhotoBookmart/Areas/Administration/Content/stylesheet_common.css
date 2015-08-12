@@ -593,3 +593,24 @@ form[id="obj-info-common"] .decrease-10px .mws-form-item {
     margin-left: 106px !important;
 }
 /* End: For ~/Views/WebsiteProduct/Add.cshtml */
+
+/* Sta: For ~/Views/OrderReport/Index.cshtml */
+#BaoCao_DSChiTraTroCap .mws-form-row {
+    padding: 10px;
+}
+#BaoCao_DSChiTraTroCap .mws-form-row .mws-form-row {
+    padding: 0;
+}
+#BaoCao_DSChiTraTroCap .mws-form-row .mws-form-label {
+    width: 100px;
+    text-align: right;
+}
+#BaoCao_DSChiTraTroCap .mws-form-row .mws-form-label ~ .mws-form-item {
+    margin-left: 116px !important;
+}
+#BaoCao_DSChiTraTroCap .listuser .dataTables_length,
+#BaoCao_DSChiTraTroCap .listuser .dataTables_filter,
+#BaoCao_DSChiTraTroCap .listuser .dataTables_paginate {
+    display: none;
+}
+/* End: For ~/Views/OrderReport/Index.cshtml */

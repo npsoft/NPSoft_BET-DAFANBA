@@ -411,11 +411,12 @@ function CheckDateOfBirth_MaLDT(_data) {
 
 function RefillDataForSelect2(_data) {
     var $ddl = _data.$ddl, val = _data.val, data = _data.data, id = _data.id, name = _data.name;
+    var frst_child = typeof _data.frst_child !== "undefined" && !_data.frst_child ? false : true;
     var opts = "";
     data.forEach(function (element, index, array) {
         opts += "<option value='" + element[id] + "'>" + element[name] + "</option>";
     });
-    $ddl.children(":not(:first-child)").remove();
+    $ddl.children(frst_child ? ":not(:first-child)" : "").remove();
     $ddl.append(opts);
     $ddl.select2().select2("val", _data.val);
 };

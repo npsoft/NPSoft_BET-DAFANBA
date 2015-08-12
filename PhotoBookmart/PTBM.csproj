@@ -184,7 +184,7 @@
     <Compile Include="Areas\Administration\Models\CommonModel.cs" />
     <Compile Include="Areas\Administration\Models\ContactUsListModel.cs" />
     <Compile Include="Areas\Administration\Models\OrderReportModel.cs" />
-    <Compile Include="Areas\Administration\Models\OrderReportFilterModel.cs" />
+    <Compile Include="Areas\Administration\Models\BaoCaoModel.cs" />
     <Compile Include="Areas\Administration\Models\OrderAutomatedShippingModel.cs" />
     <Compile Include="Areas\Administration\Models\SearchCouponModel.cs" />
     <Compile Include="Areas\Administration\Models\ExportOrderShippingModel.cs" />
