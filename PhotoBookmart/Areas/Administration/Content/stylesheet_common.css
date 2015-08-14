@@ -608,6 +608,9 @@ form[id="obj-info-common"] .decrease-10px .mws-form-item {
 #BaoCao_DSChiTraTroCap .mws-form-row .mws-form-label ~ .mws-form-item {
     margin-left: 116px !important;
 }
+#BaoCao_DSChiTraTroCap .mws-form-row .mws-panel {
+    margin: 0;
+}
 #BaoCao_DSChiTraTroCap .listuser .dataTables_length,
 #BaoCao_DSChiTraTroCap .listuser .dataTables_filter,
 #BaoCao_DSChiTraTroCap .listuser .dataTables_paginate {
