@@ -308,6 +308,36 @@ function TimeForReq(_data) {
            (s > 9 ? s.toString() : "0" + s.toString());
 };
 
+function SubmitWithoutAjax(_data) {
+    var frm_id = NewGuid({});
+    var frm_name = frm_id;
+    var frm_action = typeof _data.action !== "undefined" ? _data.action : "/";
+    var frm_method = typeof _data.method !== "undefined" ? _data.method : "get";
+    var frm_target = typeof _data.target !== "undefined" ? _data.target : "_self";
+    var frm_html = '<form id="' + frm_id + '" name="' + frm_name + '" action="' + frm_action + '" method="' + frm_method + '" target="' + frm_target + '" enctype="multipart/form-data"></form>';
+    var frm_data = _data.data;
+
+    $("body").append(frm_html);
+    $frm = jQuery("form#" + frm_id);
+    for (var attr in frm_data) {
+        if (frm_data.hasOwnProperty(attr)) {
+            if (typeof frm_data[attr] === "object" && typeof frm_data[attr].length !== "undefined") {
+                frm_data[attr].forEach(function (element, index, array) {
+                    var $input = $('<input type="hidden" name="' + attr + '" value="" />');
+                    $input.val(element);
+                    $frm.append($input);
+                });
+            } else {
+                var $input = $('<input type="hidden" name="' + attr + '" value="" />');
+                $input.val(frm_data[attr]);
+                $frm.append($input);
+            }
+        }
+    }
+    $frm.submit();
+    $frm.remove();
+};
+
 function ChangeProvince(_data) {
     return _data.new.length >= 2 && _data.old.substr(0, 2) != _data.new.substr(0, 2);
 };

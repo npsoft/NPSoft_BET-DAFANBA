@@ -14,6 +14,7 @@
     <div class="mws-panel-body no-padding">
         @using (Html.BeginForm("List", "OrderReport", FormMethod.Post, new { enctype = "multipart/form-data", @id = "BaoCao_DSChiTraTroCap", @class = "mws-form" }))
         {
+            <input type="hidden" name="Action" value="download" />
             <div class="mws-form-inline">
                 <div class="mws-form-row">
                     <div class="mws-form-cols">
@@ -96,7 +97,7 @@
 <script>
     var code_province = "@CurrentUser.MaHC.GetCodeProvince()";
     var code_district = "@CurrentUser.MaHC.GetCodeDistrict()";
-    var $frm_report1, $ddl_thang1, $ddl_nam1, $ddl_huyen1, $ddl_tinh1, $ddl_loaidt1;
+    var $frm_report1, $hdf_action1, $ddl_thang1, $ddl_nam1, $ddl_huyen1, $ddl_tinh1, $ddl_loaidt1;
 
     function FreshListVillage(_data) {
         var $tbl = $(".listuser #ListTable");
@@ -121,6 +122,7 @@
 
     function InitCtrl(_data) {
         $frm_report1 = $("#BaoCao_DSChiTraTroCap");
+        $hdf_action1 = $frm_report1.find("[name='Action']");
         $ddl_thang1 = $frm_report1.find("[name='Thang']");
         $ddl_nam1 = $frm_report1.find("[name='Nam']");
         $ddl_huyen1 = $frm_report1.find("[name='Huyen']");
@@ -166,6 +168,84 @@
                 setTimeout(function () { $ddl_tinh1.select2("open"); }, 200);
                 return false;
             }
+        });
+
+        $frm_report1.find("[data-action='download']").on("click", function (e) {
+            $hdf_action1.val("download");
+            $frm_report1.trigger("submit");
+            return false;
+        });
+
+        $frm_report1.find("[data-action='preview']").on("click", function (e) {
+            $hdf_action1.val("preview");
+            $frm_report1.trigger("submit");
+            return false;
+        });
+
+        $frm_report1.on("submit", function (e) {
+            var data = $frm_report1.serializeObject();
+            if (IsNullOrEmpty(data.Thang)) {
+                $.pnotify({
+                    title: "Thông báo",
+                    text: "Vui lòng chọn tháng.",
+                    type: "info",
+                    opacity: .8
+                });
+                setTimeout(function () { $ddl_thang1.select2("open"); }, 200);
+                return false;
+            }
+            if (IsNullOrEmpty(data.Nam)) {
+                $.pnotify({
+                    title: "Thông báo",
+                    text: "Vui lòng chọn năm.",
+                    type: "info",
+                    opacity: .8
+                });
+                setTimeout(function () { $ddl_nam1.select2("open"); }, 200);
+                return false;
+            }
+            if (IsNullOrEmpty(data.Tinh)) {
+                $.pnotify({
+                    title: "Thông báo",
+                    text: "Vui lòng chọn tỉnh.",
+                    type: "info",
+                    opacity: .8
+                });
+                setTimeout(function () { $ddl_tinh1.select2("open"); }, 200);
+                return false;
+            }
+            if (IsNullOrEmpty(data.Huyen)) {
+                $.pnotify({
+                    title: "Thông báo",
+                    text: "Vui lòng chọn huyện.",
+                    type: "info",
+                    opacity: .8
+                });
+                setTimeout(function () { $ddl_huyen1.select2("open"); }, 200);
+                return false;
+            }
+            if (typeof data.LoaiDTs === "undefined") {
+                $.pnotify({
+                    title: "Thông báo",
+                    text: "Vui lòng chọn loại đối tượng.",
+                    type: "info",
+                    opacity: .8
+                });
+                setTimeout(function () { $ddl_loaidt1.select2("open"); });
+                return false;
+            }
+            if (typeof data.Villages === "undefined") {
+                $.pnotify({
+                    title: "Thông báo",
+                    text: "Vui lòng chọn xã.",
+                    type: "info",
+                    opacity: .8
+                });
+                if ($frm_report1.find(".mws-collapsible").hasClass("mws-collapsed")) { $frm_report1.find(".mws-collapsible .mws-collapse-button span").trigger("click"); }
+                return false;
+            }
+            SubmitWithoutAjax({ action: $frm_report1.attr("action"), method: "post", target: data.Action == "preview" ? "_blank" : "_self", data: data });
+            return false;
         });
     };
 
@@ -214,32 +294,5 @@
         InitCtrl({});
         InitEvent({});
         InitData({});
-        $('#date_begin,#date_end').datetimepicker({
-            stepMinute: 5,
-            onSelect: function (selectedDate, instance) {
-                if (jQuery(this).attr("id") == "date_begin") {
-                    $('#date_end').datetimepicker("option", "minDate", selectedDate);
-                }
-                else {
-                    $('#date_begin').datetimepicker("option", "maxDate", selectedDate);
-                }
-            }
-        });
-
-        jQuery("#UserForm").submit(function () {
-            show_loading();
-            jQuery.post(jQuery(this).attr("action"), jQuery(this).serialize(), function (returnObj) {
-                $.pnotify({
-                    title: 'Success',
-                    text: returnObj.Message,
-                    type: 'info',
-                    opacity: .8
-                });
-                $(".listuser").html("");
-                $(".listuser").html(returnObj);
-                hide_loading();
-            }, "html");
-            return false;
-        });
     });
 </script>
