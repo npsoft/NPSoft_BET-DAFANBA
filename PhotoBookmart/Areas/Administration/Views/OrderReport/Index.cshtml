@@ -12,7 +12,7 @@
         <span><i class="icon-calendar"></i>Thông tin chung</span>
     </div>
     <div class="mws-panel-body no-padding">
-        @using (Html.BeginForm("List", "OrderReport", FormMethod.Post, new { enctype = "multipart/form-data", @id = "BaoCao_DSChiTraTroCap", @class = "mws-form" }))
+        @using (Html.BeginForm("BaoCao_DSChiTraTroCap", "OrderReport", FormMethod.Post, new { enctype = "multipart/form-data", @id = "BaoCao_DSChiTraTroCap", @class = "mws-form" }))
         {
             <input type="hidden" name="Action" value="download" />
             <div class="mws-form-inline">
@@ -184,7 +184,7 @@
 
         $frm_report1.on("submit", function (e) {
             var data = $frm_report1.serializeObject();
-            if (IsNullOrEmpty(data.Thang)) {
+            if (IsNullOrEmpty($ddl_thang1.val())) {
                 $.pnotify({
                     title: "Thông báo",
                     text: "Vui lòng chọn tháng.",
@@ -194,7 +194,7 @@
                 setTimeout(function () { $ddl_thang1.select2("open"); }, 200);
                 return false;
             }
-            if (IsNullOrEmpty(data.Nam)) {
+            if (IsNullOrEmpty($ddl_nam1.val())) {
                 $.pnotify({
                     title: "Thông báo",
                     text: "Vui lòng chọn năm.",
@@ -204,7 +204,7 @@
                 setTimeout(function () { $ddl_nam1.select2("open"); }, 200);
                 return false;
             }
-            if (IsNullOrEmpty(data.Tinh)) {
+            if (IsNullOrEmpty($ddl_tinh1.val())) {
                 $.pnotify({
                     title: "Thông báo",
                     text: "Vui lòng chọn tỉnh.",
@@ -214,7 +214,7 @@
                 setTimeout(function () { $ddl_tinh1.select2("open"); }, 200);
                 return false;
             }
-            if (IsNullOrEmpty(data.Huyen)) {
+            if (IsNullOrEmpty($ddl_huyen1.val())) {
                 $.pnotify({
                     title: "Thông báo",
                     text: "Vui lòng chọn huyện.",
