@@ -31,6 +31,24 @@ namespace PhotoBookmart.DataLayer.Models.Products
         public string MaHC_Ten { get; set; } 
         [Ignore]
         public string MaHC_Ten_Village { get; set; }
+        [Ignore]
+        public string HoTen { get; set; }
+        [Ignore]
+        public string NgaySinh { get; set; }
+        [Ignore]
+        public string ThangSinh { get; set; }
+        [Ignore]
+        public string NamSinh { get; set; }
+        [Ignore]
+        public string TenHC { get; set; }
+        [Ignore]
+        public string TenDiaChi { get; set; }
+        [Ignore]
+        public string TenLDT { get; set; }
+        [Ignore]
+        public string MaLDT_Parent { get; set; }
+        [Ignore]
+        public string TenLDT_Parent { get; set; }
         #endregion
 
         #region Ignore functions

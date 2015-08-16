@@ -50,12 +50,17 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 return Content("Vui lòng không hack ứng dụng.");
             }
 
-            string word_path = ExportWord_BaoCao_DSChiTraTroCap(model);
+            string DIR_RPT_TPL = Server.MapPath(string.Format("~{0}", "/Reports"));
+            string DIR_RPT_TMP = Server.MapPath(string.Format("~{0}", "/Reports"));
+            string FILE_NAME_RPT_TPL_BCDSCTTC = "Template-01.docx";
+            string RPT_NAME_BCDSCTTC = "Bao_Cao_Danh_Sach_Chi_Tra_Tro_Cap";
+
+            Guid guid = Guid.NewGuid();
+            string word_path = ExportWord_BaoCao_DSChiTraTroCap(model, guid);
             byte[] word_bytes = System.IO.File.ReadAllBytes(word_path);
-            string file_name = string.Format("{0}_{1}", Path.GetFileNameWithoutExtension(word_path), DateTime.Now.ToFileTime());
             if (model.Action == "download")
             {
-                file_name = string.Format("{0}.docx", file_name);
+                string file_name = string.Format("{0}.docx", Path.GetFileNameWithoutExtension(word_path));
                 using (MemoryStream ms = new MemoryStream())
                 {
                     ms.Write(word_bytes, 0, word_bytes.Length);
@@ -69,17 +74,102 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             }
             else if (model.Action == "preview")
             {
-                file_name = string.Format("{0}.html", file_name);
-                ConvertToHtml(word_bytes, new DirectoryInfo(Server.MapPath("~/Reports")), file_name);
-                Response.Redirect(string.Format("/Reports/{0}", file_name));
+                string file_name = string.Format("{0}.html", Path.GetFileNameWithoutExtension(word_path));
+                string dir_path = Path.Combine(DIR_RPT_TMP, string.Format("{0}_{1}", RPT_NAME_BCDSCTTC, guid));
+                ConvertToHtml(word_bytes, new DirectoryInfo(dir_path), file_name);
+                Response.Redirect(string.Format("{0}/{1}/{2}", "/Reports", string.Format("{0}_{1}", RPT_NAME_BCDSCTTC, guid), file_name));
             }
             return Content("Vui lòng không hack ứng dụng.");
         }
 
-        private string ExportWord_BaoCao_DSChiTraTroCap(BaoCao_DSChiTraTroCapModel model)
+        private string ExportWord_BaoCao_DSChiTraTroCap(BaoCao_DSChiTraTroCapModel model, Guid guid)
         {
-            string path_output = Server.MapPath("~/Reports/BienDong.docx");
-            return path_output;
+            #region Initialize
+            DateTime report_dt = new DateTime(model.Nam, model.Thang, 1, 0, 0, 0, 0);
+            string query = string.Format(@"
+            SELECT 
+	            DT.HoTen,
+	            DT.NgaySinh,
+	            DT.ThangSinh,
+	            DT.NamSinh,
+	            DM_HC.TenHC, 
+	            DM_DC.TenDiaChi,
+	            DM_LDT.TenLDT,
+	            (SELECT MaLDT FROM DanhMuc.DanhMuc_LoaiDT WITH (NOLOCK) WHERE MaLDT = LEFT(BD.MaLDT, 2)) AS MaLDT_Parent, 
+	            (SELECT TenLDT FROM DanhMuc.DanhMuc_LoaiDT WITH (NOLOCK) WHERE MaLDT = LEFT(BD.MaLDT, 2)) AS TenLDT_Parent, 
+	            BD.*
+            FROM 
+	            DoiTuong.DoiTuong_BienDong AS BD WITH (NOLOCK) 
+	            INNER JOIN DoiTuong.DoiTuong AS DT WITH (NOLOCK) ON BD.IDDT = DT.Id 
+	            INNER JOIN DanhMuc.DanhMuc_HanhChinh AS DM_HC WITH (NOLOCK) ON BD.MaHC = DM_HC.MaHC 
+	            INNER JOIN DanhMuc.DanhMuc_DiaChi AS DM_DC WITH (NOLOCK) ON BD.IDDiaChi = DM_DC.IDDiaChi 
+	            INNER JOIN DanhMuc.DanhMuc_LoaiDT AS DM_LDT WITH (NOLOCK) ON BD.MaLDT = DM_LDT.MaLDT 
+            WHERE 
+	            BD.Id IN ( 
+		            SELECT MAX(Id) 
+		            FROM 
+			            DoiTuong.DoiTuong_BienDong WITH (NOLOCK) 
+		            WHERE 
+			            NgayHuong >= '{0:yyyy-MM-dd HH:mm:ss.fff}' 
+			            AND NgayHuong < '{1:yyyy-MM-dd HH:mm:ss.fff}' 
+		            GROUP BY IDDT) 
+	            AND BD.TinhTrang LIKE 'H%' 
+	            AND BD.MaHC IN ('{2}') 
+	            AND LEFT(BD.MaLDT, 2) IN ('{3}');",
+                report_dt, report_dt.AddMonths(1), string.Join("', '", model.Villages), string.Join("', '", model.LoaiDTs));
+            #endregion
+
+            #region Retrieve data
+            List<DoiTuong_BienDong> lst_biendong = Db.SqlList<DoiTuong_BienDong>(query);
+            List<DanhMuc_HanhChinh> lst_village = Db.Select<DanhMuc_HanhChinh>(x => x.Where(y => Sql.In(y.MaHC, model.Villages)).Limit(0, model.Villages.Count));
+            List<DanhMuc_LoaiDT> lst_loaidt = Db.Select<DanhMuc_LoaiDT>(x => x.Where(y => Sql.In(y.MaLDT, model.LoaiDTs)).Limit(0, model.LoaiDTs.Count));
+            DanhMuc_HanhChinh obj_district = Db.Select<DanhMuc_HanhChinh>(x => x.Where(y => y.MaHC == model.Villages.First().Substring(0, GetLenMaHCByRole(RoleEnum.District))).Limit(0, 1)).First();
+            #endregion
+
+            #region Prepare data
+            string DIR_RPT_TPL = Server.MapPath("~/Reports");
+            string DIR_RPT_TMP = Server.MapPath("~/Reports");
+            string FILE_NAME_RPT_TPL_BCDSCTTC = "Template-01.docx";
+            string RPT_NAME_BCDSCTTC = "Bao_Cao_Danh_Sach_Chi_Tra_Tro_Cap";
+
+            string path_tpl = Path.Combine(DIR_RPT_TPL, FILE_NAME_RPT_TPL_BCDSCTTC);
+            string path_dir = Path.Combine(DIR_RPT_TMP, string.Format("{0}_{1}", RPT_NAME_BCDSCTTC, guid));
+            string path_rpt = Path.Combine(path_dir, string.Format("{0}.docx", RPT_NAME_BCDSCTTC));
+            Directory.CreateDirectory(path_dir);
+
+            List<Source> lst_src = new List<Source>();
+            foreach (DanhMuc_HanhChinh obj_village in lst_village)
+            {
+                string path_village = Path.Combine(path_dir, string.Format("{0}_{1}.docx", RPT_NAME_BCDSCTTC, obj_village.MaHC));
+                System.IO.File.Copy(path_tpl, path_village);
+                using (WordprocessingDocument wDoc = WordprocessingDocument.Open(path_village, true))
+                {
+                    TextReplacer.SearchAndReplace(wDoc, "{$Thang}", model.Thang.ToString(), true);
+                    TextReplacer.SearchAndReplace(wDoc, "{$Nam}", model.Nam.ToString(), true);
+                    TextReplacer.SearchAndReplace(wDoc, "{$MaHC_District}", obj_district.MaHC, true);
+                    TextReplacer.SearchAndReplace(wDoc, "{$TenHC_District}", obj_district.TenHC, true);
+                    TextReplacer.SearchAndReplace(wDoc, "{$TenHC_Village}", obj_village.TenHC, true);
+                    Table wTable = wDoc.MainDocumentPart.Document.Body.Elements<Table>().First();
+                    foreach(DanhMuc_LoaiDT obj_loaidt in lst_loaidt)
+                    {
+                        TableRow wTableRow = new TableRow();
+                        TableCell wTableCell = new TableCell();
+                        wTableCell.Append(new TableCellProperties(
+                            new TableCellWidth { Type = TableWidthUnitValues.Auto },
+                            new GridSpan { Val = 4 }));
+                        wTableCell.Append(new Paragraph(
+                            new ParagraphProperties(new ParagraphMarkRunProperties(new Bold())),
+                            new Run(new Text(obj_loaidt.TenLDT))));
+                        wTableRow.Append(wTableCell);
+                        wTable.Append(wTableRow);
+                    }
+                    wDoc.MainDocumentPart.Document.Save();
+                }
+                lst_src.Add(new Source(new WmlDocument(path_village), true));
+            }
+            DocumentBuilder.BuildDocument(lst_src, path_rpt);
+            return path_rpt;
+            #endregion
         }
 
         private void ConvertToHtml(byte[] byteArray, DirectoryInfo desDirectory, string htmlFileName)
