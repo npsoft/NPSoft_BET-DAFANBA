@@ -152,16 +152,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                     Table wTable = wDoc.MainDocumentPart.Document.Body.Elements<Table>().First();
                     foreach(DanhMuc_LoaiDT obj_loaidt in lst_loaidt)
                     {
-                        TableRow wTableRow = new TableRow();
-                        TableCell wTableCell = new TableCell();
-                        wTableCell.Append(new TableCellProperties(
-                            new TableCellWidth { Type = TableWidthUnitValues.Auto },
-                            new GridSpan { Val = 4 }));
-                        wTableCell.Append(new Paragraph(
-                            new ParagraphProperties(new ParagraphMarkRunProperties(new Bold())),
-                            new Run(new Text(obj_loaidt.TenLDT))));
-                        wTableRow.Append(wTableCell);
-                        wTable.Append(wTableRow);
+                        wTable.Append(GenerateTableRowLoaiI(obj_loaidt.TenLDT, 0));
                     }
                     wDoc.MainDocumentPart.Document.Save();
                 }
@@ -330,5 +321,68 @@ namespace PhotoBookmart.Areas.Administration.Controllers
 
             return PartialView("_List", d);
         }
+
+        #region Support OpenXML
+
+        public DocumentFormat.OpenXml.Wordprocessing.TableRow GenerateTableRowLoaiI(string name, double money)
+        {
+            DocumentFormat.OpenXml.Wordprocessing.TableRow tableRow = new DocumentFormat.OpenXml.Wordprocessing.TableRow();
+            DocumentFormat.OpenXml.Wordprocessing.TableCell[] tableCell = new DocumentFormat.OpenXml.Wordprocessing.TableCell[3] { new DocumentFormat.OpenXml.Wordprocessing.TableCell(), new DocumentFormat.OpenXml.Wordprocessing.TableCell(), new DocumentFormat.OpenXml.Wordprocessing.TableCell() };
+            DocumentFormat.OpenXml.Wordprocessing.TableCellProperties[] tableCellProperties = new DocumentFormat.OpenXml.Wordprocessing.TableCellProperties[3] { new DocumentFormat.OpenXml.Wordprocessing.TableCellProperties(), new DocumentFormat.OpenXml.Wordprocessing.TableCellProperties(), new DocumentFormat.OpenXml.Wordprocessing.TableCellProperties() };
+            DocumentFormat.OpenXml.Wordprocessing.TableCellWidth[] tableCellWidth = new DocumentFormat.OpenXml.Wordprocessing.TableCellWidth[3] { new DocumentFormat.OpenXml.Wordprocessing.TableCellWidth(), new DocumentFormat.OpenXml.Wordprocessing.TableCellWidth(), new DocumentFormat.OpenXml.Wordprocessing.TableCellWidth() };
+            DocumentFormat.OpenXml.Wordprocessing.GridSpan[] gridSpan = new DocumentFormat.OpenXml.Wordprocessing.GridSpan[3] { new DocumentFormat.OpenXml.Wordprocessing.GridSpan(), new DocumentFormat.OpenXml.Wordprocessing.GridSpan(), new DocumentFormat.OpenXml.Wordprocessing.GridSpan() };
+            DocumentFormat.OpenXml.Wordprocessing.Paragraph[] paragraph = new DocumentFormat.OpenXml.Wordprocessing.Paragraph[3] { new DocumentFormat.OpenXml.Wordprocessing.Paragraph(), new DocumentFormat.OpenXml.Wordprocessing.Paragraph(), new DocumentFormat.OpenXml.Wordprocessing.Paragraph() };
+            DocumentFormat.OpenXml.Wordprocessing.Run[] run = new DocumentFormat.OpenXml.Wordprocessing.Run[3] { new DocumentFormat.OpenXml.Wordprocessing.Run(), new DocumentFormat.OpenXml.Wordprocessing.Run(), new DocumentFormat.OpenXml.Wordprocessing.Run() };
+            DocumentFormat.OpenXml.Wordprocessing.Text[] text= new DocumentFormat.OpenXml.Wordprocessing.Text[3] { new DocumentFormat.OpenXml.Wordprocessing.Text(), new DocumentFormat.OpenXml.Wordprocessing.Text(), new DocumentFormat.OpenXml.Wordprocessing.Text() };
+            
+            #region Cell #1
+            tableCellWidth[0].Type = DocumentFormat.OpenXml.Wordprocessing.TableWidthUnitValues.Auto;
+            gridSpan[0].Val = 4;
+            tableCellProperties[0].Append(tableCellWidth[0]);
+            tableCellProperties[0].Append(gridSpan[0]);
+            
+            text[0] = new DocumentFormat.OpenXml.Wordprocessing.Text(name);
+            run[0].Append(text[0]);
+            paragraph[0].Append(run[0]);
+
+            tableCell[0].Append(tableCellProperties[0]);
+            tableCell[0].Append(paragraph[0]);
+            tableRow.Append(tableCell[0]);
+            #endregion
+
+            #region Cell #2
+            tableCellWidth[1].Type = DocumentFormat.OpenXml.Wordprocessing.TableWidthUnitValues.Auto;
+            gridSpan[1].Val = 1;
+            tableCellProperties[1].Append(tableCellWidth[1]);
+            tableCellProperties[1].Append(gridSpan[1]);
+
+            text[1] = new DocumentFormat.OpenXml.Wordprocessing.Text(money.ToString("#,000"));
+            run[1].Append(text[1]);
+            paragraph[1].Append(run[1]);
+
+            tableCell[1].Append(tableCellProperties[1]);
+            tableCell[1].Append(paragraph[1]);
+            tableRow.Append(tableCell[1]);
+            #endregion
+
+            #region Cell #3
+            tableCellWidth[2].Type = DocumentFormat.OpenXml.Wordprocessing.TableWidthUnitValues.Auto;
+            gridSpan[2].Val = 1;
+            tableCellProperties[2].Append(tableCellWidth[2]);
+            tableCellProperties[2].Append(gridSpan[2]);
+
+            text[2] = new DocumentFormat.OpenXml.Wordprocessing.Text(null);
+            run[2].Append(text[2]);
+            paragraph[2].Append(run[2]);
+
+            tableCell[2].Append(tableCellProperties[2]);
+            tableCell[2].Append(paragraph[2]);
+            tableRow.Append(tableCell[2]);
+            #endregion
+
+            return tableRow;
+        }
+
+        #endregion
     }
 }
