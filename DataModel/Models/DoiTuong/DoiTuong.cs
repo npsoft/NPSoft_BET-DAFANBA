@@ -79,10 +79,7 @@ namespace PhotoBookmart.DataLayer.Models.Products
         #region Support functions
         public string ToStringNgaySinh()
         {
-            return string.Format("{0}{1}{2}",
-                string.IsNullOrEmpty(NgaySinh) ? "" : NgaySinh + "/",
-                string.IsNullOrEmpty(ThangSinh) ? "" : ThangSinh + "/",
-                NamSinh);
+            return NamSinh.GetDateOfBirth(ThangSinh, NgaySinh);
         }
 
         public bool HasBienDong()

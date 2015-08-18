@@ -18,6 +18,7 @@ using PhotoBookmart.Areas.Administration.Controllers;
 using PhotoBookmart.Areas.Administration.Models;
 using PhotoBookmart.Common.Helpers;
 using PhotoBookmart.Controllers;
+using PhotoBookmart.DataLayer;
 using PhotoBookmart.DataLayer.Models.Products;
 using PhotoBookmart.DataLayer.Models.System;
 using PhotoBookmart.DataLayer.Models.Users_Management;
@@ -140,6 +141,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             List<Source> lst_src = new List<Source>();
             foreach (DanhMuc_HanhChinh obj_village in lst_village)
             {
+                List<DoiTuong_BienDong> lst_biendong_village = lst_biendong.Where(x => x.MaHC == obj_village.MaHC).ToList();
                 string path_village = Path.Combine(path_dir, string.Format("{0}_{1}.docx", RPT_NAME_BCDSCTTC, obj_village.MaHC));
                 System.IO.File.Copy(path_tpl, path_village);
                 using (WordprocessingDocument wDoc = WordprocessingDocument.Open(path_village, true))
@@ -152,7 +154,16 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                     Table wTable = wDoc.MainDocumentPart.Document.Body.Elements<Table>().First();
                     foreach(DanhMuc_LoaiDT obj_loaidt in lst_loaidt)
                     {
-                        wTable.Append(GenerateTableRowLoaiI(obj_loaidt.TenLDT, 0));
+                        List<DoiTuong_BienDong> lst_biendong_loaidt = lst_biendong_village.Where(x => x.MaLDT.StartsWith(obj_loaidt.MaLDT)).ToList();
+                        wTable.Append(GenerateTableRowLoaiI(obj_loaidt.TenLDT, lst_biendong_loaidt.Sum(x => x.MucTC.Value)));
+                        foreach(var obj_biendong_group in lst_biendong_loaidt.GroupBy(x => new { x.MaLDT }))
+                        {
+                            wTable.Append(GenerateTableRowLoaiII(obj_biendong_group.First().TenLDT, obj_biendong_group.Sum(x => x.MucTC.Value)));
+                            for(int i = 0; i < obj_biendong_group.Count(); i++)
+                            {
+                                wTable.Append(GenerateTableRowBienDong(obj_biendong_group.ElementAt(i), i + 1));
+                            }
+                        }
                     }
                     wDoc.MainDocumentPart.Document.Save();
                 }
@@ -324,7 +335,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
 
         #region Support OpenXML
 
-        public DocumentFormat.OpenXml.Wordprocessing.TableRow GenerateTableRowLoaiI(string name, double money)
+        public DocumentFormat.OpenXml.Wordprocessing.TableRow GenerateTableRowLoaiI(string name, decimal money)
         {
             DocumentFormat.OpenXml.Wordprocessing.TableRow tableRow = new DocumentFormat.OpenXml.Wordprocessing.TableRow();
             DocumentFormat.OpenXml.Wordprocessing.TableCell[] tableCell = new DocumentFormat.OpenXml.Wordprocessing.TableCell[3] { new DocumentFormat.OpenXml.Wordprocessing.TableCell(), new DocumentFormat.OpenXml.Wordprocessing.TableCell(), new DocumentFormat.OpenXml.Wordprocessing.TableCell() };
@@ -383,6 +394,193 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             return tableRow;
         }
 
+        public DocumentFormat.OpenXml.Wordprocessing.TableRow GenerateTableRowLoaiII(string name, decimal money)
+        {
+            DocumentFormat.OpenXml.Wordprocessing.TableRow tableRow = new DocumentFormat.OpenXml.Wordprocessing.TableRow();
+            DocumentFormat.OpenXml.Wordprocessing.TableCell[] tableCell = new DocumentFormat.OpenXml.Wordprocessing.TableCell[4] { new DocumentFormat.OpenXml.Wordprocessing.TableCell(), new DocumentFormat.OpenXml.Wordprocessing.TableCell(), new DocumentFormat.OpenXml.Wordprocessing.TableCell(), new DocumentFormat.OpenXml.Wordprocessing.TableCell() };
+            DocumentFormat.OpenXml.Wordprocessing.TableCellProperties[] tableCellProperties = new DocumentFormat.OpenXml.Wordprocessing.TableCellProperties[4] { new DocumentFormat.OpenXml.Wordprocessing.TableCellProperties(), new DocumentFormat.OpenXml.Wordprocessing.TableCellProperties(), new DocumentFormat.OpenXml.Wordprocessing.TableCellProperties(), new DocumentFormat.OpenXml.Wordprocessing.TableCellProperties() };
+            DocumentFormat.OpenXml.Wordprocessing.TableCellWidth[] tableCellWidth = new DocumentFormat.OpenXml.Wordprocessing.TableCellWidth[4] { new DocumentFormat.OpenXml.Wordprocessing.TableCellWidth(), new DocumentFormat.OpenXml.Wordprocessing.TableCellWidth(), new DocumentFormat.OpenXml.Wordprocessing.TableCellWidth(), new DocumentFormat.OpenXml.Wordprocessing.TableCellWidth() };
+            DocumentFormat.OpenXml.Wordprocessing.GridSpan[] gridSpan = new DocumentFormat.OpenXml.Wordprocessing.GridSpan[4] { new DocumentFormat.OpenXml.Wordprocessing.GridSpan(), new DocumentFormat.OpenXml.Wordprocessing.GridSpan(), new DocumentFormat.OpenXml.Wordprocessing.GridSpan(), new DocumentFormat.OpenXml.Wordprocessing.GridSpan() };
+            DocumentFormat.OpenXml.Wordprocessing.Paragraph[] paragraph = new DocumentFormat.OpenXml.Wordprocessing.Paragraph[4] { new DocumentFormat.OpenXml.Wordprocessing.Paragraph(), new DocumentFormat.OpenXml.Wordprocessing.Paragraph(), new DocumentFormat.OpenXml.Wordprocessing.Paragraph(), new DocumentFormat.OpenXml.Wordprocessing.Paragraph() };
+            DocumentFormat.OpenXml.Wordprocessing.Run[] run = new DocumentFormat.OpenXml.Wordprocessing.Run[4] { new DocumentFormat.OpenXml.Wordprocessing.Run(), new DocumentFormat.OpenXml.Wordprocessing.Run(), new DocumentFormat.OpenXml.Wordprocessing.Run(), new DocumentFormat.OpenXml.Wordprocessing.Run() };
+            DocumentFormat.OpenXml.Wordprocessing.Text[] text = new DocumentFormat.OpenXml.Wordprocessing.Text[4] { new DocumentFormat.OpenXml.Wordprocessing.Text(), new DocumentFormat.OpenXml.Wordprocessing.Text(), new DocumentFormat.OpenXml.Wordprocessing.Text(), new DocumentFormat.OpenXml.Wordprocessing.Text() };
+
+            #region Cell #1
+            tableCellWidth[0].Type = DocumentFormat.OpenXml.Wordprocessing.TableWidthUnitValues.Dxa;
+            tableCellWidth[0].Width = "100";
+            gridSpan[0].Val = 1;
+            tableCellProperties[0].Append(tableCellWidth[0]);
+            tableCellProperties[0].Append(gridSpan[0]);
+
+            text[0] = new DocumentFormat.OpenXml.Wordprocessing.Text(null);
+            run[0].Append(text[0]);
+            paragraph[0].Append(run[0]);
+
+            tableCell[0].Append(tableCellProperties[0]);
+            tableCell[0].Append(paragraph[0]);
+            tableRow.Append(tableCell[0]);
+            #endregion
+
+            #region Cell #2
+            tableCellWidth[1].Type = DocumentFormat.OpenXml.Wordprocessing.TableWidthUnitValues.Dxa;
+            tableCellWidth[1].Width = "300";
+            gridSpan[1].Val = 3;
+            tableCellProperties[1].Append(tableCellWidth[1]);
+            tableCellProperties[1].Append(gridSpan[1]);
+
+            text[1] = new DocumentFormat.OpenXml.Wordprocessing.Text(name);
+            run[1].Append(text[1]);
+            paragraph[1].Append(run[1]);
+
+            tableCell[1].Append(tableCellProperties[1]);
+            tableCell[1].Append(paragraph[1]);
+            tableRow.Append(tableCell[1]);
+            #endregion
+
+            #region Cell #3
+            tableCellWidth[2].Type = DocumentFormat.OpenXml.Wordprocessing.TableWidthUnitValues.Dxa;
+            tableCellWidth[2].Width = "100";
+            gridSpan[2].Val = 1;
+            tableCellProperties[2].Append(tableCellWidth[2]);
+            tableCellProperties[2].Append(gridSpan[2]);
+
+            text[2] = new DocumentFormat.OpenXml.Wordprocessing.Text(money.ToString("#,000"));
+            run[2].Append(text[2]);
+            paragraph[2].Append(run[2]);
+
+            tableCell[2].Append(tableCellProperties[2]);
+            tableCell[2].Append(paragraph[2]);
+            tableRow.Append(tableCell[2]);
+            #endregion
+
+            #region Cell #4
+            tableCellWidth[3].Type = DocumentFormat.OpenXml.Wordprocessing.TableWidthUnitValues.Dxa;
+            tableCellWidth[3].Width = "100";
+            gridSpan[3].Val = 1;
+            tableCellProperties[3].Append(tableCellWidth[3]);
+            tableCellProperties[3].Append(gridSpan[3]);
+
+            text[3] = new DocumentFormat.OpenXml.Wordprocessing.Text(null);
+            run[3].Append(text[3]);
+            paragraph[3].Append(run[3]);
+
+            tableCell[3].Append(tableCellProperties[3]);
+            tableCell[3].Append(paragraph[3]);
+            tableRow.Append(tableCell[3]);
+            #endregion
+
+            return tableRow;
+        }
+        
+        public DocumentFormat.OpenXml.Wordprocessing.TableRow GenerateTableRowBienDong(DoiTuong_BienDong bien_dong, int no)
+        {
+            TableRow tableRow = new TableRow();
+            TableCell[] tableCell = new TableCell[6] { new TableCell(), new TableCell(), new TableCell(), new TableCell(), new TableCell(), new TableCell() };
+            TableCellProperties[] tableCellProperties = new TableCellProperties[6] { new TableCellProperties(), new TableCellProperties(), new TableCellProperties(), new TableCellProperties(), new TableCellProperties(), new TableCellProperties() };
+            TableCellWidth[] tableCellWidth = new TableCellWidth[6] { new TableCellWidth(), new TableCellWidth(), new TableCellWidth(), new TableCellWidth(), new TableCellWidth(), new TableCellWidth() };
+            GridSpan[] gridSpan = new GridSpan[6] { new GridSpan(), new GridSpan(), new GridSpan(), new GridSpan(), new GridSpan(), new GridSpan() };
+            Paragraph[] paragraph = new Paragraph[6] { new Paragraph(), new Paragraph(), new Paragraph(), new Paragraph(), new Paragraph(), new Paragraph() };
+            Run[] run = new Run[6] { new Run(), new Run(), new Run(), new Run(), new Run(), new Run() };
+            Text[] text = new Text[6] { new Text(), new Text(), new Text(), new Text(), new Text(), new Text() };
+
+            #region Cell #1
+            tableCellWidth[0].Type = TableWidthUnitValues.Dxa;
+            tableCellWidth[0].Width = "100";
+            gridSpan[0].Val = 1;
+            tableCellProperties[0].Append(tableCellWidth[0]);
+            tableCellProperties[0].Append(gridSpan[0]);
+
+            text[0] = new Text(no.ToString());
+            run[0].Append(text[0]);
+            paragraph[0].Append(run[0]);
+
+            tableCell[0].Append(tableCellProperties[0]);
+            tableCell[0].Append(paragraph[0]);
+            tableRow.Append(tableCell[0]);
+            #endregion
+
+            #region Cell #2
+            tableCellWidth[1].Type = TableWidthUnitValues.Dxa;
+            tableCellWidth[1].Width = "100";
+            gridSpan[1].Val = 1;
+            tableCellProperties[1].Append(tableCellWidth[1]);
+            tableCellProperties[1].Append(gridSpan[1]);
+
+            text[1] = new Text(bien_dong.HoTen);
+            run[1].Append(text[1]);
+            paragraph[1].Append(run[1]);
+
+            tableCell[1].Append(tableCellProperties[1]);
+            tableCell[1].Append(paragraph[1]);
+            tableRow.Append(tableCell[1]);
+            #endregion
+
+            #region Cell #3
+            tableCellWidth[2].Type = TableWidthUnitValues.Dxa;
+            tableCellWidth[2].Width = "100";
+            gridSpan[2].Val = 1;
+            tableCellProperties[2].Append(tableCellWidth[2]);
+            tableCellProperties[2].Append(gridSpan[2]);
+
+            text[2] = new Text(bien_dong.NamSinh.GetDateOfBirth(bien_dong.ThangSinh, bien_dong.NgaySinh));
+            run[2].Append(text[2]);
+            paragraph[2].Append(run[2]);
+
+            tableCell[2].Append(tableCellProperties[2]);
+            tableCell[2].Append(paragraph[2]);
+            tableRow.Append(tableCell[2]);
+            #endregion
+
+            #region Cell #4
+            tableCellWidth[3].Type = TableWidthUnitValues.Dxa;
+            tableCellWidth[3].Width = "100";
+            gridSpan[3].Val = 1;
+            tableCellProperties[3].Append(tableCellWidth[3]);
+            tableCellProperties[3].Append(gridSpan[3]);
+
+            text[3] = new Text(bien_dong.TenDiaChi);
+            run[3].Append(text[3]);
+            paragraph[3].Append(run[3]);
+
+            tableCell[3].Append(tableCellProperties[3]);
+            tableCell[3].Append(paragraph[3]);
+            tableRow.Append(tableCell[3]);
+            #endregion
+
+            #region Cell #5
+            tableCellWidth[4].Type = TableWidthUnitValues.Dxa;
+            tableCellWidth[4].Width = "100";
+            gridSpan[4].Val = 1;
+            tableCellProperties[4].Append(tableCellWidth[4]);
+            tableCellProperties[4].Append(gridSpan[4]);
+
+            text[4] = new Text(bien_dong.MucTC.Value.ToString("#,000"));
+            run[4].Append(text[4]);
+            paragraph[4].Append(run[4]);
+
+            tableCell[4].Append(tableCellProperties[4]);
+            tableCell[4].Append(paragraph[4]);
+            tableRow.Append(tableCell[4]);
+            #endregion
+
+            #region Cell #6
+            tableCellWidth[5].Type = TableWidthUnitValues.Dxa;
+            tableCellWidth[5].Width = "100";
+            gridSpan[5].Val = 1;
+            tableCellProperties[5].Append(tableCellWidth[5]);
+            tableCellProperties[5].Append(gridSpan[5]);
+
+            text[5] = new Text(null);
+            run[5].Append(text[5]);
+            paragraph[5].Append(run[5]);
+
+            tableCell[5].Append(tableCellProperties[5]);
+            tableCell[5].Append(paragraph[5]);
+            tableRow.Append(tableCell[5]);
+            #endregion
+
+            return tableRow;
+        }
         #endregion
     }
 }

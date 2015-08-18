@@ -309,6 +309,14 @@ namespace PhotoBookmart.DataLayer
             return text == "Male" ? "Nam" : (text == "Female" ? "Nữ" : "");
         }
 
+        public static string GetDateOfBirth(this string nam_sinh, string thang_sinh, string ngay_sinh)
+        {
+            return string.Format("{0}{1}{2}",
+                string.IsNullOrEmpty(ngay_sinh) ? "" : ngay_sinh + "/",
+                string.IsNullOrEmpty(thang_sinh) ? "" : thang_sinh + "/",
+                nam_sinh);
+        }
+
         public static bool ChangeProvince(this string mahc_old, string mahc_new)
         {
             return mahc_new.Length >= 2 && mahc_old.Substring(0, 2) != mahc_new.Substring(0, 2);
