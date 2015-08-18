@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -51,17 +52,16 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                 return Content("Vui lòng không hack ứng dụng.");
             }
 
-            string DIR_RPT_TPL = Server.MapPath(string.Format("~{0}", "/Reports"));
-            string DIR_RPT_TMP = Server.MapPath(string.Format("~{0}", "/Reports"));
-            string FILE_NAME_RPT_TPL_BCDSCTTC = "Template-01.docx";
-            string RPT_NAME_BCDSCTTC = "Bao_Cao_Danh_Sach_Chi_Tra_Tro_Cap";
+            string EXPORT_DIR = Server.MapPath(string.Format("~/{0}", ConfigurationManager.AppSettings["EXPORT_DIR"]));
+            string EXPORT_TPL_BCDSCTTC = Server.MapPath(string.Format("~/{0}", ConfigurationManager.AppSettings["EXPORT_TPL_BCDSCTTC"]));
+            string EXPORT_NAME_BCDSCTTC = "Bao-Cao-Danh-Sach-Chi-Tra-Tro-Cap";
 
             Guid guid = Guid.NewGuid();
             string word_path = ExportWord_BaoCao_DSChiTraTroCap(model, guid);
             byte[] word_bytes = System.IO.File.ReadAllBytes(word_path);
             if (model.Action == "download")
             {
-                string file_name = string.Format("{0}.docx", Path.GetFileNameWithoutExtension(word_path));
+                string file_name = string.Format("{0}.docx", EXPORT_NAME_BCDSCTTC);
                 using (MemoryStream ms = new MemoryStream())
                 {
                     ms.Write(word_bytes, 0, word_bytes.Length);
@@ -75,10 +75,10 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             }
             else if (model.Action == "preview")
             {
-                string file_name = string.Format("{0}.html", Path.GetFileNameWithoutExtension(word_path));
-                string dir_path = Path.Combine(DIR_RPT_TMP, string.Format("{0}_{1}", RPT_NAME_BCDSCTTC, guid));
+                string file_name = string.Format("{0}.html", EXPORT_NAME_BCDSCTTC);
+                string dir_path = Path.Combine(EXPORT_DIR, string.Format("{0}_{1}", EXPORT_NAME_BCDSCTTC, guid));
                 ConvertToHtml(word_bytes, new DirectoryInfo(dir_path), file_name);
-                Response.Redirect(string.Format("{0}/{1}/{2}", "/Reports", string.Format("{0}_{1}", RPT_NAME_BCDSCTTC, guid), file_name));
+                Response.Redirect(string.Format("/{0}/{1}/{2}", ConfigurationManager.AppSettings["EXPORT_DIR"], string.Format("{0}_{1}", EXPORT_NAME_BCDSCTTC, guid), file_name));
             }
             return Content("Vui lòng không hack ứng dụng.");
         }
@@ -125,25 +125,24 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             List<DanhMuc_HanhChinh> lst_village = Db.Select<DanhMuc_HanhChinh>(x => x.Where(y => Sql.In(y.MaHC, model.Villages)).Limit(0, model.Villages.Count));
             List<DanhMuc_LoaiDT> lst_loaidt = Db.Select<DanhMuc_LoaiDT>(x => x.Where(y => Sql.In(y.MaLDT, model.LoaiDTs)).Limit(0, model.LoaiDTs.Count));
             DanhMuc_HanhChinh obj_district = Db.Select<DanhMuc_HanhChinh>(x => x.Where(y => y.MaHC == model.Villages.First().Substring(0, GetLenMaHCByRole(RoleEnum.District))).Limit(0, 1)).First();
+            object obj_setting = DataLayer.Models.System.Settings.Get(Enum_Settings_Key.TL01, obj_district.MaHC, null, Enum_Settings_DataType.Raw);
             #endregion
 
             #region Prepare data
-            string DIR_RPT_TPL = Server.MapPath("~/Reports");
-            string DIR_RPT_TMP = Server.MapPath("~/Reports");
-            string FILE_NAME_RPT_TPL_BCDSCTTC = "Template-01.docx";
-            string RPT_NAME_BCDSCTTC = "Bao_Cao_Danh_Sach_Chi_Tra_Tro_Cap";
+            string EXPORT_DIR = Server.MapPath(string.Format("~/{0}", ConfigurationManager.AppSettings["EXPORT_DIR"]));
+            string EXPORT_TPL_BCDSCTTC = Server.MapPath(string.Format("~/{0}", ConfigurationManager.AppSettings["EXPORT_TPL_BCDSCTTC"]));
+            string EXPORT_NAME_BCDSCTTC = "Bao-Cao-Danh-Sach-Chi-Tra-Tro-Cap";
 
-            string path_tpl = Path.Combine(DIR_RPT_TPL, FILE_NAME_RPT_TPL_BCDSCTTC);
-            string path_dir = Path.Combine(DIR_RPT_TMP, string.Format("{0}_{1}", RPT_NAME_BCDSCTTC, guid));
-            string path_rpt = Path.Combine(path_dir, string.Format("{0}.docx", RPT_NAME_BCDSCTTC));
+            string path_dir = Path.Combine(EXPORT_DIR, string.Format("{0}_{1}", EXPORT_NAME_BCDSCTTC, guid));
+            string path_rpt = Path.Combine(path_dir, string.Format("{0}.docx", EXPORT_NAME_BCDSCTTC));
             Directory.CreateDirectory(path_dir);
 
             List<Source> lst_src = new List<Source>();
             foreach (DanhMuc_HanhChinh obj_village in lst_village)
             {
                 List<DoiTuong_BienDong> lst_biendong_village = lst_biendong.Where(x => x.MaHC == obj_village.MaHC).ToList();
-                string path_village = Path.Combine(path_dir, string.Format("{0}_{1}.docx", RPT_NAME_BCDSCTTC, obj_village.MaHC));
-                System.IO.File.Copy(path_tpl, path_village);
+                string path_village = Path.Combine(path_dir, string.Format("{0}_{1}.docx", EXPORT_NAME_BCDSCTTC, obj_village.MaHC));
+                System.IO.File.Copy(EXPORT_TPL_BCDSCTTC, path_village);
                 using (WordprocessingDocument wDoc = WordprocessingDocument.Open(path_village, true))
                 {
                     TextReplacer.SearchAndReplace(wDoc, "{$Thang}", model.Thang.ToString(), true);
@@ -151,6 +150,10 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                     TextReplacer.SearchAndReplace(wDoc, "{$MaHC_District}", obj_district.MaHC, true);
                     TextReplacer.SearchAndReplace(wDoc, "{$TenHC_District}", obj_district.TenHC, true);
                     TextReplacer.SearchAndReplace(wDoc, "{$TenHC_Village}", obj_village.TenHC, true);
+                    TextReplacer.SearchAndReplace(wDoc, "{$SoNguoi}", lst_biendong_village.Count.ToString(), true);
+                    TextReplacer.SearchAndReplace(wDoc, "{$SoTien_So}", lst_biendong_village.Sum(x => x.MucTC.Value).ToString("#,000"), true);
+                    TextReplacer.SearchAndReplace(wDoc, "{$SoTien_Chu}", ((long)lst_biendong_village.Sum(x => x.MucTC.Value)).ToString().GetCurrencyVNText(), true);
+                    TextReplacer.SearchAndReplace(wDoc, "{$NguoiKy}", obj_setting != null ? ((PhotoBookmart.DataLayer.Models.System.Settings)obj_setting).Value : " ", true);
                     Table wTable = wDoc.MainDocumentPart.Document.Body.Elements<Table>().First();
                     foreach(DanhMuc_LoaiDT obj_loaidt in lst_loaidt)
                     {
@@ -334,7 +337,6 @@ namespace PhotoBookmart.Areas.Administration.Controllers
         }
 
         #region Support OpenXML
-
         public DocumentFormat.OpenXml.Wordprocessing.TableRow GenerateTableRowLoaiI(string name, decimal money)
         {
             DocumentFormat.OpenXml.Wordprocessing.TableRow tableRow = new DocumentFormat.OpenXml.Wordprocessing.TableRow();

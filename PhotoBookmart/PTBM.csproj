@@ -229,9 +229,6 @@
     <Compile Include="Models\SMSSendModel.cs" />
     <Compile Include="Models\TopicDetail.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Reports\CrystalReportTest1.cs">
-      <SubType>component</SubType>
-    </Compile>
     <Compile Include="ServiceInterface\LocalAPI.cs" />
     <Compile Include="ServiceInterface\RequestModel\Common.cs" />
     <Compile Include="Support\ABCaptchaImageResult.cs" />
@@ -265,8 +262,6 @@
     <Content Include="Themes\Photobookmart\Content\css\skin.css" />
     <Content Include="Themes\Photobookmart\Content\css\style.css" />
     <Content Include="Themes\Photobookmart\Views\Shared\_Layout1.cshtml" />
-    <Content Include="Reports\BienDong.docx" />
-    <Content Include="Reports\CrystalReportTest1.rpt" />
     <None Include="Views\tpl_sync_db\Form1.cshtml" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
