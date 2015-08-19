@@ -71,6 +71,12 @@
                         <div class="mws-panel-header">
                             <span><i class="icon-table"></i>Danh sách xã</span>
                         </div>
+                        <div class="mws-panel-toolbar">
+                            <div class="btn-toolbar table">
+                                <input type="checkbox" data-action="check-uncheck-all" class="table-cell" />
+                                <span class="table-cell">Chọn tất cả / Bỏ chọn tất cả</span>
+                            </div>
+                        </div>
                         <div class="mws-panel-body no-padding listuser">
                             <table class="mws-table" id="ListTable">
                                 <thead>
@@ -97,7 +103,7 @@
 <script>
     var code_province = "@CurrentUser.MaHC.GetCodeProvince()";
     var code_district = "@CurrentUser.MaHC.GetCodeDistrict()";
-    var $frm_report1, $hdf_action1, $ddl_thang1, $ddl_nam1, $ddl_huyen1, $ddl_tinh1, $ddl_loaidt1;
+    var $frm_report1, $hdf_action1, $ddl_thang1, $ddl_nam1, $ddl_huyen1, $ddl_tinh1, $ddl_loaidt1, $chk_all1;
 
     function FreshListVillage(_data) {
         var $tbl = $(".listuser #ListTable");
@@ -106,7 +112,7 @@
         $tbl.find("tbody").children().remove();
         _data.forEach(function (village, index, array) {
             $tbl.find("tbody").append('<tr>' +
-                '<td style="text-align:center; width:50px;"><span><input type="checkbox" checked="checked" name="Villages" value="{0}" /></span></td>'.format(village.MaHC) +
+                '<td style="text-align:center; width:50px;"><span><input type="checkbox" name="Villages" value="{0}" /></span></td>'.format(village.MaHC) +
                 '<td style="text-align:center; width:100px;"><span>{0}</span></td>'.format(village.MaHC) +
                 '<td style="text-align:left;"><span>{0}</span></td>'.format(village.TenHC) +
                 '</tr>');
@@ -118,6 +124,7 @@
                 "aaSorting": []
             });
         }
+        $chk_all1.prop("checked", _data.length != 0).trigger("change");
     };
 
     function InitCtrl(_data) {
@@ -128,6 +135,7 @@
         $ddl_huyen1 = $frm_report1.find("[name='Huyen']");
         $ddl_tinh1 = $frm_report1.find("[name='Tinh']");
         $ddl_loaidt1 = $frm_report1.find("[name='LoaiDTs']");
+        $chk_all1 = $frm_report1.find("[data-action='check-uncheck-all']");
     };
 
     function InitEvent(_data) {
@@ -168,6 +176,10 @@
                 setTimeout(function () { $ddl_tinh1.select2("open"); }, 200);
                 return false;
             }
+        });
+
+        $chk_all1.on("change", function (e) {
+            $(".listuser #ListTable input[name='Villages']").prop("checked", $chk_all1.prop("checked"));
         });
 
         $frm_report1.find("[data-action='download']").on("click", function (e) {

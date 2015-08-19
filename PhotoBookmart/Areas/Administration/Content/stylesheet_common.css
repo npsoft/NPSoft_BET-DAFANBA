@@ -616,4 +616,14 @@ form[id="obj-info-common"] .decrease-10px .mws-form-item {
 #BaoCao_DSChiTraTroCap .listuser .dataTables_paginate {
     display: none;
 }
+#BaoCao_DSChiTraTroCap .table {
+    padding: 5px 10px;
+}
+#BaoCao_DSChiTraTroCap .table .table-cell {
+    vertical-align: middle;
+}
+#BaoCao_DSChiTraTroCap .table [data-action="check-uncheck-all"] ~ span {
+    font-size: 13px;
+    padding-left: 5px;
+}
 /* End: For ~/Views/OrderReport/Index.cshtml */

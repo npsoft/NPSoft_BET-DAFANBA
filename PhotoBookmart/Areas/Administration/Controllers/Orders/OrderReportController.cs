@@ -58,6 +58,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
 
             Guid guid = Guid.NewGuid();
             string word_path = ExportWord_BaoCao_DSChiTraTroCap(model, guid);
+            if (string.IsNullOrEmpty(word_path)) { return Content("Thông báo: Không tìm thấy biến động."); }
             byte[] word_bytes = System.IO.File.ReadAllBytes(word_path);
             if (model.Action == "download")
             {
@@ -129,6 +130,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             #endregion
 
             #region Prepare data
+            if (lst_biendong.Count == 0) { return null; }
             string EXPORT_DIR = Server.MapPath(string.Format("~/{0}", ConfigurationManager.AppSettings["EXPORT_DIR"]));
             string EXPORT_TPL_BCDSCTTC = Server.MapPath(string.Format("~/{0}", ConfigurationManager.AppSettings["EXPORT_TPL_BCDSCTTC"]));
             string EXPORT_NAME_BCDSCTTC = "Bao-Cao-Danh-Sach-Chi-Tra-Tro-Cap";
@@ -141,6 +143,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             foreach (DanhMuc_HanhChinh obj_village in lst_village)
             {
                 List<DoiTuong_BienDong> lst_biendong_village = lst_biendong.Where(x => x.MaHC == obj_village.MaHC).ToList();
+                if (lst_biendong_village.Count == 0) { continue; }
                 string path_village = Path.Combine(path_dir, string.Format("{0}_{1}.docx", EXPORT_NAME_BCDSCTTC, obj_village.MaHC));
                 System.IO.File.Copy(EXPORT_TPL_BCDSCTTC, path_village);
                 using (WordprocessingDocument wDoc = WordprocessingDocument.Open(path_village, true))
@@ -158,6 +161,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                     foreach(DanhMuc_LoaiDT obj_loaidt in lst_loaidt)
                     {
                         List<DoiTuong_BienDong> lst_biendong_loaidt = lst_biendong_village.Where(x => x.MaLDT.StartsWith(obj_loaidt.MaLDT)).ToList();
+                        if (lst_biendong_loaidt.Count == 0) { continue; }
                         wTable.Append(GenerateTableRowLoaiI(obj_loaidt.TenLDT, lst_biendong_loaidt.Sum(x => x.MucTC.Value)));
                         foreach(var obj_biendong_group in lst_biendong_loaidt.GroupBy(x => new { x.MaLDT }))
                         {
