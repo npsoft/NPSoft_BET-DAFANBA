@@ -260,6 +260,9 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                     };
                     XElement html = HtmlConverter.ConvertToHtml(wDoc, settings);
                     var body = html.Descendants(Xhtml.body).First();
+                    body.AddFirst(
+                        new XElement(Xhtml.style,
+                            "body { width:756px; margin:auto; }"));
                     /*body.AddFirst(
                         new XElement(Xhtml.p,
                             new XElement(Xhtml.A,
