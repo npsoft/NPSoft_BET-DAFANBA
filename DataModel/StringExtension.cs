@@ -273,20 +273,25 @@ namespace PhotoBookmart.DataLayer
                 if (lso_chu.Trim().Substring(0, 1).Equals("l"))
                     lso_chu = lso_chu.Trim().Substring(2, lso_chu.Trim().Length - 2).Trim();
                 if (lso_chu.Trim().Length > 0)
-                    lso_chu = dau.Trim() + " " + lso_chu.Trim().Substring(0, 1).Trim().ToUpper() + lso_chu.Trim().Substring(1, lso_chu.Trim().Length - 1).Trim() + " đồng chẵn.";
+                    lso_chu = dau.Trim() + " " + lso_chu.Trim().Substring(0, 1).Trim().ToUpper() + lso_chu.Trim().Substring(1, lso_chu.Trim().Length - 1).Trim() + " đồng chẵn";
 
                 return lso_chu.ToString().Trim();
 
             }
         }
 
-        public static string GetCurrencyVNText(this string num)
+        public static string GetCurrencyVNText(this double num)
         {
             try
             {
-                return CurrencyVNHelper.So_chu(double.Parse(num));
+                return CurrencyVNHelper.So_chu(num);
             }
             catch { return "N/A"; }
+        }
+
+        public static string GetCurrencyVNNum(this double num)
+        {
+            return Regex.Replace(num.ToString("#,##0"), @"(,)", ".");
         }
 
         public static string GetCodeProvince(this string text)
@@ -315,6 +320,36 @@ namespace PhotoBookmart.DataLayer
                 string.IsNullOrEmpty(ngay_sinh) ? "" : ngay_sinh + "/",
                 string.IsNullOrEmpty(thang_sinh) ? "" : thang_sinh + "/",
                 nam_sinh);
+        }
+
+        public static string FormalizeName(this string str)
+        {
+            //Cat bo het cac dau cach thua
+            if (str.Trim() == "")
+                return str;
+            else
+            {
+                str = str.Trim();
+                str = str.ToLower();
+                str.ToCharArray();
+                for (int i = 0; i < str.Length; i++)
+                    if ((str[i].ToString() == " ") && (str[i + 1].ToString() == " "))
+                    {
+                        str = str.Remove(i, 1).ToString();
+                        i = i - 1;
+                    }
+                //Chuyen ky tu dau tien la chu Hoa
+                str = str[0].ToString().ToUpper() + str.Remove(0, 1);
+                //Chuyen ky tu dau o moi tu la chu hoa
+                for (int i = 0; i < str.Length; i++)
+                    if ((str[i].ToString() == " ") && (str[i + 1].ToString() != " "))
+                    {
+                        str = str.Substring(0, (i + 1) - 0) + str[i + 1].ToString().ToUpper() +
+                            str.Substring(i + 2).ToString();
+                    }
+
+                return str;
+            }
         }
 
         public static bool ChangeProvince(this string mahc_old, string mahc_new)

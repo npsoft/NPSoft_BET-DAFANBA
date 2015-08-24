@@ -308,7 +308,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
 
             #region Validate for object
             #region Block #1
-            model.HoTen = string.Format("{0}", model.HoTen).Trim();
+            model.HoTen = string.Format("{0}", model.HoTen).FormalizeName();
             model.NamSinh = string.Format("{0}", model.NamSinh).Trim();
             model.ThangSinh = string.Format("{0}", model.ThangSinh).Trim();
             model.NgaySinh = string.Format("{0}", model.NgaySinh).Trim();

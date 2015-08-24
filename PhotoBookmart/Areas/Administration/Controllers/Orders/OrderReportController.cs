@@ -112,13 +112,12 @@ namespace PhotoBookmart.Areas.Administration.Controllers
 		            FROM 
 			            DoiTuong.DoiTuong_BienDong WITH (NOLOCK) 
 		            WHERE 
-			            NgayHuong >= '{0:yyyy-MM-dd HH:mm:ss.fff}' 
-			            AND NgayHuong < '{1:yyyy-MM-dd HH:mm:ss.fff}' 
+			            NgayHuong < '{0:yyyy-MM-dd HH:mm:ss.fff}' 
 		            GROUP BY IDDT) 
 	            AND BD.TinhTrang LIKE 'H%' 
-	            AND BD.MaHC IN ('{2}') 
-	            AND LEFT(BD.MaLDT, 2) IN ('{3}');",
-                report_dt, report_dt.AddMonths(1), string.Join("', '", model.Villages), string.Join("', '", model.LoaiDTs));
+	            AND BD.MaHC IN ('{1}') 
+	            AND LEFT(BD.MaLDT, 2) IN ('{2}');",
+                report_dt.AddMonths(1), string.Join("', '", model.Villages), string.Join("', '", model.LoaiDTs));
             #endregion
 
             #region Retrieve data
@@ -154,8 +153,8 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                     TextReplacer.SearchAndReplace(wDoc, "{$TenHC_District}", obj_district.TenHC, true);
                     TextReplacer.SearchAndReplace(wDoc, "{$TenHC_Village}", obj_village.TenHC, true);
                     TextReplacer.SearchAndReplace(wDoc, "{$SoNguoi}", lst_biendong_village.Count.ToString(), true);
-                    TextReplacer.SearchAndReplace(wDoc, "{$SoTien_So}", lst_biendong_village.Sum(x => x.MucTC.Value).ToString("#,000"), true);
-                    TextReplacer.SearchAndReplace(wDoc, "{$SoTien_Chu}", ((long)lst_biendong_village.Sum(x => x.MucTC.Value)).ToString().GetCurrencyVNText(), true);
+                    TextReplacer.SearchAndReplace(wDoc, "{$SoTien_So}", ((double)lst_biendong_village.Sum(x => x.MucTC.Value)).GetCurrencyVNNum(), true);
+                    TextReplacer.SearchAndReplace(wDoc, "{$SoTien_Chu}", ((double)lst_biendong_village.Sum(x => x.MucTC.Value)).GetCurrencyVNText(), true);
                     TextReplacer.SearchAndReplace(wDoc, "{$NguoiKy}", obj_setting != null ? ((PhotoBookmart.DataLayer.Models.System.Settings)obj_setting).Value : " ", true);
                     Table wTable = wDoc.MainDocumentPart.Document.Body.Elements<Table>().First();
                     foreach(DanhMuc_LoaiDT obj_loaidt in lst_loaidt)
@@ -351,18 +350,32 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             DocumentFormat.OpenXml.Wordprocessing.TableCellProperties[] tableCellProperties = new DocumentFormat.OpenXml.Wordprocessing.TableCellProperties[3] { new DocumentFormat.OpenXml.Wordprocessing.TableCellProperties(), new DocumentFormat.OpenXml.Wordprocessing.TableCellProperties(), new DocumentFormat.OpenXml.Wordprocessing.TableCellProperties() };
             DocumentFormat.OpenXml.Wordprocessing.TableCellWidth[] tableCellWidth = new DocumentFormat.OpenXml.Wordprocessing.TableCellWidth[3] { new DocumentFormat.OpenXml.Wordprocessing.TableCellWidth(), new DocumentFormat.OpenXml.Wordprocessing.TableCellWidth(), new DocumentFormat.OpenXml.Wordprocessing.TableCellWidth() };
             DocumentFormat.OpenXml.Wordprocessing.GridSpan[] gridSpan = new DocumentFormat.OpenXml.Wordprocessing.GridSpan[3] { new DocumentFormat.OpenXml.Wordprocessing.GridSpan(), new DocumentFormat.OpenXml.Wordprocessing.GridSpan(), new DocumentFormat.OpenXml.Wordprocessing.GridSpan() };
+            DocumentFormat.OpenXml.Wordprocessing.TableCellVerticalAlignment[] tableCellVerticalAlignment = new DocumentFormat.OpenXml.Wordprocessing.TableCellVerticalAlignment[3] { new DocumentFormat.OpenXml.Wordprocessing.TableCellVerticalAlignment(), new DocumentFormat.OpenXml.Wordprocessing.TableCellVerticalAlignment(), new DocumentFormat.OpenXml.Wordprocessing.TableCellVerticalAlignment() };
             DocumentFormat.OpenXml.Wordprocessing.Paragraph[] paragraph = new DocumentFormat.OpenXml.Wordprocessing.Paragraph[3] { new DocumentFormat.OpenXml.Wordprocessing.Paragraph(), new DocumentFormat.OpenXml.Wordprocessing.Paragraph(), new DocumentFormat.OpenXml.Wordprocessing.Paragraph() };
+            DocumentFormat.OpenXml.Wordprocessing.ParagraphProperties[] paragraphProperties = new DocumentFormat.OpenXml.Wordprocessing.ParagraphProperties[3] { new DocumentFormat.OpenXml.Wordprocessing.ParagraphProperties(), new DocumentFormat.OpenXml.Wordprocessing.ParagraphProperties(), new DocumentFormat.OpenXml.Wordprocessing.ParagraphProperties() };
+            DocumentFormat.OpenXml.Wordprocessing.Justification[] justification = new DocumentFormat.OpenXml.Wordprocessing.Justification[3] { new DocumentFormat.OpenXml.Wordprocessing.Justification(), new DocumentFormat.OpenXml.Wordprocessing.Justification(), new DocumentFormat.OpenXml.Wordprocessing.Justification() };
+            DocumentFormat.OpenXml.Wordprocessing.ParagraphMarkRunProperties[] paragraphMarkRunProperties = new DocumentFormat.OpenXml.Wordprocessing.ParagraphMarkRunProperties[3] { new DocumentFormat.OpenXml.Wordprocessing.ParagraphMarkRunProperties(), new DocumentFormat.OpenXml.Wordprocessing.ParagraphMarkRunProperties(), new DocumentFormat.OpenXml.Wordprocessing.ParagraphMarkRunProperties() };
             DocumentFormat.OpenXml.Wordprocessing.Run[] run = new DocumentFormat.OpenXml.Wordprocessing.Run[3] { new DocumentFormat.OpenXml.Wordprocessing.Run(), new DocumentFormat.OpenXml.Wordprocessing.Run(), new DocumentFormat.OpenXml.Wordprocessing.Run() };
+            DocumentFormat.OpenXml.Wordprocessing.RunProperties[] runProperties = new DocumentFormat.OpenXml.Wordprocessing.RunProperties[3] { new DocumentFormat.OpenXml.Wordprocessing.RunProperties(), new DocumentFormat.OpenXml.Wordprocessing.RunProperties(), new DocumentFormat.OpenXml.Wordprocessing.RunProperties() };
             DocumentFormat.OpenXml.Wordprocessing.Text[] text= new DocumentFormat.OpenXml.Wordprocessing.Text[3] { new DocumentFormat.OpenXml.Wordprocessing.Text(), new DocumentFormat.OpenXml.Wordprocessing.Text(), new DocumentFormat.OpenXml.Wordprocessing.Text() };
             
             #region Cell #1
             tableCellWidth[0].Type = DocumentFormat.OpenXml.Wordprocessing.TableWidthUnitValues.Auto;
             gridSpan[0].Val = 4;
+            tableCellVerticalAlignment[0].Val = DocumentFormat.OpenXml.Wordprocessing.TableVerticalAlignmentValues.Center;
             tableCellProperties[0].Append(tableCellWidth[0]);
             tableCellProperties[0].Append(gridSpan[0]);
-            
+            tableCellProperties[0].Append(tableCellVerticalAlignment[0]);
+
+            justification[0].Val = DocumentFormat.OpenXml.Wordprocessing.JustificationValues.Left;
+            paragraphMarkRunProperties[0].Append(new DocumentFormat.OpenXml.Wordprocessing.Bold());
+            paragraphProperties[0].Append(justification[0]);
+            paragraphProperties[0].Append(paragraphMarkRunProperties[0]);
+            runProperties[0].Append(new DocumentFormat.OpenXml.Wordprocessing.Bold());
             text[0] = new DocumentFormat.OpenXml.Wordprocessing.Text(name);
             run[0].Append(text[0]);
+            run[0].Append(runProperties[0]);
+            paragraph[0].Append(paragraphProperties[0]);
             paragraph[0].Append(run[0]);
 
             tableCell[0].Append(tableCellProperties[0]);
@@ -373,11 +386,20 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             #region Cell #2
             tableCellWidth[1].Type = DocumentFormat.OpenXml.Wordprocessing.TableWidthUnitValues.Auto;
             gridSpan[1].Val = 1;
+            tableCellVerticalAlignment[1].Val = DocumentFormat.OpenXml.Wordprocessing.TableVerticalAlignmentValues.Center;
             tableCellProperties[1].Append(tableCellWidth[1]);
             tableCellProperties[1].Append(gridSpan[1]);
+            tableCellProperties[1].Append(tableCellVerticalAlignment[1]);
 
-            text[1] = new DocumentFormat.OpenXml.Wordprocessing.Text(money.ToString("#,000"));
+            justification[1].Val = DocumentFormat.OpenXml.Wordprocessing.JustificationValues.Right;
+            paragraphMarkRunProperties[1].Append(new DocumentFormat.OpenXml.Wordprocessing.Bold());
+            paragraphProperties[1].Append(justification[1]);
+            paragraphProperties[1].Append(paragraphMarkRunProperties[1]);
+            runProperties[1].Append(new DocumentFormat.OpenXml.Wordprocessing.Bold());
+            text[1] = new DocumentFormat.OpenXml.Wordprocessing.Text(((double)money).GetCurrencyVNNum());
             run[1].Append(text[1]);
+            run[1].Append(runProperties[1]);
+            paragraph[1].Append(paragraphProperties[1]);
             paragraph[1].Append(run[1]);
 
             tableCell[1].Append(tableCellProperties[1]);
@@ -388,12 +410,21 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             #region Cell #3
             tableCellWidth[2].Type = DocumentFormat.OpenXml.Wordprocessing.TableWidthUnitValues.Auto;
             gridSpan[2].Val = 1;
+            tableCellVerticalAlignment[2].Val = DocumentFormat.OpenXml.Wordprocessing.TableVerticalAlignmentValues.Center;
             tableCellProperties[2].Append(tableCellWidth[2]);
             tableCellProperties[2].Append(gridSpan[2]);
+            tableCellProperties[2].Append(tableCellVerticalAlignment[2]);
 
+            justification[2].Val = DocumentFormat.OpenXml.Wordprocessing.JustificationValues.Center;
+            paragraphMarkRunProperties[2].Append(new DocumentFormat.OpenXml.Wordprocessing.Bold());
+            paragraphProperties[2].Append(justification[2]);
+            paragraphProperties[2].Append(paragraphMarkRunProperties[2]);
+            runProperties[2].Append(new DocumentFormat.OpenXml.Wordprocessing.Bold());
             text[2] = new DocumentFormat.OpenXml.Wordprocessing.Text(null);
             run[2].Append(text[2]);
+            run[2].Append(runProperties[2]);
             paragraph[2].Append(run[2]);
+            paragraph[2].Append(paragraphProperties[2]);
 
             tableCell[2].Append(tableCellProperties[2]);
             tableCell[2].Append(paragraph[2]);
@@ -410,20 +441,34 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             DocumentFormat.OpenXml.Wordprocessing.TableCellProperties[] tableCellProperties = new DocumentFormat.OpenXml.Wordprocessing.TableCellProperties[4] { new DocumentFormat.OpenXml.Wordprocessing.TableCellProperties(), new DocumentFormat.OpenXml.Wordprocessing.TableCellProperties(), new DocumentFormat.OpenXml.Wordprocessing.TableCellProperties(), new DocumentFormat.OpenXml.Wordprocessing.TableCellProperties() };
             DocumentFormat.OpenXml.Wordprocessing.TableCellWidth[] tableCellWidth = new DocumentFormat.OpenXml.Wordprocessing.TableCellWidth[4] { new DocumentFormat.OpenXml.Wordprocessing.TableCellWidth(), new DocumentFormat.OpenXml.Wordprocessing.TableCellWidth(), new DocumentFormat.OpenXml.Wordprocessing.TableCellWidth(), new DocumentFormat.OpenXml.Wordprocessing.TableCellWidth() };
             DocumentFormat.OpenXml.Wordprocessing.GridSpan[] gridSpan = new DocumentFormat.OpenXml.Wordprocessing.GridSpan[4] { new DocumentFormat.OpenXml.Wordprocessing.GridSpan(), new DocumentFormat.OpenXml.Wordprocessing.GridSpan(), new DocumentFormat.OpenXml.Wordprocessing.GridSpan(), new DocumentFormat.OpenXml.Wordprocessing.GridSpan() };
+            DocumentFormat.OpenXml.Wordprocessing.TableCellVerticalAlignment[] tableCellVerticalAlignment = new DocumentFormat.OpenXml.Wordprocessing.TableCellVerticalAlignment[4] { new DocumentFormat.OpenXml.Wordprocessing.TableCellVerticalAlignment(), new DocumentFormat.OpenXml.Wordprocessing.TableCellVerticalAlignment(), new DocumentFormat.OpenXml.Wordprocessing.TableCellVerticalAlignment(), new DocumentFormat.OpenXml.Wordprocessing.TableCellVerticalAlignment() };
             DocumentFormat.OpenXml.Wordprocessing.Paragraph[] paragraph = new DocumentFormat.OpenXml.Wordprocessing.Paragraph[4] { new DocumentFormat.OpenXml.Wordprocessing.Paragraph(), new DocumentFormat.OpenXml.Wordprocessing.Paragraph(), new DocumentFormat.OpenXml.Wordprocessing.Paragraph(), new DocumentFormat.OpenXml.Wordprocessing.Paragraph() };
+            DocumentFormat.OpenXml.Wordprocessing.ParagraphProperties[] paragraphProperties = new DocumentFormat.OpenXml.Wordprocessing.ParagraphProperties[4] { new DocumentFormat.OpenXml.Wordprocessing.ParagraphProperties(), new DocumentFormat.OpenXml.Wordprocessing.ParagraphProperties(), new DocumentFormat.OpenXml.Wordprocessing.ParagraphProperties(), new DocumentFormat.OpenXml.Wordprocessing.ParagraphProperties() };
+            DocumentFormat.OpenXml.Wordprocessing.Justification[] justification = new DocumentFormat.OpenXml.Wordprocessing.Justification[4] { new DocumentFormat.OpenXml.Wordprocessing.Justification(), new DocumentFormat.OpenXml.Wordprocessing.Justification(), new DocumentFormat.OpenXml.Wordprocessing.Justification(), new DocumentFormat.OpenXml.Wordprocessing.Justification() };
+            DocumentFormat.OpenXml.Wordprocessing.ParagraphMarkRunProperties[] paragraphMarkRunProperties = new DocumentFormat.OpenXml.Wordprocessing.ParagraphMarkRunProperties[4] { new DocumentFormat.OpenXml.Wordprocessing.ParagraphMarkRunProperties(), new DocumentFormat.OpenXml.Wordprocessing.ParagraphMarkRunProperties(), new DocumentFormat.OpenXml.Wordprocessing.ParagraphMarkRunProperties(), new DocumentFormat.OpenXml.Wordprocessing.ParagraphMarkRunProperties() };
             DocumentFormat.OpenXml.Wordprocessing.Run[] run = new DocumentFormat.OpenXml.Wordprocessing.Run[4] { new DocumentFormat.OpenXml.Wordprocessing.Run(), new DocumentFormat.OpenXml.Wordprocessing.Run(), new DocumentFormat.OpenXml.Wordprocessing.Run(), new DocumentFormat.OpenXml.Wordprocessing.Run() };
+            DocumentFormat.OpenXml.Wordprocessing.RunProperties[] runProperties = new DocumentFormat.OpenXml.Wordprocessing.RunProperties[4] { new DocumentFormat.OpenXml.Wordprocessing.RunProperties(), new DocumentFormat.OpenXml.Wordprocessing.RunProperties(), new DocumentFormat.OpenXml.Wordprocessing.RunProperties(), new DocumentFormat.OpenXml.Wordprocessing.RunProperties() };
             DocumentFormat.OpenXml.Wordprocessing.Text[] text = new DocumentFormat.OpenXml.Wordprocessing.Text[4] { new DocumentFormat.OpenXml.Wordprocessing.Text(), new DocumentFormat.OpenXml.Wordprocessing.Text(), new DocumentFormat.OpenXml.Wordprocessing.Text(), new DocumentFormat.OpenXml.Wordprocessing.Text() };
 
             #region Cell #1
             tableCellWidth[0].Type = DocumentFormat.OpenXml.Wordprocessing.TableWidthUnitValues.Dxa;
             tableCellWidth[0].Width = "100";
             gridSpan[0].Val = 1;
+            tableCellVerticalAlignment[0].Val = DocumentFormat.OpenXml.Wordprocessing.TableVerticalAlignmentValues.Center;
             tableCellProperties[0].Append(tableCellWidth[0]);
             tableCellProperties[0].Append(gridSpan[0]);
+            tableCellProperties[0].Append(tableCellVerticalAlignment[0]);
 
+            justification[0].Val = DocumentFormat.OpenXml.Wordprocessing.JustificationValues.Left;
+            paragraphMarkRunProperties[0].Append(new DocumentFormat.OpenXml.Wordprocessing.Bold(), new DocumentFormat.OpenXml.Wordprocessing.Italic());
+            paragraphProperties[0].Append(justification[0]);
+            paragraphProperties[0].Append(paragraphMarkRunProperties[0]);
+            runProperties[0].Append(new DocumentFormat.OpenXml.Wordprocessing.Bold(), new DocumentFormat.OpenXml.Wordprocessing.Italic());
             text[0] = new DocumentFormat.OpenXml.Wordprocessing.Text(null);
             run[0].Append(text[0]);
+            run[0].Append(runProperties[0]);
             paragraph[0].Append(run[0]);
+            paragraph[0].Append(paragraphProperties[0]);
 
             tableCell[0].Append(tableCellProperties[0]);
             tableCell[0].Append(paragraph[0]);
@@ -434,12 +479,21 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             tableCellWidth[1].Type = DocumentFormat.OpenXml.Wordprocessing.TableWidthUnitValues.Dxa;
             tableCellWidth[1].Width = "300";
             gridSpan[1].Val = 3;
+            tableCellVerticalAlignment[1].Val = DocumentFormat.OpenXml.Wordprocessing.TableVerticalAlignmentValues.Center;
             tableCellProperties[1].Append(tableCellWidth[1]);
             tableCellProperties[1].Append(gridSpan[1]);
+            tableCellProperties[1].Append(tableCellVerticalAlignment[1]);
 
+            justification[1].Val = DocumentFormat.OpenXml.Wordprocessing.JustificationValues.Left;
+            paragraphMarkRunProperties[1].Append(new DocumentFormat.OpenXml.Wordprocessing.Bold(), new DocumentFormat.OpenXml.Wordprocessing.Italic());
+            paragraphProperties[1].Append(justification[1]);
+            paragraphProperties[1].Append(paragraphMarkRunProperties[1]);
+            runProperties[1].Append(new DocumentFormat.OpenXml.Wordprocessing.Bold(), new DocumentFormat.OpenXml.Wordprocessing.Italic());
             text[1] = new DocumentFormat.OpenXml.Wordprocessing.Text(name);
             run[1].Append(text[1]);
+            run[1].Append(runProperties[1]);
             paragraph[1].Append(run[1]);
+            paragraph[1].Append(paragraphProperties[1]);
 
             tableCell[1].Append(tableCellProperties[1]);
             tableCell[1].Append(paragraph[1]);
@@ -453,7 +507,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             tableCellProperties[2].Append(tableCellWidth[2]);
             tableCellProperties[2].Append(gridSpan[2]);
 
-            text[2] = new DocumentFormat.OpenXml.Wordprocessing.Text(money.ToString("#,000"));
+            text[2] = new DocumentFormat.OpenXml.Wordprocessing.Text(((double)money).GetCurrencyVNNum());
             run[2].Append(text[2]);
             paragraph[2].Append(run[2]);
 
@@ -563,7 +617,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             tableCellProperties[4].Append(tableCellWidth[4]);
             tableCellProperties[4].Append(gridSpan[4]);
 
-            text[4] = new Text(bien_dong.MucTC.Value.ToString("#,000"));
+            text[4] = new Text(((double)bien_dong.MucTC.Value).GetCurrencyVNNum());
             run[4].Append(text[4]);
             paragraph[4].Append(run[4]);
 
