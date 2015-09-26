@@ -14,7 +14,11 @@ using OpenXmlPowerTools;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing; // using DocumentFormat.OpenXml.Spreadsheet;
+using Pechkin;
+using Pechkin.Synchronized;
+using System.Drawing.Printing;
 
+using Helper.Files;
 using PhotoBookmart.Areas.Administration.Controllers;
 using PhotoBookmart.Areas.Administration.Models;
 using PhotoBookmart.Common.Helpers;
@@ -68,7 +72,7 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                     ms.Write(word_bytes, 0, word_bytes.Length);
                     Response.Clear();
                     Response.AddHeader("Content-Disposition", "attachmnet; filename=" + file_name);
-                    Response.ContentType = "application/octet-stream";
+                    Response.ContentType = "application/octet-stream"; /* "application/pdf" */
                     Response.BinaryWrite(ms.ToArray());
                     Response.Flush();
                     Response.End();
@@ -76,10 +80,14 @@ namespace PhotoBookmart.Areas.Administration.Controllers
             }
             else if (model.Action == "preview")
             {
-                string file_name = string.Format("{0}.html", EXPORT_NAME_BCDSCTTC);
+                string file_name_html = string.Format("{0}.html", EXPORT_NAME_BCDSCTTC);
+                string file_name_pdf = string.Format("{0}.pdf", EXPORT_NAME_BCDSCTTC);
                 string dir_path = Path.Combine(EXPORT_DIR, string.Format("{0}_{1}", EXPORT_NAME_BCDSCTTC, guid));
-                ConvertToHtml(word_bytes, new DirectoryInfo(dir_path), file_name);
-                Response.Redirect(string.Format("/{0}/{1}/{2}", ConfigurationManager.AppSettings["EXPORT_DIR"], string.Format("{0}_{1}", EXPORT_NAME_BCDSCTTC, guid), file_name));
+                ConvertToHtml(word_bytes, new DirectoryInfo(dir_path), file_name_html);
+                string pdf_html = FilesHelper.ReadFileWithSR(Path.Combine(dir_path, file_name_html));
+                byte[] pdf_buf = new SimplePechkin(new GlobalConfig()).Convert(pdf_html);
+                FilesHelper.CreateFile(Path.Combine(dir_path, file_name_pdf), pdf_buf);
+                Response.Redirect(string.Format("/{0}/{1}/{2}", ConfigurationManager.AppSettings["EXPORT_DIR"], string.Format("{0}_{1}", EXPORT_NAME_BCDSCTTC, guid), file_name_pdf));
             }
             return Content("Vui lòng không hack ứng dụng.");
         }

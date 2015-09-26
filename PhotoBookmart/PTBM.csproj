@@ -85,6 +85,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\OpenXmlPowerTools-2-7-04\OpenXmlPowerTools.dll</HintPath>
     </Reference>
+    <Reference Include="Pechkin">
+      <HintPath>..\packages\Pechkin\Pechkin\bin\Debug\Pechkin.dll</HintPath>
+    </Reference>
+    <Reference Include="Pechkin.Synchronized">
+      <HintPath>..\packages\Pechkin\PechkinSynchronized\bin\Debug\Pechkin.Synchronized.dll</HintPath>
+    </Reference>
     <Reference Include="Recaptcha">
       <HintPath>..\packages\MvcRecaptcha\Recaptcha.dll</HintPath>
     </Reference>
@@ -239,6 +245,7 @@
     <Compile Include="Support\CustomMemoryCache.cs" />
     <Compile Include="Support\DictionaryExtensions.cs" />
     <Compile Include="Support\ABReCaptchaControlResult.cs" />
+    <Compile Include="Support\FilesHelper.cs" />
     <Compile Include="Support\HtmlHelpers.cs" />
     <Compile Include="Support\IDbConnectionExtensions.cs" />
     <Compile Include="Support\MVC3RazorHelper.cs" />
