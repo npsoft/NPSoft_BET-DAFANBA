@@ -257,8 +257,9 @@ namespace PhotoBookmart.Areas.Administration.Controllers
                             {
                                 return null;
                             }
+                            string src = string.Format("http://localhost:8083/Content/Reports/{0}/{1}/{2}", desDirectory.Name, imageDirectoryRelativeName, imageFileName.Name);
                             XElement img = new XElement(Xhtml.img,
-                                new XAttribute(NoNamespace.src, imageDirectoryRelativeName + "/" + imageFileName.Name),
+                                new XAttribute(NoNamespace.src, src /*imageDirectoryRelativeName + "/" + imageFileName.Name*/),
                                 imageInfo.ImgStyleAttribute,
                                 imageInfo.AltText != null ?
                                     new XAttribute(NoNamespace.alt, imageInfo.AltText) : null);
