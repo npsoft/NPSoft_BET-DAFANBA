@@ -161,10 +161,24 @@ namespace Helper.Files
         {
             using (StreamReader sr = new StreamReader(path))
             {
-                string rst = sr.ReadToEnd(); // Loop: sr.ReadLine
+                string rst = sr.ReadToEnd();
                 sr.Close();
                 return rst;
             }
+        }
+
+        public static List<string> ReadFileWithSRToList(string path)
+        {
+            List<string> rst = new List<string>();
+            using (StreamReader sr = new StreamReader(path))
+            {
+                while (sr.Peek() > 0)
+                {
+                    rst.Add(sr.ReadLine());
+                }
+                sr.Close();
+            }
+            return rst;
         }
         #endregion
 
@@ -202,6 +216,28 @@ namespace Helper.Files
         }
         #endregion
 
+        #region Convert Image to Base64
+        public string ImageToBase64(System.Drawing.Image image, System.Drawing.Imaging.ImageFormat format)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                image.Save(ms, format);
+                byte[] bytes = ms.ToArray();
+                return Convert.ToBase64String(bytes);
+            }
+        }
+        #endregion
+
+        #region Convert Base64 to Image
+        public System.Drawing.Image Base64ToImage(string base64)
+        {
+            byte[] bytes = Convert.FromBase64String(base64);
+            MemoryStream ms = new MemoryStream(bytes, 0, bytes.Length);
+            ms.Write(bytes, 0, bytes.Length);
+            return System.Drawing.Image.FromStream(ms, true);
+        }
+        #endregion
+
         #region Others
         //#region Convert ExcelPackage to byte[]
 
@@ -211,22 +247,7 @@ namespace Helper.Files
         //}
 
         //#endregion
-
-        //#region Convert StreamReader to List<string>
-
-        //public List<string> ConvertSRToLstStr(StreamReader sr)
-        //{
-		//	  List<string> data = new List<string>();
-        //    using (StreamReader sr = new StreamReader(path))
-        //    {
-        //         while (sr.Peek() > 0) { data.Add(sr.ReadLine()); }
-        //         sr.Close();
-        //     }
-        //     return data;
-        //}
-
-        //#endregion
-
+        
         //#region Export Excel File
 
         //return base.File(byte[], "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", FileName);
