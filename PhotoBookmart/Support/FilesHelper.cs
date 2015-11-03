@@ -217,7 +217,7 @@ namespace Helper.Files
         #endregion
 
         #region Convert Image to Base64
-        public string ImageToBase64(System.Drawing.Image image, System.Drawing.Imaging.ImageFormat format)
+        public static string ImageToBase64(System.Drawing.Image image, System.Drawing.Imaging.ImageFormat format)
         {
             using (MemoryStream ms = new MemoryStream())
             {
@@ -229,7 +229,7 @@ namespace Helper.Files
         #endregion
 
         #region Convert Base64 to Image
-        public System.Drawing.Image Base64ToImage(string base64)
+        public static System.Drawing.Image Base64ToImage(string base64)
         {
             byte[] bytes = Convert.FromBase64String(base64);
             MemoryStream ms = new MemoryStream(bytes, 0, bytes.Length);
