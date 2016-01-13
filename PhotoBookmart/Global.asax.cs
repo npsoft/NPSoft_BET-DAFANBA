@@ -21,6 +21,11 @@ namespace PhotoBookmart
 
     public class MvcApplication : System.Web.HttpApplication
     {
+        protected void Application_PreSendRequestHeaders(object sender, EventArgs e)
+        {
+            Response.AddHeader("X-Frame-Options", "SAMEORIGIN");
+        }
+
         /// <summary>
         /// Keep Alive timer to keep the site alive
         /// </summary>
