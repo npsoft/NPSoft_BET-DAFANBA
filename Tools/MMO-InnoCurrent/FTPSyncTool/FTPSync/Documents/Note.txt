@@ -1,0 +1,9 @@
+﻿- To get good performance, please enable the HASH command in FileZilla Server
+- To enable, open the filezilla server config file, then add 
+<Item name="Enable HASH" type="numeric">1</Item>
+into Settings tag, it will become something similar to this:
+<FileZillaServer>
+    <Settings>
+        <Item name="Admin port" type="numeric">14147</Item>
+		<Item name="Enable HASH" type="numeric">1</Item>
+    </Settings>
