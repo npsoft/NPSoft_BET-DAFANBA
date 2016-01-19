@@ -58,6 +58,4 @@ SO(mobile) = 1433676 [SO Mobile #1 (72.3.223.25)]
 YO = 528621 [YogaOutlet.com]
 YO(mobile) = 1369895 [YO Mobile - server #1]
 
--- For: SWIMOUTLET-20833
-AQP_FORECAST_TO_ACTUAL_REPORT: VendorId
-AQP_FORCASTING_12_MONTH: VendorId, BuyerId, SportId, VendorType, strRetired, strSearchMode, strKeySearch, strMonthGroup, PageIndex, PageSize, IsExport
+[ServiceName:Photobookmart FTP Sync, ServiceIsInstalled:False, GetServiceStatus:NotFound]
