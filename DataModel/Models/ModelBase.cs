@@ -113,6 +113,14 @@ namespace PhotoBookmart.DataLayer.Models
         {
             var dbConn = BasicModelBase.ServiceAppHost.TryResolve<IDbConnection>();
 
+            #region MMO
+            if (support_schema)
+            {
+                CreateSchemaIfNotExists(dbConn, "MMO", GainPermission, user);
+            }
+            dbConn.CreateTableIfNotExists<MMO.MMO_Imgs>();
+            #endregion
+
             #region DanhMuc
             if (support_schema)
             {

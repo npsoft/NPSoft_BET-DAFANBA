@@ -190,6 +190,7 @@
     <Compile Include="Areas\Administration\Models\MenuList.cs" />
     <Compile Include="Areas\Administration\Models\UserModel.cs" />
     <Compile Include="Controllers\KeepAliveController.cs" />
+    <Compile Include="Controllers\MMOSvcController.cs" />
     <Compile Include="Controllers\StagingController.cs" />
     <Compile Include="Controllers\OrderController.cs" />
     <Compile Include="Controllers\Payment\iPay88Controller.cs">

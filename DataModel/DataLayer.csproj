@@ -59,6 +59,7 @@
     <Compile Include="Models\BasicModelBase.cs" />
     <Compile Include="Models\DanhMuc\DanhMuc_HanhChinh.cs" />
     <Compile Include="Models\DanhMuc\DanhMuc_DangKhuyetTat.cs" />
+    <Compile Include="Models\MMO\MMO_Imgs.cs" />
     <Compile Include="Models\ModelBase.cs" />
     <Compile Include="Models\Orders\Address.cs" />
     <Compile Include="Models\Orders\Order_ProductionJobSheet.cs" />
