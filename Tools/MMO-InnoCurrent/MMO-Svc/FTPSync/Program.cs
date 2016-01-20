@@ -75,7 +75,6 @@ namespace ABSoft.Photobookmart.FTPSync
             }
             else
             {
-                throw new Exception("Test - ServicesBase.");
                 ServiceBase[] ServicesToRun;
                 ServicesToRun = new ServiceBase[]
                           {

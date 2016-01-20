@@ -367,7 +367,7 @@ namespace ABSoft.Photobookmart.FTPSync.ServiceInterface
         /// </summary>
         public void Start()
         {
-            // if is running then no need to do 
+            /* if is running then no need to do 
             if (ftpClient.IsConnected)
             {
 
@@ -386,7 +386,7 @@ namespace ABSoft.Photobookmart.FTPSync.ServiceInterface
             if (!Directory.Exists(config.LocalPath))
             {
                 Directory.CreateDirectory(config.LocalPath);
-            }
+            }*/
 
             // start the thread to wait for each minutes
             _thread = new Thread(new ThreadStart(SyncThreading));
@@ -424,7 +424,7 @@ namespace ABSoft.Photobookmart.FTPSync.ServiceInterface
 
             while (_thread.IsAlive)
             {
-                try
+                /* try
                 {
                     // validate mins first to be sure we are at the time to process
                     var cmins = DateTime.Now.Hour * 60 + DateTime.Now.Minute;
@@ -642,7 +642,8 @@ namespace ABSoft.Photobookmart.FTPSync.ServiceInterface
                     {
                     }
                     InitFTPConnection();
-                }
+                }*/
+                log.Log("Sta: 646...");
                 Thread.Sleep(1000 * 60); // sleep in one minute
             }
         }
