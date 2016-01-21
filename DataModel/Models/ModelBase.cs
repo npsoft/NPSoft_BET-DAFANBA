@@ -118,7 +118,7 @@ namespace PhotoBookmart.DataLayer.Models
             {
                 CreateSchemaIfNotExists(dbConn, "MMO", GainPermission, user);
             }
-            dbConn.CreateTableIfNotExists<MMO.MMO_Imgs>();
+            dbConn.CreateTableIfNotExists<MMO.MMO_Imgs>(); // dbConn.CreateTableIfNotExists<MMO.MMO_Imgs>(); | dbConn.CreateTable<MMO.MMO_Imgs>(overwrite: true);
             #endregion
 
             #region DanhMuc

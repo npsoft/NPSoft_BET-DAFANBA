@@ -15,11 +15,12 @@ namespace PhotoBookmart.DataLayer.Models.MMO
     {
         public string Type { get; set; }
         public string From { get; set; }
-        public string TimeOut { get; set; }
+        public long TimeOut { get; set; }
         public string NameOrg { get; set; }
         public string PathFTP { get; set; }
-
         public string Status { get; set; }
+        public string Content { get; set; }
+
         public DateTime? CreatedOn { get; set; }
         public long? CreatedBy { get; set; }
         public DateTime? LastModifiedOn { get; set; }
