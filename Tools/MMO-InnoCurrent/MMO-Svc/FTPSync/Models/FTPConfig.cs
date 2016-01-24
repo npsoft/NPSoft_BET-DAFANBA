@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ServiceStack.OrmLite;
-using ServiceStack.DataAnnotations;
 
 namespace ABSoft.Photobookmart.FTPSync.Models
 {
     public partial class FTPConfig
     {
-        [PrimaryKey]
-        [AutoIncrement]
         public long Id { get; set; }
 
         public string FTPHost { get; set; }
@@ -27,6 +23,8 @@ namespace ABSoft.Photobookmart.FTPSync.Models
         /// </summary>
         public int SSLEncryptionMode { get; set; }
 
+        public bool DataConnectionEncryption { get; set; }
+
         public int Port { get; set; }
 
         public int SyncsTime { get; set; }
@@ -40,9 +38,7 @@ namespace ABSoft.Photobookmart.FTPSync.Models
         public bool DeleteAfterSync { get; set; }
 
         public bool SyncOrderOnly { get; set; }
-
-        public int DeleteExpiredMonths { get; set; }
-
+        
         /// <summary>
         /// =0: Auto
         /// =1: Active

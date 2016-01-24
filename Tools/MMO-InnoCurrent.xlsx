@@ -40,22 +40,23 @@ SELECT s_ImagingNote,*FROM dbo.Products_Extended WITH(NOLOCK) WHERE s_productcod
 --https://mycontactual.com/api/stats/queues/106/statistics?d=today-1d&n=1
 --https://mycontactual.com/api/stats/queues/106/statistics?d=2015-07-07&n=1
 
--- For: SWIMOUTLET-20718
---AQP_CS_SCORECARD_HOLDTIME_REPORT
---SELECT DISTINCT o1.name from sys.syscomments c1
---INNER JOIN sys.sysobjects o1 ON c1.id=o1.id
-phuoc.tran@spiraledge.com :: sanjose#110
-https://swimoutlet.zendesk.com/api/v2/search.json?query=type:ticket brand_id:458754 created_at:2015-07-06 group_id:21101134 group_id:20968570 group_id:20793614 group_id:21610144 group_id:21849900 -assignee_id:none -assignee_id:793869944 via:web via:email via:api custom_field_21524075:email&page=1&per_page=1
-https://swimoutlet.zendesk.com/api/v2/search.json?query=type:ticket brand_id:458754 created_at:2015-07-06 group_id:21101134 group_id:20968570 group_id:20793614 group_id:21610144 group_id:21849900 -assignee_id:none -assignee_id:793869944 -via:chat custom_field_21524075:email&page=1&per_page=1
+0 Mudassar\r\no About Me 413F4\r\nMudassar Khan is a consultant and developer. If you need to get your projects executed by him click i2 to contact.\r\nI am the founder of this site, and also work as an Independent Consultant.\r\nI completed my graduation from Mumbai University with Bachelor’s Degree in Computer Engineering.\r\nI am active member on the ASRNet forums with “All Star” level ranking. Click here to view my profile.\r\nI also wrote articles on SQLServerCentral and ASPAlliance as a guest columnist. I started this site to answer all the questions that are most frequently asked on the asp.net forums.\r\nI was awarded Most Valuable Professional Award (MVP - ASRNet/llS) 2009 - 2013 and Microsoft Community Contributor (MCC) 2011 by Microsoft.\r\n
 
--- For: SWIMOUTLET-20757
-avi@clubswim.com :: swimsoft
-App-Key :: g90lesiuknyy2chbuy7jn866sq1eijhm
-https://api.pingdom.com/api/2.0/results/85975?limit=5
-
-SO = 841007 [SO Server # 6 .31 (72.32.83.53)]
-SO(mobile) = 1433676 [SO Mobile #1 (72.3.223.25)]
-YO = 528621 [YogaOutlet.com]
-YO(mobile) = 1369895 [YO Mobile - server #1]
+USE discountrusticfurniture
+GO
+SELECT * FROM MMO.MMO_Imgs WITH(NOLOCK) WHERE Status = 'SUCCESS'
+DECLARE @Content NVARCHAR(MAX) = (SELECT TOP(1) Content FROM MMO.MMO_Imgs WITH(NOLOCK) WHERE Id = 12)
+PRINT @Content
+UPDATE MMO.MMO_Imgs SET PathFTP = 'Content/File/MediaUpload/0_trungdt_category_material\160121-214758-130978612787749701.png', Content = NULL, LastModifiedBy = 1, Status = 'NEW' WHERE Id = 2
+UPDATE MMO.MMO_Imgs SET PathFTP = 'Content/File/MediaUpload/0_trungdt_category_material\160121-215152-130978615121538126.png', Content = NULL, LastModifiedBy = 1, Status = 'NEW' WHERE Id = 3
+UPDATE MMO.MMO_Imgs SET PathFTP = 'Content/File/MediaUpload/0_trungdt_category_material\160121-220812-130978624926748234.png', Content = NULL, LastModifiedBy = 1, Status = 'NEW' WHERE Id = 4
+UPDATE MMO.MMO_Imgs SET PathFTP = 'Content/File/MediaUpload/0_trungdt_category_material\160121-221055-130978626557663695.png', Content = NULL, LastModifiedBy = 1, Status = 'NEW' WHERE Id = 5
+UPDATE MMO.MMO_Imgs SET PathFTP = 'Content/File/MediaUpload/0_trungdt_category_material\160121-221533-130978629333425278.png', Content = NULL, LastModifiedBy = 1, Status = 'NEW' WHERE Id = 6
+UPDATE MMO.MMO_Imgs SET PathFTP = 'Content/File/MediaUpload/0_trungdt_category_material\160121-221814-130978630940851039.png', Content = NULL, LastModifiedBy = 1, Status = 'NEW' WHERE Id = 7
+UPDATE MMO.MMO_Imgs SET PathFTP = 'Content/File/MediaUpload/0_trungdt_category_material\160121-222205-130978633254479426.png', Content = NULL, LastModifiedBy = 1, Status = 'NEW' WHERE Id = 8
+UPDATE MMO.MMO_Imgs SET PathFTP = 'Content/File/MediaUpload/0_trungdt_category_material\160121-222502-130978635020267496.png', Content = NULL, LastModifiedBy = 1, Status = 'NEW' WHERE Id = 9
+UPDATE MMO.MMO_Imgs SET PathFTP = 'Content/File/MediaUpload/0_trungdt_category_material\160121-222504-130978635045965503.png', Content = NULL, LastModifiedBy = 1, Status = 'NEW' WHERE Id = 10
+UPDATE MMO.MMO_Imgs SET PathFTP = 'Content/File/MediaUpload/0_trungdt_category_material\160121-222507-130978635077084189.png', Content = NULL, LastModifiedBy = 1, Status = 'NEW' WHERE Id = 11
+UPDATE MMO.MMO_Imgs SET PathFTP = 'Content/File/MediaUpload/0_trungdt_category_material\160121-223341-130978640211383925.png', Content = NULL, LastModifiedBy = 1, Status = 'NEW' WHERE Id = 12
 
 [ServiceName:Photobookmart FTP Sync, ServiceIsInstalled:False, GetServiceStatus:NotFound]

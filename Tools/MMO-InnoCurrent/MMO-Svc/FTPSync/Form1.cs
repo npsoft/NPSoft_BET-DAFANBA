@@ -65,7 +65,6 @@ namespace ABSoft.Photobookmart.FTPSync
             ftpconfig.ConnectionMode = cConnectionmode.SelectedIndex;
             ftpconfig.DeleteAfterSync = cDeleteAfterSync.Checked;
             ftpconfig.SyncOrderOnly = cSyncCompleted.Checked;
-            ftpconfig.DeleteExpiredMonths = (int)nExpirationMonths.Value;
 
 
             Db.Update<FTPConfig>(ftpconfig);

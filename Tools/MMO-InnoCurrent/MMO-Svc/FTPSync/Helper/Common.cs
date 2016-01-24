@@ -22,7 +22,7 @@ namespace ABSoft.Photobookmart.FTPSync.Helper
             #region default config
             if (dbConn.Count<FTPConfig>() == 0)
             {
-                FTPConfig c = new FTPConfig() { FTPDefaultPath = "/digilabs", FTPHost = "127.0.0.1", LocalPath = @"E:\ftpsync", LocalTimeZone = 7, ServerTimeZone = 8, Port = 0, Password = "123", UserName = "trung", SyncsTime = 24, SSLEncryptionMode = 0, ConnectionMode = 0, DeleteAfterSync = false, DeleteExpiredMonths = 4, SyncOrderOnly = false };
+                FTPConfig c = new FTPConfig() { FTPDefaultPath = "/digilabs", FTPHost = "127.0.0.1", LocalPath = @"E:\ftpsync", LocalTimeZone = 7, ServerTimeZone = 8, Port = 0, Password = "123", UserName = "trung", SyncsTime = 24, SSLEncryptionMode = 0, ConnectionMode = 0, DeleteAfterSync = false, SyncOrderOnly = false };
                 dbConn.Insert<FTPConfig>(c);
             }
             #endregion

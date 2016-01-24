@@ -26,7 +26,7 @@ namespace ABSoft.Photobookmart.FTPSync.Components
         {
             try
             {
-                Log("----------------------APP CLOSING-------------------");
+                Log("------------------ APPLICATION CLOSING");
                 w.Close();
             }
             catch
@@ -75,7 +75,7 @@ namespace ABSoft.Photobookmart.FTPSync.Components
 
         public virtual void Log(Exception ex)
         {
-            Log(string.Format("Exception\t: {0} {1}", ex.Message, ex.StackTrace), true);
+            Log(string.Format("Exception\t:: {0} {1}", ex.Message, ex.StackTrace), true);
         }
     }
 }
