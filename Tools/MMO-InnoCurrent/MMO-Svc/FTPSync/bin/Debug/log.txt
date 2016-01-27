@@ -1,64 +1,88 @@
-01/23/2016 23:19:25	:: ------------------ APPLICATION STARTING
-01/23/2016 23:52:41	:: Information	:: Connecting to FTP Server 127.0.0.1 with username chinh.dinh
-01/23/2016 23:52:41	:: Information	:: Connected to FTP Server 127.0.0.1
-01/23/2016 23:52:41	:: Information	:: Read text image has been started - [Content/File/MediaUpload/0_trungdt_category_material\160121-214758-130978612787749701.png]
-01/23/2016 23:52:41	:: Information	:: Copy file successful.
-01/23/2016 23:52:41	:: Information	:: Delete file successful.
-01/23/2016 23:52:42	:: Exception	:: OCR running error    at MODI.IDocument.OCR(MiLANGUAGES LangId, Boolean OCROrientImage, Boolean OCRStraightenImage)
+01/24/2016 14:38:54	:: Information	:: Connecting to FTP Server 127.0.0.1 with username chinh.dinh
+01/24/2016 14:38:54	:: Information	:: Connected to FTP Server 127.0.0.1
+01/24/2016 14:38:54	:: Information	:: Read text image has been started - [Content/File/MediaUpload/0_trungdt__product_category\160124-143848-130980947283485327.png]
+01/24/2016 14:38:54	:: Information	:: Copy file successful.
+01/24/2016 14:38:54	:: Information	:: Delete file successful.
+01/24/2016 14:38:55	:: Information	:: Read text image successful.
+01/24/2016 14:56:55	:: Information	:: Connecting to FTP Server 127.0.0.1 with username chinh.dinh
+01/24/2016 14:56:55	:: Information	:: Connected to FTP Server 127.0.0.1
+01/24/2016 14:56:55	:: Information	:: Read text image has been started - [Content/File/MediaUpload/0_trungdt__product_category\160124-145654-130980958146743647.png]
+01/24/2016 14:56:56	:: Information	:: Copy file successful.
+01/24/2016 14:56:56	:: Information	:: Delete file successful.
+01/24/2016 14:56:56	:: Information	:: Read text image successful.
+01/24/2016 14:59:16	:: Information	:: Connecting to FTP Server 127.0.0.1 with username chinh.dinh
+01/24/2016 14:59:16	:: Information	:: Connected to FTP Server 127.0.0.1
+01/24/2016 14:59:16	:: Information	:: Read text image has been started - [Content/File/MediaUpload/0_trungdt__product_category\160124-145913-130980959538200243.png]
+01/24/2016 14:59:16	:: Information	:: Copy file successful.
+01/24/2016 14:59:16	:: Information	:: Delete file successful.
+01/24/2016 14:59:16	:: Information	:: Read text image successful.
+01/24/2016 15:05:07	:: Information	:: Connecting to FTP Server 127.0.0.1 with username chinh.dinh
+01/24/2016 15:05:07	:: Information	:: Connected to FTP Server 127.0.0.1
+01/24/2016 15:05:07	:: Information	:: Read text image has been started - [Content/File/MediaUpload/0_trungdt__product_category\160124-150506-130980963060832791.png]
+01/24/2016 15:05:07	:: Information	:: Copy file successful.
+01/24/2016 15:05:07	:: Information	:: Delete file successful.
+01/24/2016 15:05:07	:: Information	:: Read text image successful.
+01/24/2016 15:09:37	:: Information	:: Connecting to FTP Server 127.0.0.1 with username chinh.dinh
+01/24/2016 15:09:37	:: Information	:: Connected to FTP Server 127.0.0.1
+01/24/2016 15:09:37	:: Information	:: Read text image has been started - [Content/File/MediaUpload/0_trungdt__product_category\160124-150931-130980965714359192.png]
+01/24/2016 15:09:37	:: Information	:: Copy file successful.
+01/24/2016 15:09:37	:: Information	:: Delete file successful.
+01/24/2016 15:09:38	:: Exception	:: OCR running error    at MODI.IDocument.OCR(MiLANGUAGES LangId, Boolean OCROrientImage, Boolean OCRStraightenImage)
    at ABSoft.Photobookmart.FTPSync.Helper.CaptchaHelpers.ReadTextImg(String path) in i:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\Helper\CaptchaHelpers.cs:line 11
    at ABSoft.Photobookmart.FTPSync.ServiceInterface.FTPSyncService.SyncThreading() in i:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\ServiceInterface\FTPSyncService.cs:line 498
-01/23/2016 23:52:42	:: Information	:: Read text image has been started - [Content/File/MediaUpload/0_trungdt_category_material\160121-215152-130978615121538126.png]
-01/23/2016 23:52:42	:: Information	:: Copy file successful.
-01/23/2016 23:52:42	:: Information	:: Delete file successful.
-01/23/2016 23:52:42	:: Exception	:: OCR running error    at MODI.IDocument.OCR(MiLANGUAGES LangId, Boolean OCROrientImage, Boolean OCRStraightenImage)
+01/24/2016 15:09:58	:: Information	:: Connecting to FTP Server 127.0.0.1 with username chinh.dinh
+01/24/2016 15:09:58	:: Information	:: Connected to FTP Server 127.0.0.1
+01/24/2016 15:09:58	:: Information	:: Read text image has been started - [Content/File/MediaUpload/0_trungdt__product_category\160124-150953-130980965930632149.png]
+01/24/2016 15:09:58	:: Information	:: Copy file successful.
+01/24/2016 15:09:58	:: Information	:: Delete file successful.
+01/24/2016 15:09:58	:: Exception	:: OCR running error    at MODI.IDocument.OCR(MiLANGUAGES LangId, Boolean OCROrientImage, Boolean OCRStraightenImage)
    at ABSoft.Photobookmart.FTPSync.Helper.CaptchaHelpers.ReadTextImg(String path) in i:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\Helper\CaptchaHelpers.cs:line 11
    at ABSoft.Photobookmart.FTPSync.ServiceInterface.FTPSyncService.SyncThreading() in i:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\ServiceInterface\FTPSyncService.cs:line 498
-01/23/2016 23:52:42	:: Information	:: Read text image has been started - [Content/File/MediaUpload/0_trungdt_category_material\160121-220812-130978624926748234.png]
-01/23/2016 23:52:42	:: Information	:: Copy file successful.
-01/23/2016 23:52:42	:: Information	:: Delete file successful.
-01/23/2016 23:52:42	:: Exception	:: OCR running error    at MODI.IDocument.OCR(MiLANGUAGES LangId, Boolean OCROrientImage, Boolean OCRStraightenImage)
-   at ABSoft.Photobookmart.FTPSync.Helper.CaptchaHelpers.ReadTextImg(String path) in i:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\Helper\CaptchaHelpers.cs:line 11
-   at ABSoft.Photobookmart.FTPSync.ServiceInterface.FTPSyncService.SyncThreading() in i:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\ServiceInterface\FTPSyncService.cs:line 498
-01/23/2016 23:52:42	:: Information	:: Read text image has been started - [Content/File/MediaUpload/0_trungdt_category_material\160121-221055-130978626557663695.png]
-01/23/2016 23:52:43	:: Information	:: Copy file successful.
-01/23/2016 23:52:43	:: Information	:: Delete file successful.
-01/23/2016 23:52:43	:: Exception	:: OCR running error    at MODI.IDocument.OCR(MiLANGUAGES LangId, Boolean OCROrientImage, Boolean OCRStraightenImage)
-   at ABSoft.Photobookmart.FTPSync.Helper.CaptchaHelpers.ReadTextImg(String path) in i:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\Helper\CaptchaHelpers.cs:line 11
-   at ABSoft.Photobookmart.FTPSync.ServiceInterface.FTPSyncService.SyncThreading() in i:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\ServiceInterface\FTPSyncService.cs:line 498
-01/23/2016 23:52:43	:: Information	:: Read text image has been started - [Content/File/MediaUpload/0_trungdt_category_material\160121-221533-130978629333425278.png]
-01/23/2016 23:52:43	:: Information	:: Copy file successful.
-01/23/2016 23:52:43	:: Information	:: Delete file successful.
-01/23/2016 23:52:43	:: Exception	:: OCR running error    at MODI.IDocument.OCR(MiLANGUAGES LangId, Boolean OCROrientImage, Boolean OCRStraightenImage)
-   at ABSoft.Photobookmart.FTPSync.Helper.CaptchaHelpers.ReadTextImg(String path) in i:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\Helper\CaptchaHelpers.cs:line 11
-   at ABSoft.Photobookmart.FTPSync.ServiceInterface.FTPSyncService.SyncThreading() in i:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\ServiceInterface\FTPSyncService.cs:line 498
-01/23/2016 23:52:43	:: Information	:: Read text image has been started - [Content/File/MediaUpload/0_trungdt_category_material\160121-221814-130978630940851039.png]
-01/23/2016 23:52:43	:: Information	:: Copy file successful.
-01/23/2016 23:52:43	:: Information	:: Delete file successful.
-01/23/2016 23:52:43	:: Information	:: Read text image successful.
-01/23/2016 23:52:43	:: Information	:: Read text image has been started - [Content/File/MediaUpload/0_trungdt_category_material\160121-222205-130978633254479426.png]
-01/23/2016 23:52:44	:: Information	:: Copy file successful.
-01/23/2016 23:52:44	:: Information	:: Delete file successful.
-01/23/2016 23:52:44	:: Exception	:: OCR running error    at MODI.IDocument.OCR(MiLANGUAGES LangId, Boolean OCROrientImage, Boolean OCRStraightenImage)
-   at ABSoft.Photobookmart.FTPSync.Helper.CaptchaHelpers.ReadTextImg(String path) in i:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\Helper\CaptchaHelpers.cs:line 11
-   at ABSoft.Photobookmart.FTPSync.ServiceInterface.FTPSyncService.SyncThreading() in i:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\ServiceInterface\FTPSyncService.cs:line 498
-01/23/2016 23:52:44	:: Information	:: Read text image has been started - [Content/File/MediaUpload/0_trungdt_category_material\160121-222502-130978635020267496.png]
-01/23/2016 23:52:44	:: Information	:: Copy file successful.
-01/23/2016 23:52:44	:: Information	:: Delete file successful.
-01/23/2016 23:52:44	:: Exception	:: OCR running error    at MODI.IDocument.OCR(MiLANGUAGES LangId, Boolean OCROrientImage, Boolean OCRStraightenImage)
-   at ABSoft.Photobookmart.FTPSync.Helper.CaptchaHelpers.ReadTextImg(String path) in i:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\Helper\CaptchaHelpers.cs:line 11
-   at ABSoft.Photobookmart.FTPSync.ServiceInterface.FTPSyncService.SyncThreading() in i:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\ServiceInterface\FTPSyncService.cs:line 498
-01/23/2016 23:52:44	:: Information	:: Read text image has been started - [Content/File/MediaUpload/0_trungdt_category_material\160121-222504-130978635045965503.png]
-01/23/2016 23:52:44	:: Information	:: Copy file successful.
-01/23/2016 23:52:44	:: Information	:: Delete file successful.
-01/23/2016 23:52:44	:: Exception	:: OCR running error    at MODI.IDocument.OCR(MiLANGUAGES LangId, Boolean OCROrientImage, Boolean OCRStraightenImage)
-   at ABSoft.Photobookmart.FTPSync.Helper.CaptchaHelpers.ReadTextImg(String path) in i:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\Helper\CaptchaHelpers.cs:line 11
-   at ABSoft.Photobookmart.FTPSync.ServiceInterface.FTPSyncService.SyncThreading() in i:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\ServiceInterface\FTPSyncService.cs:line 498
-01/23/2016 23:52:44	:: Information	:: Read text image has been started - [Content/File/MediaUpload/0_trungdt_category_material\160121-222507-130978635077084189.png]
-01/23/2016 23:52:44	:: Information	:: Copy file successful.
-01/23/2016 23:52:44	:: Information	:: Delete file successful.
-01/23/2016 23:52:45	:: Information	:: Read text image successful.
-01/23/2016 23:52:45	:: Information	:: Read text image has been started - [Content/File/MediaUpload/0_trungdt_category_material\160121-223341-130978640211383925.png]
-01/23/2016 23:52:45	:: Information	:: Copy file successful.
-01/23/2016 23:52:45	:: Information	:: Delete file successful.
-01/23/2016 23:52:46	:: Information	:: Read text image successful.
-01/23/2016 23:56:06	:: ------------------ APPLICATION CLOSING
+01/24/2016 15:10:38	:: Information	:: Connecting to FTP Server 127.0.0.1 with username chinh.dinh
+01/24/2016 15:10:38	:: Information	:: Connected to FTP Server 127.0.0.1
+01/24/2016 15:10:38	:: Information	:: Read text image has been started - [Content/File/MediaUpload/0_trungdt__product_category\160124-151033-130980966337131906.png]
+01/24/2016 15:10:38	:: Information	:: Copy file successful.
+01/24/2016 15:10:38	:: Information	:: Delete file successful.
+01/24/2016 15:10:39	:: Information	:: Read text image successful.
+01/24/2016 15:10:59	:: Information	:: Connecting to FTP Server 127.0.0.1 with username chinh.dinh
+01/24/2016 15:10:59	:: Information	:: Connected to FTP Server 127.0.0.1
+01/24/2016 15:10:59	:: Information	:: Read text image has been started - [Content/File/MediaUpload/0_trungdt__product_category\160124-151054-130980966542979446.png]
+01/24/2016 15:10:59	:: Information	:: Copy file successful.
+01/24/2016 15:10:59	:: Information	:: Delete file successful.
+01/24/2016 15:10:59	:: Information	:: Read text image successful.
+01/24/2016 15:11:39	:: Information	:: Connecting to FTP Server 127.0.0.1 with username chinh.dinh
+01/24/2016 15:11:39	:: Information	:: Connected to FTP Server 127.0.0.1
+01/24/2016 15:11:39	:: Information	:: Read text image has been started - [Content/File/MediaUpload/0_trungdt__product_category\160124-151138-130980966985984850.png]
+01/24/2016 15:11:39	:: Information	:: Copy file successful.
+01/24/2016 15:11:39	:: Information	:: Delete file successful.
+01/24/2016 15:11:39	:: Information	:: Read text image successful.
+01/24/2016 15:12:49	:: Information	:: Connecting to FTP Server 127.0.0.1 with username chinh.dinh
+01/24/2016 15:12:49	:: Information	:: Connected to FTP Server 127.0.0.1
+01/24/2016 15:12:49	:: Information	:: Read text image has been started - [Content/File/MediaUpload/0_trungdt__product_category\160124-151244-130980967644342621.png]
+01/24/2016 15:12:50	:: Information	:: Copy file successful.
+01/24/2016 15:12:50	:: Information	:: Delete file successful.
+01/24/2016 15:12:50	:: Information	:: Read text image successful.
+01/24/2016 15:14:50	:: Information	:: Connecting to FTP Server 127.0.0.1 with username chinh.dinh
+01/24/2016 15:14:50	:: Information	:: Connected to FTP Server 127.0.0.1
+01/24/2016 15:14:50	:: Information	:: Read text image has been started - [Content/File/MediaUpload/0_trungdt__product_category\160124-151447-130980968870272849.png]
+01/24/2016 15:14:50	:: Information	:: Copy file successful.
+01/24/2016 15:14:50	:: Information	:: Delete file successful.
+01/24/2016 15:14:50	:: Information	:: Read text image successful.
+01/24/2016 15:29:41	:: Information	:: Connecting to FTP Server 127.0.0.1 with username chinh.dinh
+01/24/2016 15:29:41	:: Information	:: Connected to FTP Server 127.0.0.1
+01/24/2016 15:29:41	:: Information	:: Read text image has been started - [Content/File/MediaUpload/0_trungdt__product_category\160124-152933-130980977737354970.png]
+01/24/2016 15:29:41	:: Information	:: Copy file successful.
+01/24/2016 15:29:41	:: Information	:: Delete file successful.
+01/24/2016 15:29:41	:: Information	:: Read text image successful.
+01/24/2016 15:31:01	:: Information	:: Connecting to FTP Server 127.0.0.1 with username chinh.dinh
+01/24/2016 15:31:01	:: Information	:: Connected to FTP Server 127.0.0.1
+01/24/2016 15:31:01	:: Information	:: Read text image has been started - [Content/File/MediaUpload/0_trungdt__product_category\160124-153052-130980978528232004.png]
+01/24/2016 15:31:01	:: Information	:: Copy file successful.
+01/24/2016 15:31:01	:: Information	:: Delete file successful.
+01/24/2016 15:31:02	:: Information	:: Read text image successful.
+01/24/2016 15:31:22	:: Information	:: Connecting to FTP Server 127.0.0.1 with username chinh.dinh
+01/24/2016 15:31:22	:: Information	:: Connected to FTP Server 127.0.0.1
+01/24/2016 15:31:22	:: Information	:: Read text image has been started - [Content/File/MediaUpload/0_trungdt__product_category\160124-153121-130980978814610514.png]
+01/24/2016 15:31:22	:: Information	:: Copy file successful.
+01/24/2016 15:31:22	:: Information	:: Delete file successful.
+01/24/2016 15:31:22	:: Information	:: Read text image successful.

@@ -40,8 +40,6 @@ SELECT s_ImagingNote,*FROM dbo.Products_Extended WITH(NOLOCK) WHERE s_productcod
 --https://mycontactual.com/api/stats/queues/106/statistics?d=today-1d&n=1
 --https://mycontactual.com/api/stats/queues/106/statistics?d=2015-07-07&n=1
 
-0 Mudassar\r\no About Me 413F4\r\nMudassar Khan is a consultant and developer. If you need to get your projects executed by him click i2 to contact.\r\nI am the founder of this site, and also work as an Independent Consultant.\r\nI completed my graduation from Mumbai University with Bachelor’s Degree in Computer Engineering.\r\nI am active member on the ASRNet forums with “All Star” level ranking. Click here to view my profile.\r\nI also wrote articles on SQLServerCentral and ASPAlliance as a guest columnist. I started this site to answer all the questions that are most frequently asked on the asp.net forums.\r\nI was awarded Most Valuable Professional Award (MVP - ASRNet/llS) 2009 - 2013 and Microsoft Community Contributor (MCC) 2011 by Microsoft.\r\n
-
 USE discountrusticfurniture
 GO
 SELECT * FROM MMO.MMO_Imgs WITH(NOLOCK) WHERE Status = 'SUCCESS'
