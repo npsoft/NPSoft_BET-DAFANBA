@@ -62,12 +62,13 @@ namespace PhotoBookmart.Controllers
                             do
                             {
                                 MMO_Imgs mmo_img = Db.Select<MMO_Imgs>(x => x.Where(y => y.Id == model.Id).Limit(0, 1)).FirstOrDefault();
-                                if (new string[1] { "SUCCESS" }.Contains(mmo_img.Type))
+                                if (new string[1] { "SUCCESS" }.Contains(mmo_img.Status))
                                 {
                                     res.Content = mmo_img.Content;
+                                    res.Status.ErrCode = ErrCodeDefine.Success;
                                     break;
                                 }
-                                if (new string[1] { "FAILURE" }.Contains(mmo_img.Type))
+                                if (new string[1] { "FAILURE" }.Contains(mmo_img.Status))
                                 {
                                     res.Status.ErrCode = "-6";
                                     break;

@@ -1,19 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Data;
 using ServiceStack.OrmLite;
 using System.Threading;
-using ABSoft.Photobookmart.FTPSync.Models;
 using System.Net.FtpClient;
 using System.Net;
-using ABSoft.Photobookmart.FTPSync.Components;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
 using System.Security.Cryptography;
+using ABSoft.Photobookmart.FTPSync.Components;
+using ABSoft.Photobookmart.FTPSync.Helper;
+using ABSoft.Photobookmart.FTPSync.Models;
 
 namespace ABSoft.Photobookmart.FTPSync.ServiceInterface
 {
@@ -416,34 +418,104 @@ namespace ABSoft.Photobookmart.FTPSync.ServiceInterface
         int _syncthreading_last_cmins = 0;
         void SyncThreading()
         {
-            List<string> blacklist_foldername = new List<string>();
-            blacklist_foldername.Add("System Volume Information");
-            blacklist_foldername.Add(@"$RECYCLE.BIN");
-            blacklist_foldername.Add(".");
-            blacklist_foldername.Add("..");
+            string FTP_HOST = ConfigurationManager.AppSettings["FTP_Host"];
+            string FTP_USER = ConfigurationManager.AppSettings["FTP_User"];
+            string FTP_PASS = ConfigurationManager.AppSettings["FTP_Pass"];
+            string FTP_PATH = ConfigurationManager.AppSettings["FTP_Path"];
+            int FTP_SSLENCRYPTIONMODE = int.Parse(ConfigurationManager.AppSettings["FTP_SSLEncryptionMode"]);
+            bool FTP_DATACONNECTIONENCRYPTION = ConfigurationManager.AppSettings["FTP_DataConnectionEncryption"] == "1" ? true : false;
+            string LOCAL_PATH = ConfigurationManager.AppSettings["Local_Path"];
+            string MMO_IMGS_DIR = ConfigurationManager.AppSettings["MMO_Imgs_Dir"];
 
             while (_thread.IsAlive)
             {
-                /* try
+                try
                 {
                     // validate mins first to be sure we are at the time to process
-                    var cmins = DateTime.Now.Hour * 60 + DateTime.Now.Minute;
-                    if (cmins != _syncthreading_last_cmins && cmins % syncDurationLength == 0 && !IsRunningSync)
+                    /*var cmins = DateTime.Now.Hour * 60 + DateTime.Now.Minute;*/
+                    if (/*cmins != _syncthreading_last_cmins && cmins % syncDurationLength == 0 &&*/ !IsRunningSync)
                     {
                         lock (_thread)
                         {
                             IsRunningSync = true;
                         }
-                        log.Log("Sync has been started");
+                        /*log.Log("Sync has been started");*/
                         // update the last cmins
-                        _syncthreading_last_cmins = cmins;
+                        /*_syncthreading_last_cmins = cmins;*/
 
                         // check server to sync
-                        var remote_folder_list = ftpClient.GetListing(config.FTPDefaultPath).Where(x =>
-                            x.Type == FtpFileSystemObjectType.Directory && !Sql.In(x.Name, blacklist_foldername));
+                        /*var remote_folder_list = ftpClient.GetListing(config.FTPDefaultPath).Where(x =>
+                            x.Type == FtpFileSystemObjectType.Directory && !Sql.In(x.Name, blacklist_foldername));*/
+                        List<MMO_Imgs> mmo_imgs = Db.Where<MMO_Imgs>(x => x.Status == "NEW");
+                        if (mmo_imgs.Count != 0)
+                        {
+                            CaptchaHelpers captcha_helper = new CaptchaHelpers();
+
+                            FTPHelpers ftp_helper = new FTPHelpers(log);
+                            FTPConfig ftp_config = new FTPConfig()
+                            {
+                                FTPHost = FTP_HOST,
+                                UserName = FTP_USER,
+                                Password = FTP_PASS,
+                                FTPDefaultPath = FTP_PATH,
+                                SyncsTime = 24 * 60,
+                                LocalPath = LOCAL_PATH,
+                                ServerTimeZone = 7,
+                                LocalTimeZone = 7,
+                                ConnectionMode = 0,
+                                DeleteAfterSync = false,
+                                SyncOrderOnly = true,
+                                SSLEncryptionMode = FTP_SSLENCRYPTIONMODE,
+                                DataConnectionEncryption = FTP_DATACONNECTIONENCRYPTION
+                            };
+                            if (!ftp_helper.ftpClient.IsConnected && ftp_helper.LoadConfig(ftp_config))
+                            {
+                                ftp_helper.InitFTPConnection();
+                            }
+
+                            mmo_imgs.ForEach(x => {
+                                x.Status = "PROCESSING";
+                                x.LastModifiedOn = DateTime.Now;
+                                x.LastModifiedBy = 2;
+                            });
+                            using (IDbTransaction dbTrans = Db.OpenTransaction())
+                            {
+                                Db.UpdateAll<MMO_Imgs>(mmo_imgs);
+                                dbTrans.Commit();
+                            }
+
+                            foreach (MMO_Imgs mmo_img in mmo_imgs.OrEmptyIfNull())
+                            {
+                                log.Log(string.Format("Information\t:: Read text image has been started - [{0}]", mmo_img.PathFTP));
+                                try
+                                {
+                                    string path_server = Path.Combine(FTP_PATH, mmo_img.PathFTP);
+                                    string path_client = Path.Combine(MMO_IMGS_DIR, Path.GetFileName(path_server));
+                                    ftp_helper.CopyFileFromServer(path_server, path_client);
+                                    log.Log(string.Format("Information\t:: Copy file successful."));
+                                    ftp_helper.DeleteFileFromServer(path_server);
+                                    log.Log(string.Format("Information\t:: Delete file successful."));
+                                    mmo_img.Content = captcha_helper.ReadTextImg(path_client);
+                                    log.Log(string.Format("Information\t:: Read text image successful."));
+                                    mmo_img.Status = "SUCCESS";
+                                }
+                                catch (Exception ex)
+                                {
+                                    mmo_img.Status = "FAILURE";
+                                    log.Log(ex);
+                                }
+                                using (IDbTransaction dbTrans = Db.OpenTransaction())
+                                {
+                                    mmo_img.LastModifiedOn = DateTime.Now;
+                                    mmo_img.LastModifiedBy = 2;
+                                    Db.Save(mmo_img);
+                                    dbTrans.Commit();
+                                }
+                            }
+                        }
 
                        
-                        foreach (var dir1 in remote_folder_list)
+                        /*foreach (var dir1 in remote_folder_list)
                         {
                             try
                             {
@@ -623,31 +695,29 @@ namespace ABSoft.Photobookmart.FTPSync.ServiceInterface
                                 log.Log(ex);
                                 continue;
                             }
-                        } // end dir foreach
+                        } // end dir foreach*/
 
                         // done? then set no Sync
                         IsRunningSync = false;
-                        log.Log("Sync has been finished");
+                        /*log.Log("Sync has been finished");*/
                     }
                 }
                 catch (Exception ex)
                 {
                     log.Log(ex);
                     IsRunningSync = false;
-                    try
+                    /*try
                     {
                         ftpClient.Dispose();
                     }
                     catch
                     {
                     }
-                    InitFTPConnection();
-                }*/
-                log.Log("Sta: 646...");
-                Thread.Sleep(1000 * 60); // sleep in one minute
+                    InitFTPConnection();*/
+                }
+                Thread.Sleep(1000 * 10);
             }
         }
         #endregion
-
     }
 }

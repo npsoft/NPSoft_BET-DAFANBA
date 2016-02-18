@@ -8,7 +8,7 @@ using ServiceStack.CacheAccess.Providers;
 using ServiceStack.Common.Utils;
 using ServiceStack.Configuration;
 using ServiceStack.OrmLite;
-using ServiceStack.OrmLite.Sqlite;
+using ServiceStack.OrmLite.SqlServer; /* using ServiceStack.OrmLite.Sqlite; | I:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\packages\ServiceStack.OrmLite.Sqlite32.3.9.71\lib\net40\ServiceStack.OrmLite.SqliteNET.dll*/
 using ServiceStack.ServiceInterface;
 using ServiceStack.ServiceInterface.Auth;
 using ServiceStack.WebHost.Endpoints;
@@ -141,22 +141,24 @@ namespace ABSoft.Photobookmart.FTPSync
 
         public static OrmLiteConnectionFactory GetDbConnectionFromConfig()
         {
-            var cs = ConfigurationManager.AppSettings.Get("ConnectionString_SQLite");
-            cs = cs.Replace("{PATH}", Application.StartupPath);
-
-            SqliteOrmLiteDialectProvider dialect = SqliteOrmLiteDialectProvider.Instance;
-
+            var cs = ConfigurationManager.AppSettings.Get("Connection_String");
+            SqlServerOrmLiteDialectProvider dialect = SqlServerOrmLiteDialectProvider.Instance;
             dialect.UseUnicode = true;
-
+            dialect.UseDatetime2(true);
+            dialect.StringColumnDefinition = "nvarchar(MAX)";
+            dialect.StringLengthColumnDefinitionFormat = dialect.StringColumnDefinition;
+            dialect.StringLengthNonUnicodeColumnDefinitionFormat = dialect.StringColumnDefinition;
+            dialect.StringLengthUnicodeColumnDefinitionFormat = dialect.StringColumnDefinition;
             dialect.NamingStrategy = new ABNamingStrategy();
-
-            return new OrmLiteConnectionFactory(cs, false, dialect);
+            var ret = new OrmLiteConnectionFactory(cs, dialect);
+            ret.AutoDisposeConnection = true;
+            return ret;
         }
 
         public static bool Start()
         {
             Log = new RBLog();
-            Log.Log("------------------APP STARTING-----------------------");
+            Log.Log("------------------ APPLICATION STARTING");
             try
             {
                 new AppHost().Init();

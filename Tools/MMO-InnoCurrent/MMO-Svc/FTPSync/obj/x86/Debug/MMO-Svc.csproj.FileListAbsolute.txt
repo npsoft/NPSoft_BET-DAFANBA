@@ -20,7 +20,6 @@ I:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\bin\Debug\ServiceStack.
 I:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\bin\Debug\ServiceStack.Text.xml
 I:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\bin\Debug\System.Data.SQLite.xml
 I:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\bin\Debug\System.Net.FtpClient.xml
-I:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\obj\x86\Debug\MMO-Svc.csprojResolveAssemblyReference.cache
 I:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\obj\x86\Debug\ABSoft.Photobookmart.FTPSync.Form1.resources
 I:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\obj\x86\Debug\ABSoft.Photobookmart.FTPSync.Properties.Resources.resources
 I:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\obj\x86\Debug\MMO-Svc.csproj.GenerateResource.Cache
@@ -54,3 +53,7 @@ D:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\obj\x86\Debug\MMO-Svc.c
 D:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\obj\x86\Debug\ABSoft.Photobookmart.FTPSync.Form1.resources
 D:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\obj\x86\Debug\ABSoft.Photobookmart.FTPSync.Properties.Resources.resources
 D:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\obj\x86\Debug\MMO-Svc.csproj.GenerateResource.Cache
+I:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\bin\Debug\ServiceStack.OrmLite.SqlServer.dll
+I:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\obj\x86\Debug\Interop.MODI.dll
+I:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\obj\x86\Debug\MMO-Svc.csproj.ResolveComReference.cache
+I:\NPSoft_HTQLNHCS\Tools\MMO-InnoCurrent\MMO-Svc\FTPSync\obj\x86\Debug\MMO-Svc.csprojResolveAssemblyReference.cache
