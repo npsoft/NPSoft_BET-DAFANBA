@@ -1,0 +1,26 @@
+02/11/2016 22:35:53	:: Information	:: Connecting to FTP Server 127.0.0.1 with username chinh.dinh
+02/11/2016 22:35:53	:: Information	:: Connected to FTP Server 127.0.0.1
+02/11/2016 22:35:53	:: Information	:: Read text image has been started - [Content/File/MediaUpload/1_trungdt_category_material\160211-223552-130996785521015809.png]
+02/11/2016 22:35:53	:: Information	:: Copy file successful.
+02/11/2016 22:35:53	:: Information	:: Delete file successful.
+02/11/2016 22:35:56	:: Information	:: Read text image successful.
+02/15/2016 21:09:20	:: ------------------ APPLICATION CLOSING
+02/17/2016 17:29:16	:: ------------------ APPLICATION STARTING
+02/20/2016 08:04:14	:: ------------------ APPLICATION STARTING
+02/20/2016 19:43:08	:: ------------------ APPLICATION STARTING
+03/03/2016 03:35:34	:: ------------------ APPLICATION STARTING
+03/05/2016 15:37:21	:: ------------------ APPLICATION STARTING
+03/09/2016 22:19:18	:: ------------------ APPLICATION STARTING
+03/10/2016 23:24:19	:: ------------------ APPLICATION STARTING
+03/11/2016 23:22:46	:: ------------------ APPLICATION STARTING
+03/19/2016 13:28:34	:: ------------------ APPLICATION STARTING
+03/20/2016 20:57:29	:: ------------------ APPLICATION STARTING
+03/23/2016 23:35:51	:: ------------------ APPLICATION STARTING
+03/29/2016 20:44:03	:: ------------------ APPLICATION STARTING
+04/08/2016 21:39:30	:: ------------------ APPLICATION STARTING
+04/19/2016 11:21:45	:: ------------------ APPLICATION STARTING
+04/20/2016 22:02:14	:: ------------------ APPLICATION STARTING
+04/21/2016 21:41:59	:: ------------------ APPLICATION STARTING
+05/15/2016 15:16:42	:: ------------------ APPLICATION STARTING
+06/16/2016 23:58:10	:: ------------------ APPLICATION STARTING
+07/14/2016 03:35:40	:: ------------------ APPLICATION STARTING

@@ -97,7 +97,7 @@ namespace PhotoBookmart
             // end of caching register
 
             // create tables
-            ModelBase.InitDbTable(ConfigurationManager.AppSettings.Get("AdminUserNames"), true, true);
+            // ModelBase.InitDbTable(ConfigurationManager.AppSettings.Get("AdminUserNames"), true, true);
 
             //container.RegisterAutoWired<IDbConnection>();
             //container.Register<IDbConnectionFactory>(dbConnection);
@@ -144,31 +144,36 @@ namespace PhotoBookmart
                 ret.AutoDisposeConnection = true;
                 return ret;
             }
-            //else if (db_type == "sqlite")
-            //{
-            //    ModelBase.DatabaseType = PhotoBookmart.DataLayer.DatabaseTypeEnum.Sqlite;
-            //    SqliteOrmLiteDialectProvider dialect = SqliteOrmLiteDialectProvider.Instance;
-            //    dialect.UseUnicode = true;
-            //    dialect.NamingStrategy = new ABNamingStrategy();
-            //    var ret = new OrmLiteConnectionFactory(cs, dialect);
-            //    ret.AutoDisposeConnection = true;
-            //    return ret;
-            //}
-            //if (db_type == "postgresql")
-            //{
-            //    ModelBase.DatabaseType = PhotoBookmart.DataLayer.DatabaseTypeEnum.PostgreSQL;
-            //    PostgreSQLDialectProvider dialect = PostgreSQLDialectProvider.Instance;
-            //    dialect.UseUnicode = true;
-            //    dialect.NamingStrategy = new ABNamingStrategy();
-            //    var ret = new OrmLiteConnectionFactory(cs, dialect);
-            //    ret.AutoDisposeConnection = true;
-            //    return ret;
-            //}
+            #region For: Sqlite
+            /* For: Sqlite
+            else if (db_type == "sqlite")
+            {
+                ModelBase.DatabaseType = PhotoBookmart.DataLayer.DatabaseTypeEnum.Sqlite;
+                SqliteOrmLiteDialectProvider dialect = SqliteOrmLiteDialectProvider.Instance;
+                dialect.UseUnicode = true;
+                dialect.NamingStrategy = new ABNamingStrategy();
+                var ret = new OrmLiteConnectionFactory(cs, dialect);
+                ret.AutoDisposeConnection = true;
+                return ret;
+            }*/
+            #endregion
+            #region For: Postgesql
+            /* For: Postgesql
+            if (db_type == "postgresql")
+            {
+                ModelBase.DatabaseType = PhotoBookmart.DataLayer.DatabaseTypeEnum.PostgreSQL;
+                PostgreSQLDialectProvider dialect = PostgreSQLDialectProvider.Instance;
+                dialect.UseUnicode = true;
+                dialect.NamingStrategy = new ABNamingStrategy();
+                var ret = new OrmLiteConnectionFactory(cs, dialect);
+                ret.AutoDisposeConnection = true;
+                return ret;
+            }*/
+            #endregion
             else
             {
                 return null;
             }
-
         }
 
         private void ConfigureServiceRoutes()

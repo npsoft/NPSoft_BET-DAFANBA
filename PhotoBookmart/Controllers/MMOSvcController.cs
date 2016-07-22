@@ -21,6 +21,12 @@ namespace PhotoBookmart.Controllers
             return Content("MMO Service by npe.etc@gmail.com!");
         }
 
+        [HttpGet]
+        public ActionResult RetrieveMisa()
+        {
+            return Content("Retrieve data from Misa database!");
+        }
+
         [HttpPost]
         public ActionResult ExtractCaptcha(IEnumerable<HttpPostedFileBase> Imgs, string Type, string From, long TimeOut = 60 * 1000)
         {

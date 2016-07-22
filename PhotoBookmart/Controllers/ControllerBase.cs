@@ -65,7 +65,6 @@ namespace PhotoBookmart.Controllers
             }
         }
 
-
         /// <summary>
         /// Rerturn Authenticated User ID for logged user
         /// </summary>
@@ -124,6 +123,24 @@ namespace PhotoBookmart.Controllers
                 }
 
                 return _connection;
+            }
+        }
+
+        IDbConnection _connectionMisa = null;
+        public virtual IDbConnection DbMisa
+        {
+            get
+            {
+                if (_connectionMisa == null)
+                {
+                    _connectionMisa = AppHost.Resolve<IDbConnection>();
+                }
+                if (_connectionMisa != null && _connectionMisa.State != ConnectionState.Open)
+                {
+                    // force open new connection
+                    _connectionMisa = AppHost.Resolve<IDbConnectionFactory>().Open();
+                }
+                return _connectionMisa;
             }
         }
 

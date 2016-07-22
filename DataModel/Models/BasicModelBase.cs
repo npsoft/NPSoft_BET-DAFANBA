@@ -12,6 +12,7 @@ using PhotoBookmart.DataLayer.Models.System;
 using PhotoBookmart.DataLayer.Models.Sites;
 using ServiceStack.ServiceInterface.Auth;
 using ServiceStack.OrmLite;
+using PhotoBookmart;
 
 namespace PhotoBookmart.DataLayer.Models
 {
@@ -26,6 +27,7 @@ namespace PhotoBookmart.DataLayer.Models
 
         /* End Public Static */
         IDbConnection db = null;
+        IDbConnection dbMisa = null;
         [Ignore]
         protected virtual IDbConnection Db
         {
@@ -48,6 +50,7 @@ namespace PhotoBookmart.DataLayer.Models
                 return db;
             }
         }
+
 
         [Ignore]
         public static IAppHost ServiceAppHost
@@ -85,6 +88,10 @@ namespace PhotoBookmart.DataLayer.Models
                 if (db != null)
                 {
                     db.Close();
+                }
+                if (dbMisa != null)
+                {
+                    dbMisa.Close();
                 }
             }
             catch
