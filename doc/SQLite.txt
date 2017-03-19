@@ -1,0 +1,26 @@
+﻿--
+pragma table_info(UNIT)
+--
+CREATE TABLE AGIN(
+ Id BIGINT PRIMARY KEY NOT NULL,
+ FileName NVARCHAR(255) NULL,
+ CoordinateX INT NULL,
+ CoordinateY INT NULL,
+ AnalysisData NVARCHAR(2147483647) NULL,
+ CreatedOn DATETIME NULL,
+ CreatedBy BIGINT NULL,
+ LastModifiedOn DATETIME NULL,
+ LastModifiedBy BIGINT NULL
+)
+--
+DROP TABLE AGIN
+--
+INSERT INTO AGIN (Id, FileName, CoordinateX, CoordinateY, AnalysisData, CreatedOn, CreatedBy, LastModifiedOn, LastModifiedBy)
+VALUES (0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL)
+--
+DELETE FROM AGIN
+--
+SELECT * FROM sqlite_master
+SELECT COUNT(*) FROM AGIN
+SELECT * FROM AGIN LIMIT 0, 5
+Data Source=.\mydb.db;Version=3;Password=trungdt;Version=3;Pooling=True;Max Pool Size=100;
