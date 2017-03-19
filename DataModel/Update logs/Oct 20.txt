@@ -1,3 +1,0 @@
-﻿File: Product_Option.cs
-- add field Thumbnail: string
-- ALTER TABLE Products.Product_Option ADD Thumbnail NVARCHAR(MAX) NULL

@@ -1,2 +1,0 @@
-﻿Table Order
-- add Order_Photobook_ToDelete : boolean
