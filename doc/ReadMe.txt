@@ -23,66 +23,17 @@ mà thường rất khó để duy trì khoảng 16 lượt chơi
 mình bắt từ lượt chơi thứ 10
 
 ==
-function InvalidCells(cells) {
-	var total_invalid = 0;
-	cells.forEach(function (arr, x, array) {
-		arr.forEach(function (cell, y, array) {
-			if (0 == cell.matches.length) {
-				total_invalid++;
-			}
-		});
-	});
-	return { "total-invalid": total_invalid };
-};
-
-function OrderCells(cells) {
-	var order = 0;
-	var order_color = "";
-	var max_x = cells.length, max_y = 0;
-	for (var x = 0; x < max_x; x++) {
-		for (var y = 0, max_y = cells[x].length; y < max_y; y++) {
-			var cell = cells[x][y];
-			var set_order = false;
-			if (2 > cell["matches"].length) { // For: Current cell was empty, break loop
-				break;
-			}
-			if (0 == cell["order"] && 0 == y) { // For: Current cell was new, set order
-				cell["order"] = ++order;
-				order_color = cell["matches"].includes("circle-blue") ? "circle-blue" : cell["matches"].includes("circle-red") ? "circle-red" : "";
-				set_order = true;
-			}
-			if (0 == cell["order"] && cell["matches"].includes(order_color)) { // For: Current cell was valid, set order
-				cell["order"] = ++order;
-				order_color = cell["matches"].includes("circle-blue") ? "circle-blue" : "circle-red";
-				set_order = true;
-			}
-			if (0 != cell["order"] && !set_order || max_y - 1 == y && set_order) { // For: Current cell was order or max index, consider right side
-				var y_r = 0 != cell["order"] && !set_order ? y - 1 : y;
-				if (-1 != y_r) { // For: Coordinate-y of right side was wrong, ignore this case
-					for (var x_r = x + 1; x_r < max_x; x_r++) {
-						var cell_r = cells[x_r][y_r];
-						if (!cell_r["matches"].includes(order_color)) { // For: Right cell was invalid, break loop
-							break;
-						}
-						var order_confuse = true; // For: Order can confuse, not sure about this check :-s
-						for (var y_c = y_r - 1; y_c > -1; y_c ++) {
-							var cell_c = cells[x_r][y_c];
-							if (!cell_c["matches"].includes(order_color) || cell[x_r + 1, y_c]["matches"].includes(order_color)) {
-								order_confuse = false;
-								break;
-							}
-						}
-						cell_r["order"] = ++order;
-						cell_r["order-confuse"] = order_confuse;
-					}
-				}
-				break;
-			}
-		}
-	}
-	return { "order": order };
-};
-
+NEW: |a|b|c|d|e|f|
+ORG: |a|b|c|d|
+padding = NEW - ORG = 2
+==
+CASE 1: NEW.Length > ORG.Length
+>: move OR not move
+CASE 2: NEW.Length = ORG.Length
+>: not move
+CASE 3: NEW.Length < ORG.Length
+>: move
+1. 
 function ListOrderCells(cells) {
 	var lst = [];
 	var max_x = cells.length, max_y = 0;
