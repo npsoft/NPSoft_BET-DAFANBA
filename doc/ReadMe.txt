@@ -23,8 +23,8 @@ mà thường rất khó để duy trì khoảng 16 lượt chơi
 mình bắt từ lượt chơi thứ 10
 
 ==
-NEW: |a|b|c|d|e|f|
-ORG: |a|b|c|d|
+NEW: |x|x|x|0|1|2|3|
+ORG: |0|1|2|3|4|5|6|
 padding = NEW - ORG = 2
 ==
 CASE 1: NEW.Length > ORG.Length
