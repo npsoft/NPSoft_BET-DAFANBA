@@ -45,9 +45,9 @@ namespace SpiralEdge.Model
         public bool Test { get; set; }
         public RBLog Log { get; set; }
         public SQLiteHelper ConnHelper { get; set; }
-        public List<List<object>> SimulatorDB { get; set; }
+        public List<DB_AGIN_Baccarat> LatestAGINs { get; set; }
         #endregion
-
+        
         private void Init()
         {
             string s; DateTime dt;
@@ -88,7 +88,7 @@ namespace SpiralEdge.Model
             Test = "1" == ConfigurationManager.AppSettings["Test"];
             Log = new RBLog(CONFIG_PATH_LOG);
             ConnHelper = new SQLiteHelper(CONFIG_CONN_STRING);
-            SimulatorDB = new List<List<object>>();
+            LatestAGINs = new List<DB_AGIN_Baccarat>();
             Log.Log(string.Format("Information\t:: ------------------ APPLICATION STARTING -----------------------"));
             #endregion
         }
@@ -108,26 +108,55 @@ namespace SpiralEdge.Model
                 AGIN_3840x2160_Baccarat agin_3840x2160_baccarat = null;
                 ImageHelper.AnalysisImg_AGIN_3840x2160(file_path, out agin_3840x2160_baccarat);
 
-                List<List<object>> lst_data = agin_3840x2160_baccarat.ListData();
-                foreach (List<object> lst_item in lst_data)
+                List<DB_AGIN_Baccarat> agins_img = DB_AGIN_Baccarat.ExtractImg(agin_3840x2160_baccarat, name, DateTime.Now, 0, DateTime.Now, 0);
+                foreach (DB_AGIN_Baccarat agin_img in agins_img)
                 {
-                    int tbl_x = (int)lst_item[0];
-                    int tbl_y = (int)lst_item[1];
-                    var tbl_data = (AGIN_3840x2160_Baccarat_TblLevel1)lst_item[2];
-                    var simulator_db = SimulatorDB.Where(x => (int)x[0] == tbl_x && (int)x[1] == tbl_y).FirstOrDefault();
-                    if (null == simulator_db)
+                    DB_AGIN_Baccarat agin_latest = LatestAGINs.Where(x => x.CoordinateX == agin_img.CoordinateX && x.CoordinateY == agin_img.CoordinateY).FirstOrDefault();
+                    #region For: Merge baccarat
+                    bool merged = false;
+                    if (null != agin_latest && 0 == agin_img.DataAnalysis.TotalInvalid)
                     {
-                        simulator_db = new List<object>() { tbl_x, tbl_y, false };
-                        SimulatorDB.Add(simulator_db);
+                        int dist = DB_AGIN_Baccarat_Tbl.DistMerge(
+                            agin_latest.DataAnalysis, agin_img.DataAnalysis,
+                            DB_AGIN_Baccarat_Tbl.DistMax(agin_latest.DataAnalysis, agin_img.DataAnalysis));
+                        if (-1 != dist)
+                        {
+                            DB_AGIN_Baccarat_Tbl.ExecMerge(agin_latest.DataAnalysis, agin_img.DataAnalysis, dist);
+                            agin_latest.FileNames = Regex.Replace(agin_latest.FileNames + agin_img.FileNames, @"(;;)", ";");
+                            agin_latest.LastModifiedOn = agin_img.LastModifiedOn;
+                            agin_latest.LastModifiedBy = agin_img.LastModifiedBy;
+                            merged = true;
+                        }
                     }
-                    if (CONFIG_DAFANBA_ALERT_LENGTH_AG <= tbl_data.LatestCircleLength && !(bool)simulator_db[2])
+                    #endregion
+                    #region For: Add baccarat
+                    if (!merged)
                     {
-                        AlertAGIN(tbl_x, tbl_y, tbl_data.LatestCircleName, tbl_data.LatestCircleLength, file_path);
+                        if (null != agin_latest)
+                        {
+                            LatestAGINs.Remove(agin_latest);
+                        }
+                        LatestAGINs.Add(agin_img);
+                        agin_latest = LatestAGINs.Single(x => x.CoordinateX == agin_img.CoordinateX && x.CoordinateY == agin_img.CoordinateY);
                     }
-                    simulator_db[2] = CONFIG_DAFANBA_ALERT_LENGTH_AG <= tbl_data.LatestCircleLength;
-                    #region For: Save to database
-                    var db_baccarat = DB_AGIN_Baccarat.ExtractObj(DB_AGIN_Baccarat.IdentityMax(ConnHelper) + 1, name, tbl_x, tbl_y, tbl_data, DateTime.Now, 0, DateTime.Now, 0);
-                    db_baccarat.SaveDB(ConnHelper);
+                    #endregion
+                    #region For: Order baccarat
+                    agin_latest.DataAnalysis.UpdOrder(
+                        agin_latest.DataAnalysis.LatestOrder, agin_latest.DataAnalysis.LatestOrderCircle,
+                        agin_latest.DataAnalysis.LatestOrderX, agin_latest.DataAnalysis.LatestOrderY,
+                        agin_latest.DataAnalysis.LatestOrderXR, agin_latest.DataAnalysis.LatestOrderYR);
+                    #endregion
+                    #region For: Alert via pattern(s)
+                    int pattern01 = agin_latest.ChkPattern01();
+                    if (CONFIG_DAFANBA_ALERT_LENGTH_AG <= pattern01 && !agin_latest.AlertPattern01)
+                    {
+                        AlertAGIN(agin_latest.CoordinateX, agin_latest.CoordinateY, agin_latest.DataAnalysis.LatestOrderCircle, pattern01, file_path);
+                    }
+                    agin_latest.AlertPattern01 = CONFIG_DAFANBA_ALERT_LENGTH_AG <= pattern01;
+                    #endregion
+                    #region For: Save data to database
+                    agin_latest.SaveDB(ConnHelper);
+                    agin_img.SaveDBItems(ConnHelper);
                     #endregion
                 }
             }

@@ -245,19 +245,16 @@ namespace SpiralEdge.Helper
 
     public class AGIN_3840x2160_Baccarat
     {
-        private int MaxX { get; set; }
-        private int MaxY { get; set; }
         public AGIN_3840x2160_Baccarat_TblLevel1[][] Tbls { get; set; }
 
         public AGIN_3840x2160_Baccarat() { }
 
         public AGIN_3840x2160_Baccarat(int maxX, int maxY)
         {
-            MaxX = maxX; MaxY = maxY;
-            Tbls = new AGIN_3840x2160_Baccarat_TblLevel1[MaxX][];
-            for(int i = 0; i < MaxX; i++)
+            Tbls = new AGIN_3840x2160_Baccarat_TblLevel1[maxX][];
+            for(int i = 0; i < maxX; i++)
             {
-                Tbls[i] = new AGIN_3840x2160_Baccarat_TblLevel1[MaxY];
+                Tbls[i] = new AGIN_3840x2160_Baccarat_TblLevel1[maxY];
             }
         }
 
@@ -265,101 +262,26 @@ namespace SpiralEdge.Helper
         {
             Tbls[idxX][idxY] = tbl;
         }
-
-        public List<List<object>> ListData()
-        {
-            List<List<object>> lst = new List<List<object>>();
-            for (int x = 0; x < MaxX; x++)
-            {
-                for (int y = 0; y < MaxY; y++)
-                {
-                    var tbl = Tbls[x][y];
-                    if (null != tbl)
-                    {
-                        lst.Add(new List<object>() { x, y, tbl });
-                    }
-                }
-            }
-            return lst;
-        }
     }
 
     public class AGIN_3840x2160_Baccarat_TblLevel1
     {
-        private int MaxX { get; set; }
-        private int MaxY { get; set; }
-        public bool Valid { get; set; }
-        public string LatestCircleName { get; set; }
-        public int LatestCircleLength { get; set; }
         public AGIN_3840x2160_Baccarat_TblLevel1_Cell[][] Cells { get; set; }
         
-        private void Analysis()
-        {
-            #region For: Valid
-            Valid = true;
-            for (int x = 0; x < MaxX; x++)
-            {
-                for (int y = 0; y < MaxY; y++)
-                {
-                    var cell = Cells[x][y];
-                    if (null == cell || 0 == cell.Matches.Count)
-                    {
-                        Valid = false;
-                        break;
-                    }
-                }
-                if (!Valid) { break; }
-            }
-            #endregion
-            #region For: LastestCircleName/LatestCircleLength
-            LatestCircleName = ""; LatestCircleLength = 0;
-            if (Valid)
-            {
-                for (int x1 = Cells.Length - 1; x1 > -1; x1--)
-                {
-                    var cell = Cells[x1][0];
-                    if (cell.Matches.Contains("circle-blue") || cell.Matches.Contains("circle-red"))
-                    {
-                        LatestCircleName = cell.Matches.Contains("circle-blue") ? "circle-blue" : "circle-red"; LatestCircleLength = 1;
-                        for (int y1 = 1; y1 < Cells[x1].Length; y1++)
-                        {
-                            cell = Cells[x1][y1];
-                            if (cell.Matches.Contains(LatestCircleName)) { LatestCircleLength++; }
-                            if (!cell.Matches.Contains(LatestCircleName) || Cells[x1].Length - 1 == y1)
-                            {
-                                int y2 = cell.Matches.Contains(LatestCircleName) ? y1 : y1 - 1;
-                                for (int x2 = x1 + 1; x2 < Cells.Length; x2++)
-                                {
-                                    cell = Cells[x2][y2];
-                                    if (!cell.Matches.Contains(LatestCircleName)) { break; }
-                                    LatestCircleLength++;
-                                }
-                                break;
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
-            #endregion
-        }
-
         public AGIN_3840x2160_Baccarat_TblLevel1() { }
 
         public AGIN_3840x2160_Baccarat_TblLevel1(int maxX, int maxY)
         {
-            MaxX = maxX; MaxY = maxY;
-            Cells = new AGIN_3840x2160_Baccarat_TblLevel1_Cell[MaxX][];
-            for (int i = 0; i < MaxX; i++)
+            Cells = new AGIN_3840x2160_Baccarat_TblLevel1_Cell[maxX][];
+            for (int i = 0; i < maxX; i++)
             {
-                Cells[i] = new AGIN_3840x2160_Baccarat_TblLevel1_Cell[MaxY];
+                Cells[i] = new AGIN_3840x2160_Baccarat_TblLevel1_Cell[maxY];
             }
         }
 
         public void AddCell(AGIN_3840x2160_Baccarat_TblLevel1_Cell cell, int idxX, int idxY)
         {
             Cells[idxX][idxY] = cell;
-            Analysis();
         }
     }
 
@@ -371,9 +293,9 @@ namespace SpiralEdge.Helper
         private double TotalG { get; set; }
         private double TotalR { get; set; }
         public List<string> Matches { get; set; }
-        public double PercentB { get { return TotalB / (Width * Height * 255); } }
-        public double PercentG { get { return TotalG / (Width * Height * 255); } }
-        public double PercentR { get { return TotalR / (Width * Height * 255); } }
+        public double PercentB { get { return Math.Round((TotalB / (Width * Height * 255)) * 10000) / 10000; } }
+        public double PercentG { get { return Math.Round((TotalG / (Width * Height * 255)) * 10000) / 10000; } }
+        public double PercentR { get { return Math.Round((TotalR / (Width * Height * 255)) * 10000) / 10000; } }
         
         private void Analysis(string path)
         {

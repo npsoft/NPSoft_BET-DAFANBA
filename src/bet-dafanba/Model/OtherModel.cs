@@ -15,55 +15,106 @@ namespace SpiralEdge.Model
         public int CoordinateX { get; set; }
         public int CoordinateY { get; set; }
         public string FileNames { get; set; }
-        public List<List<DB_AGIN_Baccarat_Cell>> DataAnalysis { get; set; }
-        public int DataTotalCol { get; set; }
-        public int DataTotalRow { get; set; }
-        public int DataTotalInvalid { get; set; }
-        public int DataMaxIdxColRow0 { get; set; }
-        public int DataLatestOrder { get; set; }
-        public int DataLatestOrderX { get; set; }
-        public int DataLatestOrderY { get; set; }
-        public string DataLatestOrderColor { get; set; }
+        public DB_AGIN_Baccarat_Tbl DataAnalysis { get; set; }
         public DateTime CreatedOn { get; set; }
         public long CreatedBy { get; set; }
         public DateTime LastModifiedOn { get; set; }
         public long LastModifiedBy { get; set; }
+        public bool AlertPattern01 { get; set; }
         #endregion
         #region For: Ctors
         public DB_AGIN_Baccarat() { }
         #endregion
         #region For: Methods
-        public void RemoveEmptyCol()
+        public void SaveDB(SQLiteHelper connHelper)
         {
-            for (int x = DataAnalysis.Count - 1; -1 < x; x--)
+            if (0 == Id) // For: Insert data
             {
-                bool remove = true;
-                foreach (var cell in DataAnalysis[x])
-                {
-                    if (1 < cell.Matches.Count)
-                    {
-                        remove = false; break;
-                    }
-                }
-                if (remove) { DataAnalysis.RemoveAt(x); }
-                else { break; }
+                Id = IdentityMax(connHelper);
+                string cmd = string.Format(@"INSERT INTO AGIN (Id, CoordinateX, CoordinateY, FileNames, DataAnalysis, CreatedOn, CreatedBy, LastModifiedOn, LastModifiedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                List<SQLiteParameter> paras = new List<SQLiteParameter>();
+                paras.Add(new SQLiteParameter() { Value = Id });
+                paras.Add(new SQLiteParameter() { Value = CoordinateX });
+                paras.Add(new SQLiteParameter() { Value = CoordinateY });
+                paras.Add(new SQLiteParameter() { Value = FileNames });
+                paras.Add(new SQLiteParameter() { Value = JsonConvert.SerializeObject(DataAnalysis) });
+                paras.Add(new SQLiteParameter() { Value = CreatedOn });
+                paras.Add(new SQLiteParameter() { Value = CreatedBy });
+                paras.Add(new SQLiteParameter() { Value = LastModifiedOn });
+                paras.Add(new SQLiteParameter() { Value = LastModifiedBy });
+                connHelper.ExecNonQueryCmdOptimize(paras, cmd);
+            }
+            else // For: Update data
+            {
+                string cmd = string.Format(@"UPDATE AGIN SET CoordinateX = ?, CoordinateY = ?, FileNames = ?, DataAnalysis = ?, CreatedOn = ?, CreatedBy = ?, LastModifiedOn = ?, LastModifiedBy = ? WHERE Id = ?");
+                List<SQLiteParameter> paras = new List<SQLiteParameter>();
+                paras.Add(new SQLiteParameter() { Value = CoordinateX });
+                paras.Add(new SQLiteParameter() { Value = CoordinateY });
+                paras.Add(new SQLiteParameter() { Value = FileNames });
+                paras.Add(new SQLiteParameter() { Value = JsonConvert.SerializeObject(DataAnalysis) });
+                paras.Add(new SQLiteParameter() { Value = CreatedOn });
+                paras.Add(new SQLiteParameter() { Value = CreatedBy });
+                paras.Add(new SQLiteParameter() { Value = LastModifiedOn });
+                paras.Add(new SQLiteParameter() { Value = LastModifiedBy });
+                paras.Add(new SQLiteParameter() { Value = Id });
+                connHelper.ExecNonQueryCmdOptimize(paras, cmd);
             }
         }
 
-        public void SaveDB(SQLiteHelper connHelper)
+        public void SaveDBItems(SQLiteHelper connHelper)
         {
-            string cmd = string.Format(@"INSERT INTO AGIN (Id, FileName, CoordinateX, CoordinateY, AnalysisData, CreatedOn, CreatedBy, LastModifiedOn, LastModifiedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            List<SQLiteParameter> paras = new List<SQLiteParameter>();
-            paras.Add(new SQLiteParameter() { Value = Id });
-            paras.Add(new SQLiteParameter() { Value = FileName });
-            paras.Add(new SQLiteParameter() { Value = CoordinateX });
-            paras.Add(new SQLiteParameter() { Value = CoordinateY });
-            paras.Add(new SQLiteParameter() { Value = JsonConvert.SerializeObject(AnalysisData) });
-            paras.Add(new SQLiteParameter() { Value = CreatedOn });
-            paras.Add(new SQLiteParameter() { Value = CreatedBy });
-            paras.Add(new SQLiteParameter() { Value = LastModifiedOn });
-            paras.Add(new SQLiteParameter() { Value = LastModifiedBy });
-            connHelper.ExecNonQueryCmdOptimize(paras, cmd);
+            if (0 == Id) // For: Insert data
+            {
+                Id = IdentityMax(connHelper);
+                string cmd = string.Format(@"INSERT INTO AGIN_ITEMS (Id, CoordinateX, CoordinateY, FileNames, DataAnalysis, CreatedOn, CreatedBy, LastModifiedOn, LastModifiedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                List<SQLiteParameter> paras = new List<SQLiteParameter>();
+                paras.Add(new SQLiteParameter() { Value = Id });
+                paras.Add(new SQLiteParameter() { Value = CoordinateX });
+                paras.Add(new SQLiteParameter() { Value = CoordinateY });
+                paras.Add(new SQLiteParameter() { Value = FileNames });
+                paras.Add(new SQLiteParameter() { Value = JsonConvert.SerializeObject(DataAnalysis) });
+                paras.Add(new SQLiteParameter() { Value = CreatedOn });
+                paras.Add(new SQLiteParameter() { Value = CreatedBy });
+                paras.Add(new SQLiteParameter() { Value = LastModifiedOn });
+                paras.Add(new SQLiteParameter() { Value = LastModifiedBy });
+                connHelper.ExecNonQueryCmdOptimize(paras, cmd);
+            }
+            else // For: Update data
+            {
+                string cmd = string.Format(@"UPDATE AGIN_ITEMS SET CoordinateX = ?, CoordinateY = ?, FileNames = ?, DataAnalysis = ?, CreatedOn = ?, CreatedBy = ?, LastModifiedOn = ?, LastModifiedBy = ? WHERE Id = ?");
+                List<SQLiteParameter> paras = new List<SQLiteParameter>();
+                paras.Add(new SQLiteParameter() { Value = CoordinateX });
+                paras.Add(new SQLiteParameter() { Value = CoordinateY });
+                paras.Add(new SQLiteParameter() { Value = FileNames });
+                paras.Add(new SQLiteParameter() { Value = JsonConvert.SerializeObject(DataAnalysis) });
+                paras.Add(new SQLiteParameter() { Value = CreatedOn });
+                paras.Add(new SQLiteParameter() { Value = CreatedBy });
+                paras.Add(new SQLiteParameter() { Value = LastModifiedOn });
+                paras.Add(new SQLiteParameter() { Value = LastModifiedBy });
+                paras.Add(new SQLiteParameter() { Value = Id });
+                connHelper.ExecNonQueryCmdOptimize(paras, cmd);
+            }
+        }
+
+        public int ChkPattern01()
+        {
+            List<DB_AGIN_Baccarat_Cell> cells = new List<DB_AGIN_Baccarat_Cell>();
+            DataAnalysis.Cells.ForEach(x => {
+                cells.AddRange(x.Where(y => 0 != y.Order));
+            });
+            cells = cells.OrderByDescending(x => x.Order).ToList();
+            #region For: Calculate length
+            int len = 0;
+            foreach (var cell in cells)
+            {
+                if (!cell.Matches.Contains(DataAnalysis.LatestOrderCircle))
+                {   
+                    break;
+                }
+                len++;
+            }
+            return len;
+            #endregion
         }
 
         public static long IdentityMax(SQLiteHelper connHelper)
@@ -75,14 +126,23 @@ namespace SpiralEdge.Model
             return identity;
         }
 
+        public static long IdentityMaxItems(SQLiteHelper connHelper)
+        {
+            long identity = 0;
+            string cmd = string.Format(@"SELECT MAX(Id) FROM AGIN_ITEMS");
+            object scalar = connHelper.ExecScalarCmd(null, cmd);
+            if (DBNull.Value != scalar) { identity = (long)scalar; }
+            return identity;
+        }
+
         public static DB_AGIN_Baccarat ExtractDB(DataRow dr, List<string> cols)
         {
             DB_AGIN_Baccarat baccarat = new DB_AGIN_Baccarat();
             if (cols.Contains("Id") && DBNull.Value != dr["Id"]) { baccarat.Id = (long)dr["Id"]; }
-            if (cols.Contains("FileName") && DBNull.Value != dr["FileName"]) { baccarat.FileName = (string)dr["FileName"]; }
             if (cols.Contains("CoordinateX") && DBNull.Value != dr["CoordinateX"]) { baccarat.CoordinateX = (int)dr["CoordinateX"]; }
             if (cols.Contains("CoordinateY") && DBNull.Value != dr["CoordinateY"]) { baccarat.CoordinateY = (int)dr["CoordinateY"]; }
-            if (cols.Contains("AnalysisData") && DBNull.Value != dr["AnalysisData"]) { baccarat.AnalysisData = JsonConvert.DeserializeObject<DB_AGIN_Baccarat_Tbl>((string)dr["AnalysisData"]); }
+            if (cols.Contains("FileNames") && DBNull.Value != dr["FileNames"]) { baccarat.FileNames = (string)dr["FileNames"]; }
+            if (cols.Contains("DataAnalysis") && DBNull.Value != dr["DataAnalysis"]) { baccarat.DataAnalysis = JsonConvert.DeserializeObject<DB_AGIN_Baccarat_Tbl>((string)dr["DataAnalysis"]); }
             if (cols.Contains("CreatedOn") && DBNull.Value != dr["CreatedOn"]) { baccarat.CreatedOn = (DateTime)dr["CreatedOn"]; }
             if (cols.Contains("CreatedBy") && DBNull.Value != dr["CreatedBy"]) { baccarat.CreatedBy = (long)dr["CreatedBy"]; }
             if (cols.Contains("LastModifiedOn") && DBNull.Value != dr["LastModifiedOn"]) { baccarat.LastModifiedOn = (DateTime)dr["LastModifiedOn"]; }
@@ -92,28 +152,46 @@ namespace SpiralEdge.Model
 
         public static DB_AGIN_Baccarat ExtractObj(int coordinateX, int coordinateY, string fileName, AGIN_3840x2160_Baccarat_TblLevel1 dataAnalysis, DateTime createdOn, long createdBy, DateTime lastModifiedOn, long lastModifiedBy)
         {
-            var baccarat = new DB_AGIN_Baccarat();
+            DB_AGIN_Baccarat baccarat = new DB_AGIN_Baccarat();
+            baccarat.Id = 0;
             baccarat.CoordinateX = coordinateX;
             baccarat.CoordinateY = coordinateY;
-            baccarat.FileNames = string.Format("{0};", fileName);
-            baccarat.DataAnalysis = new List<List<DB_AGIN_Baccarat_Cell>>();
+            baccarat.FileNames = string.Format(";{0};", fileName);
+            baccarat.DataAnalysis = new DB_AGIN_Baccarat_Tbl();
             for (int x = 0; x < dataAnalysis.Cells.Length; x++)
             {
-                baccarat.DataAnalysis.Add(new List<DB_AGIN_Baccarat_Cell>());
+                baccarat.DataAnalysis.Cells.Add(new List<DB_AGIN_Baccarat_Cell>());
                 for (int y = 0; y < dataAnalysis.Cells[x].Length; y++)
                 {
-                    baccarat.DataAnalysis[x].Add(new DB_AGIN_Baccarat_Cell());
-                    baccarat.DataAnalysis[x][y].PercentB = Math.Round(dataAnalysis.Cells[x][y].PercentB * 10000) / 10000;
-                    baccarat.DataAnalysis[x][y].PercentG = Math.Round(dataAnalysis.Cells[x][y].PercentG * 10000) / 10000;
-                    baccarat.DataAnalysis[x][y].PercentR = Math.Round(dataAnalysis.Cells[x][y].PercentR * 10000) / 10000;
-                    baccarat.DataAnalysis[x][y].Matches = dataAnalysis.Cells[x][y].Matches;
+                    baccarat.DataAnalysis.Cells[x].Add(new DB_AGIN_Baccarat_Cell());
+                    baccarat.DataAnalysis.Cells[x][y].PercentB = dataAnalysis.Cells[x][y].PercentB;
+                    baccarat.DataAnalysis.Cells[x][y].PercentG = dataAnalysis.Cells[x][y].PercentG;
+                    baccarat.DataAnalysis.Cells[x][y].PercentR = dataAnalysis.Cells[x][y].PercentR;
+                    baccarat.DataAnalysis.Cells[x][y].Matches = dataAnalysis.Cells[x][y].Matches;
                 }
             }
+            baccarat.DataAnalysis.DelEmpty();
             baccarat.CreatedOn = createdOn;
             baccarat.CreatedBy = createdBy;
             baccarat.LastModifiedOn = lastModifiedOn;
             baccarat.LastModifiedBy = lastModifiedBy;
             return baccarat;
+        }
+
+        public static List<DB_AGIN_Baccarat> ExtractImg(AGIN_3840x2160_Baccarat img, string fileName, DateTime createdOn, long createdBy, DateTime lastModifiedOn, long lastModifiedBy)
+        {
+            List<DB_AGIN_Baccarat> agins = new List<DB_AGIN_Baccarat>();
+            for (int x = 0; x < img.Tbls.Length; x++)
+            {
+                for (int y = 0; y < img.Tbls[0].Length; y++)
+                {
+                    if (null != img.Tbls[x][y])
+                    {
+                        agins.Add(ExtractObj(x, y, fileName, img.Tbls[x][y], createdOn, createdBy, lastModifiedOn, lastModifiedBy));
+                    }
+                }
+            }
+            return agins;
         }
         #endregion
     }
@@ -141,7 +219,19 @@ namespace SpiralEdge.Model
         [JsonProperty("cells")]
         public List<List<DB_AGIN_Baccarat_Cell>> Cells { get; set; }
 
-        public DB_AGIN_Baccarat_Tbl() { }
+        public DB_AGIN_Baccarat_Tbl()
+        {
+            TotalCol = 0;
+            TotalRow = 0;
+            TotalInvalid = 0;
+            LatestOrder = 0;
+            LatestOrderCircle = "";
+            LatestOrderX = -1;
+            LatestOrderY = -1;
+            LatestOrderXR = -1;
+            LatestOrderYR = -1;
+            Cells = new List<List<DB_AGIN_Baccarat_Cell>>();
+        }
         
         /// <summary>
         /// Description: Update values for total-col | total-row | total-invalid properties
@@ -170,7 +260,7 @@ namespace SpiralEdge.Model
         }
 
         /// <summary>
-        /// Description: Default values for latest-order = 0 | latest-order-circle = empty | latest-order-x = -1 | latest-order-y = -1 | latest-order-xr = -1 | latest-order-yr = -1
+        /// Description: Update values for latest-order | latest-order-circle | latest-order-x | latest-order-y | latest-order-xr | latest-order-yr properties
         /// </summary>
         public void UpdOrder(int latestOrder, string latestOrderCircle, int latestOrderX, int latestOrderY, int latestOrderXR, int latestOrderYR)
         {
@@ -269,13 +359,34 @@ namespace SpiralEdge.Model
             #endregion
         }
         
-        public static int CheckMerge(DB_AGIN_Baccarat_Tbl tblOrg, DB_AGIN_Baccarat_Tbl tblNew, int distMax)
+        public void DelEmpty()
         {
-            bool merged = false; int dist = 0;
-            if (0 == tblNew.TotalCol && 0 == tblOrg.TotalCol)
+            for (int x = Cells.Count - 1; -1 < x; x--)
             {
-                // can merge
+                bool remove = true;
+                foreach (var cell in Cells[x])
+                {
+                    if (1 < cell.Matches.Count)
+                    {
+                        remove = false;
+                        break;
+                    }
+                }
+                if (!remove) { break; }
+                Cells.RemoveAt(x);
             }
+            UpdTotal();
+        }
+
+        public static int DistMax(DB_AGIN_Baccarat_Tbl tblOrg, DB_AGIN_Baccarat_Tbl tblNew)
+        {
+            return tblNew.TotalCol / 2;
+        }
+
+        public static int DistMerge(DB_AGIN_Baccarat_Tbl tblOrg, DB_AGIN_Baccarat_Tbl tblNew, int distMax)
+        {
+            int dist = 0;
+            bool merged = 0 == tblNew.TotalCol && 0 == tblOrg.TotalCol; // For: Can merge with both were empty
             for (int x_new = tblNew.TotalCol - 1; x_new > -1; x_new--)
             {
                 // For: Determine distance, for new
@@ -318,15 +429,21 @@ namespace SpiralEdge.Model
 
         public static void ExecMerge(DB_AGIN_Baccarat_Tbl tblOrg, DB_AGIN_Baccarat_Tbl tblNew, int dist)
         {
-            #region For: Determine max index, for origin
-            int x_org_empty = 0;
+            #region For: Determine start index, for both
+            int x_org_sta = 0;
             for (int x = 0; x < tblOrg.TotalCol; x++)
             {
                 if (0 != tblOrg.Cells[x].Count && 2 > tblOrg.Cells[x][0].Matches.Count)
                 {
                     break;
                 }
-                x_org_empty++;
+                x_org_sta = x;
+            }
+            int x_new_sta = (tblNew.TotalCol - 1 - dist) - (tblOrg.TotalCol - 1 - x_org_sta);
+            if (0 > x_new_sta) // For: Re-calculate start index, for both
+            {
+                x_org_sta = -x_new_sta;
+                x_new_sta = 0;
             }
             #endregion
             #region For: Allocating column/row, for origin
@@ -344,12 +461,12 @@ namespace SpiralEdge.Model
                 }
             }
             #endregion
-            for (int x_org = x_org_empty; x_org < tblOrg.TotalCol + dist; x_org++)
+            for (int x_org = x_org_sta; x_org < tblOrg.TotalCol + dist; x_org++)
             {
                 for (int y_org = 0; y_org < tblOrg.TotalRow; y_org++)
                 {
                     var cell_org = tblOrg.Cells[x_org][y_org];
-                    var cell_new = tblNew.Cells[x_org - x_org_empty (tblNew.TotalCol - dist)][y_org];
+                    var cell_new = tblNew.Cells[x_new_sta + (x_org - x_org_sta)][y_org];
                     #region For: Copy infomation, for origin
                     cell_org.PercentB = cell_new.PercentB;
                     cell_org.PercentG = cell_new.PercentG;
@@ -358,6 +475,7 @@ namespace SpiralEdge.Model
                     #endregion
                 }
             }
+            tblOrg.UpdTotal();
         }
     }
 
