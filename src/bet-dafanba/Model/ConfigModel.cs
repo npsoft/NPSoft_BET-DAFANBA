@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Data.SqlClient;
 using System.Data;
+using System.Data.SQLite;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -112,9 +112,14 @@ namespace SpiralEdge.Model
                 foreach (DB_AGIN_Baccarat agin_img in agins_img)
                 {
                     DB_AGIN_Baccarat agin_latest = LatestAGINs.Where(x => x.CoordinateX == agin_img.CoordinateX && x.CoordinateY == agin_img.CoordinateY).FirstOrDefault();
+                    #region For: Save/Clean baccarat
+                    agin_img.SaveDbItems(ConnHelper);
+                    if (0 != agin_img.DataAnalysis.TotalInvalid) { break; }
+                    agin_img.DataAnalysis.DelEmpty();
+                    #endregion
                     #region For: Merge baccarat
                     bool merged = false;
-                    if (null != agin_latest && 0 == agin_img.DataAnalysis.TotalInvalid)
+                    if (null != agin_latest)
                     {
                         int dist = DB_AGIN_Baccarat_Tbl.DistMerge(
                             agin_latest.DataAnalysis, agin_img.DataAnalysis,
@@ -155,8 +160,7 @@ namespace SpiralEdge.Model
                     agin_latest.AlertPattern01 = CONFIG_DAFANBA_ALERT_LENGTH_AG <= pattern01;
                     #endregion
                     #region For: Save data to database
-                    agin_latest.SaveDB(ConnHelper);
-                    agin_img.SaveDBItems(ConnHelper);
+                    agin_latest.SaveDb(ConnHelper);
                     #endregion
                 }
             }
@@ -200,6 +204,61 @@ namespace SpiralEdge.Model
             MailHelper mail_helper = new MailHelper(CONFIG_EMAIL_USER, CONFIG_EMAIL_PASS);
             string send_email = mail_helper.SendEmail(CONFIG_EMAIL_RECEIVED, subject, content, attachments, display_name);
             Log.Log(string.Format("Information\t:: Send email(s) processing has been completed."));
+        }
+        
+        public void Ex170323_HdlAGIN()
+        {
+            List<DB_AGIN_Baccarat> agins = new List<DB_AGIN_Baccarat>();
+            SQLiteCommand cmd = ConnHelper.ConnDb.CreateCommand();
+            try
+            {
+                #region SQLiteCommand: Initialize
+                #region cmd.CommandText = string.Format(@"")
+                cmd.CommandText = string.Format("SELECT * FROM AGIN WHERE FileName IN ('agin-170318-213828-468.png', 'agin-170318-213845-092.png', 'agin-170318-213901-528.png', 'agin-170318-213917-760.png', 'agin-170318-213934-249.png', 'agin-170318-213950-880.png', '') ORDER BY Id ASC");
+                #endregion
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandTimeout = CONFIG_CONN_TIMEOUT;
+                #endregion
+                #region SQLiteCommand: Parameters
+                // -: cmd.Parameters.Add(new SQLiteParameter() { Value = "agin-170318-213613-937.png" });
+                #endregion
+                #region SQLiteCommand: Connection
+                DataSet ds = ConnHelper.ExecCmd(cmd);
+                #endregion
+                #region For: Retrieve
+                DataTable dt = ds.Tables[0];
+                List<string> cols = new List<string>();
+                foreach (DataColumn dc in dt.Columns)
+                {
+                    cols.Add(dc.ColumnName);
+                }
+                foreach (DataRow dr in dt.Rows)
+                {
+                    agins.Add(DB_AGIN_Baccarat.Ex170323_ExtractDB(dr, cols));
+                    agins.Last().Id = 0;
+                    // agins.Last().DataAnalysis.DelEmpty();
+                    // agins.Last().DataAnalysis.UpdOrder(agins.Last().DataAnalysis.LatestOrder, agins.Last().DataAnalysis.LatestOrderCircle, agins.Last().DataAnalysis.LatestOrderX, agins.Last().DataAnalysis.LatestOrderY, agins.Last().DataAnalysis.LatestOrderXR, agins.Last().DataAnalysis.LatestOrderYR);
+                }
+                #endregion
+                #region For: Clean
+                dt.Clear();
+                ds.Clear();
+                dt.Dispose();
+                ds.Dispose();
+                #endregion
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(string.Format("{0}{1}", ex.Message, ex.StackTrace), ex);
+            }
+            finally
+            {
+                cmd.Dispose();
+            }
+            foreach (DB_AGIN_Baccarat agin in agins)
+            {
+                agin.SaveDbItems(ConnHelper);
+            }
         }
 
         public static void SendEmailEx(ConfigModel config, Exception ex)

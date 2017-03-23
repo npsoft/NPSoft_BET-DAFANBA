@@ -23,14 +23,38 @@ namespace SpiralEdge.Model
         public bool AlertPattern01 { get; set; }
         #endregion
         #region For: Ctors
-        public DB_AGIN_Baccarat() { }
+        public DB_AGIN_Baccarat()
+        {
+            DataAnalysis = new DB_AGIN_Baccarat_Tbl();
+        }
         #endregion
         #region For: Methods
-        public void SaveDB(SQLiteHelper connHelper)
+        public int ChkPattern01()
+        {
+            List<DB_AGIN_Baccarat_Cell> cells = new List<DB_AGIN_Baccarat_Cell>();
+            DataAnalysis.Cells.ForEach(x => {
+                cells.AddRange(x.Where(y => 0 != y.Order));
+            });
+            cells = cells.OrderByDescending(x => x.Order).ToList();
+            #region For: Calculate length
+            int len = 0;
+            foreach (var cell in cells)
+            {
+                if (!cell.Matches.Contains(DataAnalysis.LatestOrderCircle))
+                {
+                    break;
+                }
+                len++;
+            }
+            return len;
+            #endregion
+        }
+
+        public void SaveDb(SQLiteHelper connHelper)
         {
             if (0 == Id) // For: Insert data
             {
-                Id = IdentityMax(connHelper);
+                Id = IdentityMax(connHelper) + 1;
                 string cmd = string.Format(@"INSERT INTO AGIN (Id, CoordinateX, CoordinateY, FileNames, DataAnalysis, CreatedOn, CreatedBy, LastModifiedOn, LastModifiedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 List<SQLiteParameter> paras = new List<SQLiteParameter>();
                 paras.Add(new SQLiteParameter() { Value = Id });
@@ -61,11 +85,11 @@ namespace SpiralEdge.Model
             }
         }
 
-        public void SaveDBItems(SQLiteHelper connHelper)
+        public void SaveDbItems(SQLiteHelper connHelper)
         {
             if (0 == Id) // For: Insert data
             {
-                Id = IdentityMax(connHelper);
+                Id = IdentityMaxItems(connHelper) + 1;
                 string cmd = string.Format(@"INSERT INTO AGIN_ITEMS (Id, CoordinateX, CoordinateY, FileNames, DataAnalysis, CreatedOn, CreatedBy, LastModifiedOn, LastModifiedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 List<SQLiteParameter> paras = new List<SQLiteParameter>();
                 paras.Add(new SQLiteParameter() { Value = Id });
@@ -94,27 +118,6 @@ namespace SpiralEdge.Model
                 paras.Add(new SQLiteParameter() { Value = Id });
                 connHelper.ExecNonQueryCmdOptimize(paras, cmd);
             }
-        }
-
-        public int ChkPattern01()
-        {
-            List<DB_AGIN_Baccarat_Cell> cells = new List<DB_AGIN_Baccarat_Cell>();
-            DataAnalysis.Cells.ForEach(x => {
-                cells.AddRange(x.Where(y => 0 != y.Order));
-            });
-            cells = cells.OrderByDescending(x => x.Order).ToList();
-            #region For: Calculate length
-            int len = 0;
-            foreach (var cell in cells)
-            {
-                if (!cell.Matches.Contains(DataAnalysis.LatestOrderCircle))
-                {   
-                    break;
-                }
-                len++;
-            }
-            return len;
-            #endregion
         }
 
         public static long IdentityMax(SQLiteHelper connHelper)
@@ -170,7 +173,7 @@ namespace SpiralEdge.Model
                     baccarat.DataAnalysis.Cells[x][y].Matches = dataAnalysis.Cells[x][y].Matches;
                 }
             }
-            baccarat.DataAnalysis.DelEmpty();
+            baccarat.DataAnalysis.UpdTotal();
             baccarat.CreatedOn = createdOn;
             baccarat.CreatedBy = createdBy;
             baccarat.LastModifiedOn = lastModifiedOn;
@@ -192,6 +195,40 @@ namespace SpiralEdge.Model
                 }
             }
             return agins;
+        }
+        
+        public static DB_AGIN_Baccarat Ex170323_ExtractDB(DataRow dr, List<string> cols)
+        {
+            DB_AGIN_Baccarat baccarat = new DB_AGIN_Baccarat();
+            if (cols.Contains("Id") && DBNull.Value != dr["Id"]) { baccarat.Id = (long)dr["Id"]; }
+            if (cols.Contains("CoordinateX") && DBNull.Value != dr["CoordinateX"]) { baccarat.CoordinateX = (int)dr["CoordinateX"]; }
+            if (cols.Contains("CoordinateY") && DBNull.Value != dr["CoordinateY"]) { baccarat.CoordinateY = (int)dr["CoordinateY"]; }
+            if (cols.Contains("FileName") && DBNull.Value != dr["FileName"]) { baccarat.FileNames = string.Format(";{0};", dr["FileName"]); }
+            if (cols.Contains("AnalysisData") && DBNull.Value != dr["AnalysisData"])
+            {
+                dynamic data = JsonConvert.DeserializeObject((string)dr["AnalysisData"]);
+                foreach (dynamic cells in data["cells"])
+                {
+                    baccarat.DataAnalysis.Cells.Add(new List<DB_AGIN_Baccarat_Cell>());
+                    foreach (dynamic cell in cells)
+                    {
+                        baccarat.DataAnalysis.Cells.Last().Add(new DB_AGIN_Baccarat_Cell());
+                        baccarat.DataAnalysis.Cells.Last().Last().PercentB = (double)cell["percent-b"];
+                        baccarat.DataAnalysis.Cells.Last().Last().PercentG = (double)cell["percent-g"];
+                        baccarat.DataAnalysis.Cells.Last().Last().PercentR = (double)cell["percent-r"];
+                        foreach (dynamic match in cell["matches"])
+                        {
+                            baccarat.DataAnalysis.Cells.Last().Last().Matches.Add((string)match);
+                        }
+                    }
+                }
+            }
+            if (cols.Contains("CreatedOn") && DBNull.Value != dr["CreatedOn"]) { baccarat.CreatedOn = (DateTime)dr["CreatedOn"]; }
+            if (cols.Contains("CreatedBy") && DBNull.Value != dr["CreatedBy"]) { baccarat.CreatedBy = (long)dr["CreatedBy"]; }
+            if (cols.Contains("LastModifiedOn") && DBNull.Value != dr["LastModifiedOn"]) { baccarat.LastModifiedOn = (DateTime)dr["LastModifiedOn"]; }
+            if (cols.Contains("LastModifiedBy") && DBNull.Value != dr["LastModifiedBy"]) { baccarat.LastModifiedBy = (long)dr["LastModifiedBy"]; }
+            baccarat.DataAnalysis.UpdTotal();
+            return baccarat;
         }
         #endregion
     }
@@ -274,7 +311,6 @@ namespace SpiralEdge.Model
             #endregion
             for (int x = 0; x < TotalCol; x++)
             {
-                latest_order_x = x;
                 #region For: If current value less than latest-order-x, then ignore it to continue with other value
                 if (x < latestOrderX)
                 {
@@ -283,9 +319,6 @@ namespace SpiralEdge.Model
                 #endregion
                 for (int y = 0; y < TotalRow; y++)
                 {
-                    latest_order_y = y;
-                    latest_order_xr = -1;
-                    latest_order_yr = -1;
                     #region For: If current value less than latest-order-y, then ignore it to continue with other value
                     if (y < latestOrderY)
                     {
@@ -294,32 +327,47 @@ namespace SpiralEdge.Model
                     #endregion
                     bool set_order = false;
                     DB_AGIN_Baccarat_Cell cell = Cells[x][y];
-                    bool go_to_horizontal = x == latestOrderX && y == latestOrderY && -1 != latestOrderXR && -1 != LatestOrderYR;
-                    if (!go_to_horizontal && 2 > cell.Matches.Count) // For: Current cell was empty, break loop
+                    DB_AGIN_Baccarat_Cell cell_py = y - 1 > -1 ? Cells[x][y - 1] : null;
+                    bool go_to_vertical = x == latestOrderX && y == latestOrderY;
+                    bool go_to_horizontal = go_to_vertical && -1 != latestOrderXR && -1 != LatestOrderYR;
+                    if (!go_to_vertical && 2 > cell.Matches.Count) // For: Current cell was empty, break loop
                     {
                         break;
                     }
-                    if (!go_to_horizontal && 0 == cell.Order && 0 == y) // For: Current cell was new, set order
+                    if (!go_to_vertical && 0 == cell.Order && 0 == y) // For: Current cell was new, set order
                     {
                         set_order = true;
                         cell.Order = ++latest_order;
                         latest_order_circle = cell.Matches.Contains("circle-blue") ? "circle-blue" : cell.Matches.Contains("circle-red") ? "circle-red" : "";
+                        #region For: Set some values
+                        latest_order_x = x;
+                        latest_order_y = y;
+                        latest_order_xr = -1;
+                        latest_order_yr = -1;
+                        #endregion
                     }
-                    if (!go_to_horizontal && 0 == cell.Order && cell.Matches.Contains(latest_order_circle)) // For: Current cell was valid, set order
+                    if (!go_to_vertical && 0 == cell.Order && cell.Matches.Contains(latest_order_circle)) // For: Current cell was valid, set order
                     {
                         set_order = true;
                         cell.Order = ++latest_order;
                         latest_order_circle = cell.Matches.Contains("circle-blue") ? "circle-blue" : "circle-red";
+                        #region For: Set some values
+                        latest_order_x = x;
+                        latest_order_y = y;
+                        latest_order_xr = -1;
+                        latest_order_yr = -1;
+                        #endregion
                     }
-                    if (go_to_horizontal || 0 != cell.Order && !set_order || TotalRow - 1 == y && set_order) // For: Current cell was order or max index, consider right side
+                    // if (go_to_horizontal || 0 != cell.Order && !set_order || TotalRow - 1 == y && set_order) // For: Current cell was order or max index, consider right side
+                    if (!go_to_vertical && (0 != cell.Order && !set_order || TotalRow - 1 == y && set_order) ||
+                         go_to_vertical && (go_to_horizontal || 0 != cell.Order && null != cell_py && latestOrder == cell_py.Order || TotalRow - 1 == y && latestOrder == cell.Order)) // For: Current cell was order or max index, consider right side
                     {
-                        var y_r = go_to_horizontal ? latestOrderYR : 0 != cell.Order && !set_order ? y - 1 : y;
+                        int y_r = go_to_horizontal ? latestOrderYR :
+                            !go_to_vertical && 0 != cell.Order && !set_order || go_to_vertical && 0 != cell.Order && null != cell_py && latestOrder == cell_py.Order ? y - 1 : y;
                         if (-1 != y_r) // For: Coordinate-y of right side was wrong, ignore this case
                         {
-                            latest_order_yr = y_r;
-                            for (var x_r = x + 1; x_r < TotalCol; x_r++)
+                            for (int x_r = x + 1; x_r < TotalCol; x_r++)
                             {
-                                latest_order_xr = x_r;
                                 #region For: If current value less than or equal latest-order-xr, then ignore it to continue with other value
                                 if (x_r <= latestOrderXR)
                                 {
@@ -332,7 +380,7 @@ namespace SpiralEdge.Model
                                     break;
                                 }
                                 var order_confuse = true; // For: Order can confuse, not sure about this check
-                                for (var y_c = y_r - 1; y_c > -1; y_c++)
+                                for (int y_c = y_r - 1; y_c > -1; y_c++)
                                 {
                                     var cell_c = Cells[x_r][y_c];
                                     if (!cell_c.Matches.Contains(latest_order_circle) || x_r < TotalCol && Cells[x_r + 1][y_c].Matches.Contains(latest_order_circle))
@@ -343,6 +391,12 @@ namespace SpiralEdge.Model
                                 }
                                 cell_r.Order = ++latest_order;
                                 cell_r.OrderConfuse = order_confuse;
+                                #region For: Set some values
+                                latest_order_x = x;
+                                latest_order_y = y;
+                                latest_order_xr = y_r;
+                                latest_order_yr = x_r;
+                                #endregion
                             }
                         }
                         break;
@@ -494,6 +548,9 @@ namespace SpiralEdge.Model
         [JsonProperty("order-confuse")]
         public bool OrderConfuse { get; set; }
 
-        public DB_AGIN_Baccarat_Cell() { }
+        public DB_AGIN_Baccarat_Cell()
+        {
+            Matches = new List<string>();
+        }
     }
 }
