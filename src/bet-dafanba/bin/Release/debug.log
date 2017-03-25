@@ -1,0 +1,38 @@
+[0317/144823:INFO:(0)] WebCore is now online.
+[0317/144823:INFO:(0)] Running Awesomium 1.7.5.1
+[0317/144829:ERROR:ssl_client_socket_nss.cc(1529)] handshake with server radar.cedexis.com:443 failed; NSS error code -5961, net_error -101
+[0317/144835:ERROR:ssl_client_socket_nss.cc(1529)] handshake with server radar.cedexis.com:443 failed; NSS error code -5961, net_error -101
+[0317/150059:INFO:(0)] WebCore is now online.
+[0317/150059:INFO:(0)] Running Awesomium 1.7.5.1
+[0317/150104:ERROR:ssl_client_socket_nss.cc(1529)] handshake with server radar.cedexis.com:443 failed; NSS error code -5961, net_error -101
+[0317/150109:ERROR:ssl_client_socket_nss.cc(1529)] handshake with server radar.cedexis.com:443 failed; NSS error code -5961, net_error -101
+[0317/234402:INFO:(0)] WebCore is now online.
+[0317/234402:INFO:(0)] Running Awesomium 1.7.5.1
+[0317/234429:ERROR:ssl_client_socket_nss.cc(1529)] handshake with server radar.cedexis.com:443 failed; NSS error code -5961, net_error -101
+[0317/234433:ERROR:ssl_client_socket_nss.cc(1529)] handshake with server radar.cedexis.com:443 failed; NSS error code -5961, net_error -101
+[0325/134758:INFO:(0)] WebCore is now online.
+[0325/134758:INFO:(0)] Running Awesomium 1.7.5.1
+[0325/134806:ERROR:ssl_client_socket_nss.cc(1529)] handshake with server radar.cedexis.com:443 failed; NSS error code -5961, net_error -101
+[0325/134814:ERROR:ssl_client_socket_nss.cc(1529)] handshake with server radar.cedexis.com:443 failed; NSS error code -5961, net_error -101
+[0325/135920:INFO:(0)] WebCore is now online.
+[0325/135920:INFO:(0)] Running Awesomium 1.7.5.1
+[0325/135924:ERROR:ssl_client_socket_nss.cc(1529)] handshake with server radar.cedexis.com:443 failed; NSS error code -5961, net_error -101
+[0325/135931:ERROR:ssl_client_socket_nss.cc(1529)] handshake with server radar.cedexis.com:443 failed; NSS error code -5961, net_error -101
+[0325/141900:WARNING:Awesomium.NET(0)] System.ComponentModel.InvalidAsynchronousStateException: An error occurred invoking the method.  The destination thread no longer exists.
+   at System.Windows.Forms.Control.WaitForWaitHandle(WaitHandle waitHandle)
+   at System.Windows.Forms.Control.MarshaledInvoke(Control caller, Delegate method, Object[] args, Boolean synchronous)
+   at System.Windows.Forms.Control.Invoke(Delegate method, Object[] args)
+   at System.Windows.Forms.WindowsFormsSynchronizationContext.Send(SendOrPostCallback d, Object state)
+   at Awesomium.Core.WebCore.wvjjlbeQdqUVO5E6FXD(Object , Object , Object )
+   at Awesomium.Core.WebCore.ioXQMTP1sf()
+[0325/144547:INFO:(0)] WebCore is now online.
+[0325/144547:INFO:(0)] Running Awesomium 1.7.5.1
+[0325/144553:ERROR:ssl_client_socket_nss.cc(1529)] handshake with server radar.cedexis.com:443 failed; NSS error code -5961, net_error -101
+[0325/144600:ERROR:ssl_client_socket_nss.cc(1529)] handshake with server radar.cedexis.com:443 failed; NSS error code -5961, net_error -101
+[0325/163810:WARNING:Awesomium.NET(0)] System.ComponentModel.InvalidAsynchronousStateException: An error occurred invoking the method.  The destination thread no longer exists.
+   at System.Windows.Forms.Control.WaitForWaitHandle(WaitHandle waitHandle)
+   at System.Windows.Forms.Control.MarshaledInvoke(Control caller, Delegate method, Object[] args, Boolean synchronous)
+   at System.Windows.Forms.Control.Invoke(Delegate method, Object[] args)
+   at System.Windows.Forms.WindowsFormsSynchronizationContext.Send(SendOrPostCallback d, Object state)
+   at Awesomium.Core.WebCore.wvjjlbeQdqUVO5E6FXD(Object , Object , Object )
+   at Awesomium.Core.WebCore.ioXQMTP1sf()
