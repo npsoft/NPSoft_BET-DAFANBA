@@ -214,7 +214,6 @@ I:\NPSoft_BET-DAFANBA\src\bet-dafanba\bin\Debug\awesomium_process
 I:\NPSoft_BET-DAFANBA\src\bet-dafanba\bin\Debug\inspector.pak
 I:\NPSoft_BET-DAFANBA\src\bet-dafanba\bin\Debug\xinput9_1_0.dll
 I:\NPSoft_BET-DAFANBA\src\bet-dafanba\bin\Debug\pdf_js.pak
-I:\NPSoft_BET-DAFANBA\src\bet-dafanba\obj\Debug\bet-dafanba.csprojResolveAssemblyReference.cache
 I:\NPSoft_BET-DAFANBA\src\bet-dafanba\obj\Debug\SpiralEdge.frmChild.resources
 I:\NPSoft_BET-DAFANBA\src\bet-dafanba\obj\Debug\SpiralEdge.frmMain.resources
 I:\NPSoft_BET-DAFANBA\src\bet-dafanba\obj\Debug\SpiralEdge.frmTest.resources

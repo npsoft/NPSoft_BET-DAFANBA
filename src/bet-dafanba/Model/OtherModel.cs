@@ -85,12 +85,12 @@ namespace SpiralEdge.Model
             }
         }
 
-        public void SaveDbItems(SQLiteHelper connHelper)
+        public void SaveDbTrack(SQLiteHelper connHelper)
         {
             if (0 == Id) // For: Insert data
             {
-                Id = IdentityMaxItems(connHelper) + 1;
-                string cmd = string.Format(@"INSERT INTO AGIN_ITEMS (Id, CoordinateX, CoordinateY, FileNames, DataAnalysis, CreatedOn, CreatedBy, LastModifiedOn, LastModifiedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                Id = IdentityMaxTrack(connHelper) + 1;
+                string cmd = string.Format(@"INSERT INTO AGIN_TRACK (Id, CoordinateX, CoordinateY, FileNames, DataAnalysis, CreatedOn, CreatedBy, LastModifiedOn, LastModifiedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 List<SQLiteParameter> paras = new List<SQLiteParameter>();
                 paras.Add(new SQLiteParameter() { Value = Id });
                 paras.Add(new SQLiteParameter() { Value = CoordinateX });
@@ -105,7 +105,7 @@ namespace SpiralEdge.Model
             }
             else // For: Update data
             {
-                string cmd = string.Format(@"UPDATE AGIN_ITEMS SET CoordinateX = ?, CoordinateY = ?, FileNames = ?, DataAnalysis = ?, CreatedOn = ?, CreatedBy = ?, LastModifiedOn = ?, LastModifiedBy = ? WHERE Id = ?");
+                string cmd = string.Format(@"UPDATE AGIN_TRACK SET CoordinateX = ?, CoordinateY = ?, FileNames = ?, DataAnalysis = ?, CreatedOn = ?, CreatedBy = ?, LastModifiedOn = ?, LastModifiedBy = ? WHERE Id = ?");
                 List<SQLiteParameter> paras = new List<SQLiteParameter>();
                 paras.Add(new SQLiteParameter() { Value = CoordinateX });
                 paras.Add(new SQLiteParameter() { Value = CoordinateY });
@@ -129,10 +129,10 @@ namespace SpiralEdge.Model
             return identity;
         }
 
-        public static long IdentityMaxItems(SQLiteHelper connHelper)
+        public static long IdentityMaxTrack(SQLiteHelper connHelper)
         {
             long identity = 0;
-            string cmd = string.Format(@"SELECT MAX(Id) FROM AGIN_ITEMS");
+            string cmd = string.Format(@"SELECT MAX(Id) FROM AGIN_TRACK");
             object scalar = connHelper.ExecScalarCmd(null, cmd);
             if (DBNull.Value != scalar) { identity = (long)scalar; }
             return identity;
@@ -304,25 +304,25 @@ namespace SpiralEdge.Model
             #region For: Get some values
             int latest_order = latestOrder;
             string latest_order_circle = latestOrderCircle;
-            int latest_order_x = -1;
-            int latest_order_y = -1;
-            int latest_order_xr = -1;
-            int latest_order_yr = -1;
+            int latest_order_x = latestOrderX;
+            int latest_order_y = latestOrderY;
+            int latest_order_xr = latestOrderXR;
+            int latest_order_yr = latestOrderYR;
             #endregion
             for (int x = 0; x < TotalCol; x++)
             {
                 #region For: If current value less than latest-order-x, then ignore it to continue with other value
                 if (x < latestOrderX)
                 {
-                    break;
+                    continue;
                 }
                 #endregion
                 for (int y = 0; y < TotalRow; y++)
                 {
                     #region For: If current value less than latest-order-y, then ignore it to continue with other value
-                    if (y < latestOrderY)
+                    if (x == latestOrderX && y < latestOrderY)
                     {
-                        break;
+                        continue;
                     }
                     #endregion
                     bool set_order = false;
@@ -394,8 +394,8 @@ namespace SpiralEdge.Model
                                 #region For: Set some values
                                 latest_order_x = x;
                                 latest_order_y = y;
-                                latest_order_xr = y_r;
-                                latest_order_yr = x_r;
+                                latest_order_xr = x_r;
+                                latest_order_yr = y_r;
                                 #endregion
                             }
                         }
@@ -440,17 +440,17 @@ namespace SpiralEdge.Model
         public static int DistMerge(DB_AGIN_Baccarat_Tbl tblOrg, DB_AGIN_Baccarat_Tbl tblNew, int distMax)
         {
             int dist = 0;
-            bool merged = 0 == tblNew.TotalCol && 0 == tblOrg.TotalCol; // For: Can merge with both were empty
+            bool merged = 0 == tblOrg.TotalCol; // For: Can merge with origin was empty
             for (int x_new = tblNew.TotalCol - 1; x_new > -1; x_new--)
             {
                 // For: Determine distance, for new
                 dist = tblNew.TotalCol - 1 - x_new;
                 if (distMax < dist) // For: Distance too far, not merge
-                {
+                {   
                     break;
                 }
                 // For: Determine min index, for origin
-                int x_org_min = tblOrg.TotalCol - tblNew.TotalCol - dist;
+                int x_org_min = tblOrg.TotalCol - tblNew.TotalCol + dist;
                 if (0 > x_org_min) // For: Columns not enough, ignore it
                 {
                     continue;
@@ -484,7 +484,7 @@ namespace SpiralEdge.Model
         public static void ExecMerge(DB_AGIN_Baccarat_Tbl tblOrg, DB_AGIN_Baccarat_Tbl tblNew, int dist)
         {
             #region For: Determine start index, for both
-            int x_org_sta = 0;
+            int x_org_sta = -1;
             for (int x = 0; x < tblOrg.TotalCol; x++)
             {
                 if (0 != tblOrg.Cells[x].Count && 2 > tblOrg.Cells[x][0].Matches.Count)
@@ -494,6 +494,10 @@ namespace SpiralEdge.Model
                 x_org_sta = x;
             }
             int x_new_sta = (tblNew.TotalCol - 1 - dist) - (tblOrg.TotalCol - 1 - x_org_sta);
+            if (-1 == x_org_sta) // For: Re-calculate start index, for origin
+            {
+                x_org_sta = 0;
+            }
             if (0 > x_new_sta) // For: Re-calculate start index, for both
             {
                 x_org_sta = -x_new_sta;
@@ -501,10 +505,10 @@ namespace SpiralEdge.Model
             }
             #endregion
             #region For: Allocating column/row, for origin
-            int col_allocating = 0;
-            while (dist != col_allocating)
+            int col_allocating = 0 != tblOrg.TotalCol ? dist : tblNew.TotalCol;
+            while (0 != col_allocating)
             {
-                col_allocating++;
+                col_allocating--;
                 tblOrg.Cells.Add(new List<DB_AGIN_Baccarat_Cell>());
 
                 int row_allocating = 0;
@@ -515,12 +519,12 @@ namespace SpiralEdge.Model
                 }
             }
             #endregion
-            for (int x_org = x_org_sta; x_org < tblOrg.TotalCol + dist; x_org++)
+            for (int x_new = x_new_sta; x_new < tblNew.TotalCol; x_new++)
             {
-                for (int y_org = 0; y_org < tblOrg.TotalRow; y_org++)
+                for (int y_new = 0; y_new < tblNew.TotalRow; y_new++)
                 {
-                    var cell_org = tblOrg.Cells[x_org][y_org];
-                    var cell_new = tblNew.Cells[x_new_sta + (x_org - x_org_sta)][y_org];
+                    var cell_new = tblNew.Cells[x_new][y_new];
+                    var cell_org = tblOrg.Cells[x_org_sta + (x_new - x_new_sta)][y_new];
                     #region For: Copy infomation, for origin
                     cell_org.PercentB = cell_new.PercentB;
                     cell_org.PercentG = cell_new.PercentG;

@@ -88,9 +88,59 @@ namespace SpiralEdge.Model
             Test = "1" == ConfigurationManager.AppSettings["Test"];
             Log = new RBLog(CONFIG_PATH_LOG);
             ConnHelper = new SQLiteHelper(CONFIG_CONN_STRING);
-            LatestAGINs = new List<DB_AGIN_Baccarat>();
+            InitAGINs();
             Log.Log(string.Format("Information\t:: ------------------ APPLICATION STARTING -----------------------"));
             #endregion
+        }
+
+        private void InitAGINs()
+        {
+            LatestAGINs = new List<DB_AGIN_Baccarat>();
+            SQLiteCommand cmd = ConnHelper.ConnDb.CreateCommand();
+            try
+            {
+                #region SQLiteCommand: Initialize
+                #region cmd.CommandText = string.Format(@"")
+                cmd.CommandText = string.Format(@"
+SELECT A.*
+FROM AGIN A
+WHERE Id IN (SELECT MAX(Id) FROM AGIN GROUP BY CoordinateX, CoordinateY)");
+                #endregion
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandTimeout = CONFIG_CONN_TIMEOUT;
+                #endregion
+                #region SQLiteCommand: Parameters
+                #endregion
+                #region SQLiteCommand: Connection
+                DataSet ds = ConnHelper.ExecCmd(cmd);
+                #endregion
+                #region For: Retrieve
+                DataTable dt = ds.Tables[0];
+                List<string> cols = new List<string>();
+                foreach (DataColumn dc in dt.Columns)
+                {
+                    cols.Add(dc.ColumnName);
+                }
+                foreach (DataRow dr in dt.Rows)
+                {
+                    LatestAGINs.Add(DB_AGIN_Baccarat.ExtractDB(dr, cols));
+                }
+                #endregion
+                #region For: Clean
+                dt.Clear();
+                ds.Clear();
+                dt.Dispose();
+                ds.Dispose();
+                #endregion
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(string.Format("{0}{1}", ex.Message, ex.StackTrace), ex);
+            }
+            finally
+            {
+                cmd.Dispose();
+            }
         }
         
         public ConfigModel() { }
@@ -113,8 +163,9 @@ namespace SpiralEdge.Model
                 {
                     DB_AGIN_Baccarat agin_latest = LatestAGINs.Where(x => x.CoordinateX == agin_img.CoordinateX && x.CoordinateY == agin_img.CoordinateY).FirstOrDefault();
                     #region For: Save/Clean baccarat
-                    agin_img.SaveDbItems(ConnHelper);
-                    if (0 != agin_img.DataAnalysis.TotalInvalid) { break; }
+                    agin_img.SaveDbTrack(ConnHelper);
+                    if (0 != agin_img.DataAnalysis.TotalInvalid) { continue; }
+                    agin_img.Id = 0;
                     agin_img.DataAnalysis.DelEmpty();
                     #endregion
                     #region For: Merge baccarat
@@ -214,7 +265,12 @@ namespace SpiralEdge.Model
             {
                 #region SQLiteCommand: Initialize
                 #region cmd.CommandText = string.Format(@"")
-                cmd.CommandText = string.Format("SELECT * FROM AGIN WHERE FileName IN ('agin-170318-213828-468.png', 'agin-170318-213845-092.png', 'agin-170318-213901-528.png', 'agin-170318-213917-760.png', 'agin-170318-213934-249.png', 'agin-170318-213950-880.png', '') ORDER BY Id ASC");
+                cmd.CommandText = string.Format(@"
+SELECT T.*
+FROM AGIN T
+WHERE FileName IN ('agin-170318-215633-059.png', 'agin-170318-215702-621.png', 'agin-170318-215719-358.png', 'agin-170318-215735-731.png', 'agin-170318-215754-723.png', 'agin-170318-215820-010.png', 'agin-170318-215836-532.png', 'agin-170318-215853-198.png', 'agin-170318-215922-232.png', 'agin-170318-215939-653.png', 'agin-170318-215956-323.png', 'agin-170318-220019-930.png', 'agin-170318-220038-924.png', 'agin-170318-220055-380.png', 'agin-170318-220112-110.png', 'agin-170318-220141-792.png', 'agin-170318-220158-709.png', 'agin-170318-220215-153.png', 'agin-170318-220237-210.png', 'agin-170318-220259-457.png')
+  AND CoordinateX = 1 AND CoordinateY = 1
+ORDER BY Id ASC");
                 #endregion
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandTimeout = CONFIG_CONN_TIMEOUT;
@@ -236,7 +292,7 @@ namespace SpiralEdge.Model
                 {
                     agins.Add(DB_AGIN_Baccarat.Ex170323_ExtractDB(dr, cols));
                     agins.Last().Id = 0;
-                    // agins.Last().DataAnalysis.DelEmpty();
+                    agins.Last().DataAnalysis.DelEmpty();
                     // agins.Last().DataAnalysis.UpdOrder(agins.Last().DataAnalysis.LatestOrder, agins.Last().DataAnalysis.LatestOrderCircle, agins.Last().DataAnalysis.LatestOrderX, agins.Last().DataAnalysis.LatestOrderY, agins.Last().DataAnalysis.LatestOrderXR, agins.Last().DataAnalysis.LatestOrderYR);
                 }
                 #endregion
@@ -257,8 +313,29 @@ namespace SpiralEdge.Model
             }
             foreach (DB_AGIN_Baccarat agin in agins)
             {
-                agin.SaveDbItems(ConnHelper);
+                agin.SaveDbTrack(ConnHelper);
             }
+            var agin_org = agins[0];
+            agin_org.DataAnalysis.UpdOrder(agin_org.DataAnalysis.LatestOrder, agin_org.DataAnalysis.LatestOrderCircle, agin_org.DataAnalysis.LatestOrderX, agin_org.DataAnalysis.LatestOrderY, agin_org.DataAnalysis.LatestOrderXR, agin_org.DataAnalysis.LatestOrderYR);
+            agin_org.Id = 0;
+            agin_org.SaveDbTrack(ConnHelper);
+            /* -: for (int i = 1; i < agins.Count; i++)
+            {*/
+                var agin_new = agins[agins.Count - 1];
+                int dist_max = DB_AGIN_Baccarat_Tbl.DistMax(agin_org.DataAnalysis, agin_new.DataAnalysis);
+                int dist = DB_AGIN_Baccarat_Tbl.DistMerge(agin_org.DataAnalysis, agin_new.DataAnalysis, dist_max);
+                Log.Log(string.Format("Information\t:: [ i: {0}, dist-max: {1}, dist: {2} ]", agins.Count/*i + 1*/, dist_max, dist));
+                if (-1 != dist)
+                {
+                    DB_AGIN_Baccarat_Tbl.ExecMerge(agin_org.DataAnalysis, agin_new.DataAnalysis, dist);
+                    agin_org.FileNames = Regex.Replace(agin_org.FileNames + agin_new.FileNames, @"(;;)", ";");
+                    agin_org.LastModifiedOn = agin_new.LastModifiedOn;
+                    agin_org.LastModifiedBy = agin_new.LastModifiedBy;
+                    agin_org.DataAnalysis.UpdOrder(agin_org.DataAnalysis.LatestOrder, agin_org.DataAnalysis.LatestOrderCircle, agin_org.DataAnalysis.LatestOrderX, agin_org.DataAnalysis.LatestOrderY, agin_org.DataAnalysis.LatestOrderXR, agin_org.DataAnalysis.LatestOrderYR);
+                    agin_org.Id = 0;
+                    agin_org.SaveDbTrack(ConnHelper);
+                }
+            /* -: }*/
         }
 
         public static void SendEmailEx(ConfigModel config, Exception ex)

@@ -25,15 +25,15 @@ namespace SpiralEdge
         {
             try
             {
-                /* -: Config = new ConfigModel(true);
+                Config = new ConfigModel(true);
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new frmMain());*/
+                Application.Run(new frmMain());
                 /* -: GIN_3840x2160_Baccarat output = null;
                 string file_path = @"H:\bet-dafanba\doc\img-02\agin-170318-001916-110.png";
                 ImageHelper.AnalysisImg_AGIN_3840x2160(file_path, out output);*/
-                Config = new ConfigModel(true);
-                Config.Ex170323_HdlAGIN();
+                /* -: Config = new ConfigModel(true);
+                Config.Ex170323_HdlAGIN();*/
             }
             catch (Exception ex)
             {

@@ -1,19 +1,7 @@
 ﻿--
 Data Source=.\mydb.db;Version=3;Password=trungdt;Version=3;Pooling=True;Max Pool Size=100;
 --
-pragma table_info(AGIN_ITEMS)
---
-CREATE TABLE AGIN_ITEMS(
-    Id BIGINT PRIMARY KEY NOT NULL,
-    CoordinateX INT NULL,
-    CoordinateY INT NULL,
-    FileNames NVARCHAR(255) NULL,
-    DataAnalysis NVARCHAR(2147483647) NULL,
-    CreatedOn DATETIME NULL,
-    CreatedBy DATETIME NULL,
-    LastModifiedOn DATETIME NULL,
-    LastModifiedBy DATETIME NULL
-)
+pragma table_info(AGIN)
 --
 CREATE TABLE AGIN(
 	Id BIGINT PRIMARY KEY NOT NULL,
@@ -27,12 +15,26 @@ CREATE TABLE AGIN(
 	LastModifiedBy BIGINT NULL
 )
 --
-DROP TABLE AGIN_ITEMS
+CREATE TABLE AGIN_TRACK(
+    Id BIGINT PRIMARY KEY NOT NULL,
+    CoordinateX INT NULL,
+    CoordinateY INT NULL,
+    FileNames NVARCHAR(255) NULL,
+    DataAnalysis NVARCHAR(2147483647) NULL,
+    CreatedOn DATETIME NULL,
+    CreatedBy DATETIME NULL,
+    LastModifiedOn DATETIME NULL,
+    LastModifiedBy DATETIME NULL
+)
 --
-INSERT INTO AGIN_ITEMS (Id, CoordinateX, CoordinateY, FileNames, DataAnalysis, CreatedOn, CreatedBy, LastModifiedOn, LastModifiedBy) VALUES (0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL)
+DROP TABLE AGIN
 --
-DELETE FROM AGIN_ITEMS
+ALTER TABLE AGIN RENAME TO AGIN_TRACK
+--
+INSERT INTO AGIN (Id, CoordinateX, CoordinateY, FileNames, DataAnalysis, CreatedOn, CreatedBy, LastModifiedOn, LastModifiedBy) VALUES (0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL)
+--
+DELETE FROM AGIN
 --
 SELECT * FROM sqlite_master
-SELECT COUNT(*) FROM AGIN_ITEMS
-SELECT * FROM AGIN_ITEMS LIMIT 0, 5
+SELECT COUNT(*) FROM AGIN
+SELECT * FROM AGIN LIMIT 0, 5
