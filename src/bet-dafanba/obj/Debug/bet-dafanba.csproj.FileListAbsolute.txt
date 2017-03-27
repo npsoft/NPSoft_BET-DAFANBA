@@ -250,3 +250,4 @@ D:\NPSoft_BET-DAFANBA\src\bet-dafanba\obj\Debug\SpiralEdge.frmMain.resources
 D:\NPSoft_BET-DAFANBA\src\bet-dafanba\obj\Debug\SpiralEdge.frmTest.resources
 D:\NPSoft_BET-DAFANBA\src\bet-dafanba\obj\Debug\bet_dafanba.Properties.Resources.resources
 D:\NPSoft_BET-DAFANBA\src\bet-dafanba\obj\Debug\bet-dafanba.csproj.GenerateResource.Cache
+I:\NPSoft_BET-DAFANBA\src\bet-dafanba\obj\Debug\bet-dafanba.csprojResolveAssemblyReference.cache

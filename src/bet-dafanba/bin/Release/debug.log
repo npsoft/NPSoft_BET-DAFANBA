@@ -36,3 +36,25 @@
    at System.Windows.Forms.WindowsFormsSynchronizationContext.Send(SendOrPostCallback d, Object state)
    at Awesomium.Core.WebCore.wvjjlbeQdqUVO5E6FXD(Object , Object , Object )
    at Awesomium.Core.WebCore.ioXQMTP1sf()
+[0325/171121:INFO:(0)] WebCore is now online.
+[0325/171121:INFO:(0)] Running Awesomium 1.7.5.1
+[0325/171126:ERROR:ssl_client_socket_nss.cc(1529)] handshake with server radar.cedexis.com:443 failed; NSS error code -5961, net_error -101
+[0325/171130:ERROR:ssl_client_socket_nss.cc(1529)] handshake with server radar.cedexis.com:443 failed; NSS error code -5961, net_error -101
+[0325/180251:WARNING:Awesomium.NET(0)] System.ComponentModel.InvalidAsynchronousStateException: An error occurred invoking the method.  The destination thread no longer exists.
+   at System.Windows.Forms.Control.WaitForWaitHandle(WaitHandle waitHandle)
+   at System.Windows.Forms.Control.MarshaledInvoke(Control caller, Delegate method, Object[] args, Boolean synchronous)
+   at System.Windows.Forms.Control.Invoke(Delegate method, Object[] args)
+   at System.Windows.Forms.WindowsFormsSynchronizationContext.Send(SendOrPostCallback d, Object state)
+   at Awesomium.Core.WebCore.wvjjlbeQdqUVO5E6FXD(Object , Object , Object )
+   at Awesomium.Core.WebCore.ioXQMTP1sf()
+[0325/180651:INFO:(0)] WebCore is now online.
+[0325/180651:INFO:(0)] Running Awesomium 1.7.5.1
+[0325/180700:ERROR:ssl_client_socket_nss.cc(1529)] handshake with server radar.cedexis.com:443 failed; NSS error code -5961, net_error -101
+[0325/180708:ERROR:ssl_client_socket_nss.cc(1529)] handshake with server radar.cedexis.com:443 failed; NSS error code -5961, net_error -101
+[0325/220728:WARNING:Awesomium.NET(0)] System.ComponentModel.InvalidAsynchronousStateException: An error occurred invoking the method.  The destination thread no longer exists.
+   at System.Windows.Forms.Control.WaitForWaitHandle(WaitHandle waitHandle)
+   at System.Windows.Forms.Control.MarshaledInvoke(Control caller, Delegate method, Object[] args, Boolean synchronous)
+   at System.Windows.Forms.Control.Invoke(Delegate method, Object[] args)
+   at System.Windows.Forms.WindowsFormsSynchronizationContext.Send(SendOrPostCallback d, Object state)
+   at Awesomium.Core.WebCore.wvjjlbeQdqUVO5E6FXD(Object , Object , Object )
+   at Awesomium.Core.WebCore.ioXQMTP1sf()

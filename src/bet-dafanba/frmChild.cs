@@ -65,7 +65,7 @@ namespace SpiralEdge
 
         private void InitializeEvents()
         {
-            ThreadCaptureHdl();
+            // -: ThreadCaptureHdl();
             this.FormClosed += OnLogFormClosed;
             this.FormClosed += OnFormClosed;
             wcAwesomium.AddressChanged += OnLogAddressChanged;
