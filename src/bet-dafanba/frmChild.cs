@@ -65,7 +65,7 @@ namespace SpiralEdge
 
         private void InitializeEvents()
         {
-            // -: ThreadCaptureHdl();
+            ThreadCaptureHdl();
             this.FormClosed += OnLogFormClosed;
             this.FormClosed += OnFormClosed;
             wcAwesomium.AddressChanged += OnLogAddressChanged;
@@ -150,7 +150,7 @@ namespace SpiralEdge
             {
                 string name = string.Format(@"agin-{0:yyMMdd-HHmmss-fff}.png", DateTime.Now);
                 Program.PrintCtrl(wcAwesomium, name);
-                Program.Config.HdlAGIN(name);
+                // -: Program.Config.HdlAGIN(name);
             }
         }
         #endregion

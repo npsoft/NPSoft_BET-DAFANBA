@@ -324,6 +324,14 @@ namespace SpiralEdge.Helper
                 Matches.AddRange(new List<string>() { "bg-white", "slash-green" });
             }
             #endregion
+            #region For: bg-white, slash-green, number-black
+            if (0.70 > PercentB && PercentB > 0.65 &&
+                0.80 > PercentG && PercentG > 0.75 &&
+                0.75 > PercentR && PercentR > 0.70)
+            {
+                Matches.AddRange(new List<string>() { "bg-white", "slash-green", "number-black" });
+            }
+            #endregion
             #region For: bg-white, circle-blue
             if (0.80 > PercentB && PercentB > 0.70 &&
                 0.65 > PercentG && PercentG > 0.55 &&
