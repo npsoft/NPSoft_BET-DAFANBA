@@ -29,6 +29,9 @@ namespace SpiralEdge.Model
         }
         #endregion
         #region For: Methods
+        /// <summary>
+        /// Description: times(int)
+        /// </summary>
         public int ChkPattern01()
         {
             List<DB_AGIN_Baccarat_Cell> cells = new List<DB_AGIN_Baccarat_Cell>();
@@ -36,18 +39,44 @@ namespace SpiralEdge.Model
                 cells.AddRange(x.Where(y => 0 != y.Order));
             });
             cells = cells.OrderByDescending(x => x.Order).ToList();
-            #region For: Calculate length
-            int len = 0;
+            #region For: Calculate values
+            int times = 0;
             foreach (var cell in cells)
             {
                 if (!cell.Matches.Contains(DataAnalysis.LatestOrderCircle))
                 {
                     break;
                 }
-                len++;
+                times++;
             }
-            return len;
+            return times;
             #endregion
+        }
+
+        /// <summary>
+        /// Description: times(int), color-a(string), color-a-length(int), color-b(string), color-b-length(int)
+        /// </summary>
+        public Tuple<int, string, int, string, int> ChkPattern02()
+        {
+            List<DB_AGIN_Baccarat_Cell> cells = new List<DB_AGIN_Baccarat_Cell>();
+            DataAnalysis.Cells.ForEach(x => {
+                cells.AddRange(x.Where(y => 0 != y.Order));
+            });
+            cells = cells.OrderByDescending(x => x.Order).ToList();
+            #region For: Calculate values
+            int times = 0;
+            string color_a = ""; int color_a_len = 0;
+            string color_b = ""; int color_b_len = 0;
+            foreach (var cell in cells)
+            {
+                string color_c = cell.Matches.Contains("circle-blue") ? "circle-blue" : cell.Matches.Contains("circle-red") ? "circle-red" : "";
+                if ("" == color_c) { break; }
+                if ("" == color_a) { color_a = color_c; }
+                else if ("" == color_b) { color_b = color_c; }
+                
+            }
+            #endregion
+            return new Tuple<int, string, int, string, int>(times, color_a, color_a_len, color_b, color_b_len);
         }
 
         public void SaveDb(SQLiteHelper connHelper)

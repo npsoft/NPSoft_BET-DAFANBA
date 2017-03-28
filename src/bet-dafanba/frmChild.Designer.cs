@@ -40,6 +40,7 @@
             this.wcAwesomium.Location = new System.Drawing.Point(0, 0);
             this.wcAwesomium.Size = new System.Drawing.Size(400, 200);
             this.wcAwesomium.TabIndex = 0;
+            this.wcAwesomium.ViewType = Awesomium.Core.WebViewType.Offscreen;
             // 
             // panel1
             // 

@@ -150,8 +150,16 @@ namespace SpiralEdge
             {
                 string name = string.Format(@"agin-{0:yyMMdd-HHmmss-fff}.png", DateTime.Now);
                 Program.PrintCtrl(wcAwesomium, name);
-                // -: Program.Config.HdlAGIN(name);
+                Program.Config.HdlAGIN(name);
             }
+        }
+
+        public void InjectClick(int x, int y)
+        {
+            IWebView webView = wcAwesomium as IWebView;
+            webView.InjectMouseMove(x, y);
+            webView.InjectMouseDown(MouseButton.Left);
+            webView.InjectMouseUp(MouseButton.Left);
         }
         #endregion
         #region For: Properties

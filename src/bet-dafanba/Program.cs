@@ -32,8 +32,6 @@ namespace SpiralEdge
                 /* -: GIN_3840x2160_Baccarat output = null;
                 string file_path = @"H:\bet-dafanba\doc\img-02\agin-170318-001916-110.png";
                 ImageHelper.AnalysisImg_AGIN_3840x2160(file_path, out output);*/
-                /* -: Config = new ConfigModel(true);
-                Config.Ex170323_HdlAGIN();*/
             }
             catch (Exception ex)
             {
@@ -42,6 +40,7 @@ namespace SpiralEdge
                     Config.Log.Log(ex);
                 }
                 ConfigModel.SendEmailEx(Config, ex);
+                System.Diagnostics.Debug.Print(string.Format("Exception\t:: {0}{1}", ex.Message, ex.StackTrace));
             }
             finally
             {

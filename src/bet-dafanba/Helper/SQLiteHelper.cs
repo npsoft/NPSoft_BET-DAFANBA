@@ -17,6 +17,23 @@ namespace SpiralEdge.Helper
         public SQLiteHelper(string connString)
         {
             ConnString = connString;
+            #region SQLiteConnection.SetPassword("{$PASSWORD}") | Not work
+            /* -:
+            ConnDb.ConnectionString = "Data Source=SQLiteNETADO.db3;Version=3;Pooling=True;Max Pool Size=100;";
+            ConnDb.SetPassword("trungdt");
+            ConnDb.Open();*/
+            #endregion
+            #region SQLiteConnection.ChangePassword("{$PASSWORD}")
+            /* -: 
+            ConnDb.ConnectionString = "Data Source=SQLiteNETADO.db3;Version=3;Pooling=True;Max Pool Size=100;";
+            ConnDb.Open();
+            ConnDb.ChangePassword("trungdt");*/
+            #endregion
+            #region SQLiteConnection.ChangePassword(string.Empty)
+            /* -: ConnDb.ConnectionString = "Data Source=SQLiteNETADO.db3;Version=3;Password=trungdt;Pooling=True;Max Pool Size=100;";
+            ConnDb.Open();
+            ConnDb.ChangePassword(string.Empty);*/
+            #endregion
             /* -: DbProviderFactory fact = DbProviderFactories.GetFactory("System.Data.SQLite");
             using (DbConnection cnn = fact.CreateConnection())
             {
@@ -54,7 +71,7 @@ namespace SpiralEdge.Helper
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.Print(string.Format("Exception\t:: {0}{1}", ex.Message, ex.StackTrace));
+                    // -: System.Diagnostics.Debug.Print(string.Format("Exception\t:: {0}{1}", ex.Message, ex.StackTrace));
                     throw new Exception(string.Format("Exception\t:: {0}{1}", ex.Message, ex.StackTrace), ex);
                     return false;
                 }

@@ -1,7 +1,4 @@
-﻿--
-Data Source=.\mydb.db;Version=3;Password=trungdt;Version=3;Pooling=True;Max Pool Size=100;
---
-pragma table_info(AGIN)
+﻿pragma table_info(AGIN)
 --
 CREATE TABLE AGIN(
 	Id BIGINT PRIMARY KEY NOT NULL,

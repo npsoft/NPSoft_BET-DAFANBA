@@ -135,8 +135,8 @@ WHERE Id IN (SELECT MAX(Id) FROM AGIN GROUP BY CoordinateX, CoordinateY)");
             }
             catch (Exception ex)
             {
-                // -: throw new Exception(string.Format("{0}{1}", ex.Message, ex.StackTrace), ex);
                 Log.Log(string.Format("{0}{1}", ex.Message, ex.StackTrace));
+                throw new Exception(string.Format("{0}{1}", ex.Message, ex.StackTrace), ex);
             }
             finally
             {
@@ -337,6 +337,11 @@ ORDER BY Id ASC");
                     agin_org.SaveDbTrack(ConnHelper);
                 }
             /* -: }*/
+        }
+
+        public void Ex170328_HdlAGIN()
+        {
+
         }
 
         public static void SendEmailEx(ConfigModel config, Exception ex)
