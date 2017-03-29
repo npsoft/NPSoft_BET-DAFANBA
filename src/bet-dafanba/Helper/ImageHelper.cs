@@ -309,9 +309,9 @@ namespace SpiralEdge.Helper
             #region For: Matches [bg-white, slash-green, circle-blue, circle-red, number-black]
             Matches = new List<string>();
             #region For: bg-white
-            if (1 > PercentB && PercentB > 0.96 &&
-                1 > PercentG && PercentG > 0.96 &&
-                1 > PercentR && PercentR > 0.96)
+            if (1 > PercentB && PercentB > 0.95 &&
+                1 > PercentG && PercentG > 0.95 &&
+                1 > PercentR && PercentR > 0.95)
             {
                 Matches.AddRange(new List<string>() { "bg-white" });
             }
@@ -351,8 +351,8 @@ namespace SpiralEdge.Helper
             if (0 == Matches.Count)
             {
                 #region For: Circles detection
-                var circles = EmguHelper.CircleFs(img, 1.0, 22.0, 250.0, 7, 8, 12);
-                if (0 == circles.Length) { circles = EmguHelper.CircleFs(img, 1.0, 22.0, 250.0, 7, 7, 12); }
+                var circles = EmguHelper.CircleFs(img, 1.0, 22.0, 200.0, 7, 8, 12);
+                if (0 == circles.Length) { circles = EmguHelper.CircleFs(img, 1.0, 22.0, 200.0, 7, 7, 12); }
                 #endregion
                 #region For: Slash's percentage | no need :-s
                 /* -: string file_name_rotate = string.Format("{0}-rotate{1}", Path.GetFileNameWithoutExtension(path), Path.GetExtension(path));
@@ -384,7 +384,7 @@ namespace SpiralEdge.Helper
                     #region For: bg-white, circle-blue, slash-green
                     if (0.65 > PercentB && PercentB > 0.55 &&
                         0.60 > PercentG && PercentG > 0.50 &&
-                        0.50 > PercentR && PercentR > 0.45)
+                        0.50 > PercentR && PercentR > 0.40)
                     {
                         Matches.AddRange(new List<string>() { "bg-white", "circle-blue", "slash-green" });
                     }

@@ -93,3 +93,7 @@
 [0328/133244:INFO:(0)] Running Awesomium 1.7.5.1
 [0328/133250:ERROR:ssl_client_socket_nss.cc(1529)] handshake with server radar.cedexis.com:443 failed; NSS error code -5961, net_error -101
 [0328/133347:ERROR:ssl_client_socket_nss.cc(1529)] handshake with server radar.cedexis.com:443 failed; NSS error code -5961, net_error -101
+[0329/115636:INFO:(0)] WebCore is now online.
+[0329/115636:INFO:(0)] Running Awesomium 1.7.5.1
+[0329/115642:ERROR:ssl_client_socket_nss.cc(1529)] handshake with server radar.cedexis.com:443 failed; NSS error code -5961, net_error -101
+[0329/115648:ERROR:ssl_client_socket_nss.cc(1529)] handshake with server radar.cedexis.com:443 failed; NSS error code -5961, net_error -101

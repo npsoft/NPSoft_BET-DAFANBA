@@ -29,8 +29,8 @@ namespace SpiralEdge
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 Application.Run(new frmMain());
-                /* -: GIN_3840x2160_Baccarat output = null;
-                string file_path = @"H:\bet-dafanba\doc\img-02\agin-170318-001916-110.png";
+                /* -: AGIN_3840x2160_Baccarat output = null;
+                string file_path = @"D:\NPSoft_BET-DAFANBA\doc\17032x\agin-170328-081747-241.png";
                 ImageHelper.AnalysisImg_AGIN_3840x2160(file_path, out output);*/
             }
             catch (Exception ex)
