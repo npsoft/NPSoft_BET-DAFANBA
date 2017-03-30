@@ -21,6 +21,7 @@ namespace SpiralEdge.Model
         public DateTime LastModifiedOn { get; set; }
         public long LastModifiedBy { get; set; }
         public bool AlertPattern01 { get; set; }
+        public bool AlearPattern02 { get; set; }
         #endregion
         #region For: Ctors
         public DB_AGIN_Baccarat()
@@ -65,18 +66,67 @@ namespace SpiralEdge.Model
             cells = cells.OrderByDescending(x => x.Order).ToList();
             #region For: Calculate values
             int times = 0;
-            string color_a = ""; int color_a_len = 0;
-            string color_b = ""; int color_b_len = 0;
-            foreach (var cell in cells)
+            string color_last = ""; int color_last_len = 0, color_last_len_tmp = 0;
+            string color_prev = ""; int color_prev_len = 0, color_prev_len_tmp = 0;
+            string color_curr = "", color_curr_prev = "";
+            for (int i = 0; i < cells.Count; i++)
             {
-                string color_c = cell.Matches.Contains("circle-blue") ? "circle-blue" : cell.Matches.Contains("circle-red") ? "circle-red" : "";
-                if ("" == color_c) { break; }
-                if ("" == color_a) { color_a = color_c; }
-                else if ("" == color_b) { color_b = color_c; }
-                
+                DB_AGIN_Baccarat_Cell cell = cells[i];
+                color_curr = cell.Matches.Contains("circle-blue") ? "circle-blue" : cell.Matches.Contains("circle-red") ? "circle-red" : "";
+                if ("" == color_curr) // For: Has only one and it's T case, break loop
+                {
+                    break;
+                }
+                if ("" == color_curr) // For: Assign color for last, initialize color
+                {
+                    color_last = color_curr;
+                }
+                if ("" == color_prev && color_curr != color_last) // For: Assign color for previous, initialize color
+                {
+                    color_prev = color_curr;
+                }
+                if (color_curr == color_last)
+                {
+                    if (0 == times) // For: Assign length for last, initialize length
+                    {
+                        color_last_len++;
+                    }
+                    color_last_len_tmp++;
+                }
+                if (color_curr == color_prev)
+                {
+                    if (0 == times) // For: Assign length for previous, initialize length
+                    {
+                        color_prev_len++;
+                    }
+                    color_prev_len_tmp++;
+                }
+                if (color_curr != color_curr_prev)
+                {
+                    if ("" != color_last && "" != color_prev) // For: Don't consider last pair, initialize pair
+                    {
+                        if (color_curr == color_last && color_prev_len != color_prev_len_tmp ||
+                            color_curr == color_prev && color_last_len != color_last_len_tmp) // For: Wrong length, break loop
+                        {
+                            break;
+                        }
+                        if (color_curr == color_last) // For: Previous pair, plus +1
+                        {
+                            times++;
+                            color_last_len_tmp = 0;
+                            color_prev_len_tmp = 0;
+                        }
+                    }
+                    color_curr_prev = color_curr;
+                }
+                if (cells.Count - 1 == i && color_curr == color_prev &&
+                    color_prev_len == color_prev_len_tmp && color_last_len == color_last_len_tmp) // For: Current pair, plus +1
+                {
+                    times++;
+                }
             }
             #endregion
-            return new Tuple<int, string, int, string, int>(times, color_a, color_a_len, color_b, color_b_len);
+            return new Tuple<int, string, int, string, int>(times, color_last, color_last_len, color_prev, color_prev_len);
         }
 
         public void SaveDb(SQLiteHelper connHelper)

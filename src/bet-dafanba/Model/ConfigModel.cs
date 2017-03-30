@@ -341,7 +341,65 @@ ORDER BY Id ASC");
 
         public void Ex170328_HdlAGIN()
         {
-
+            List<DB_AGIN_Baccarat> agins = new List<DB_AGIN_Baccarat>();
+            SQLiteCommand cmd = ConnHelper.ConnDb.CreateCommand();
+            try
+            {
+                #region SQLiteCommand: Initialize
+                #region cmd.CommandText = string.Format(@"")
+                cmd.CommandText = string.Format(@"
+SELECT AT.Id, AT.CoordinateX, AT.CoordinateY, AT.FileNames, AT.DataAnalysis, AT.CreatedBy, AT.LastModifiedBy
+FROM AGIN_TRACK AT
+WHERE AT.FileNames IN (?)
+ORDER BY AT.Id ASC");
+                #endregion
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandTimeout = CONFIG_CONN_TIMEOUT;
+                #endregion
+                #region SQLiteCommand: Parameters
+                cmd.Parameters.Add(new SQLiteParameter() { Value = ";agin-170327-205339-847.png;" });
+                #endregion
+                #region SQLiteCommand: Connection
+                DataSet ds = ConnHelper.ExecCmd(cmd);
+                #endregion
+                #region For: Retrieve
+                DataTable dt = ds.Tables[0];
+                List<string> cols = new List<string>();
+                foreach (DataColumn dc in dt.Columns)
+                {
+                    cols.Add(dc.ColumnName);
+                }
+                foreach (DataRow dr in dt.Rows)
+                {
+                    var agin = DB_AGIN_Baccarat.ExtractDB(dr, cols);
+                    if (0 == agin.DataAnalysis.TotalInvalid)
+                    {
+                        agin.DataAnalysis.DelEmpty();
+                        agin.DataAnalysis.UpdOrder(agin.DataAnalysis.LatestOrder, agin.DataAnalysis.LatestOrderCircle, agin.DataAnalysis.LatestOrderX, agin.DataAnalysis.LatestOrderY, agin.DataAnalysis.LatestOrderXR, agin.DataAnalysis.LatestOrderYR);
+                        agins.Add(agin);  
+                    }
+                }
+                #endregion
+                #region For: Clean
+                dt.Clear();
+                ds.Clear();
+                dt.Dispose();
+                ds.Dispose();
+                #endregion
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(string.Format("{0}{1}", ex.Message, ex.StackTrace), ex);
+            }
+            finally
+            {
+                cmd.Dispose();
+            }
+            foreach (DB_AGIN_Baccarat agin in agins)
+            {
+                var pattern02 = agin.ChkPattern02();
+                System.Diagnostics.Debug.Print(string.Format("Information\t:: {0}, {1}, {2}, {3}, {4}", pattern02.Item1, pattern02.Item2, pattern02.Item3, pattern02.Item4, pattern02.Item5));
+            } 
         }
 
         public static void SendEmailEx(ConfigModel config, Exception ex)
