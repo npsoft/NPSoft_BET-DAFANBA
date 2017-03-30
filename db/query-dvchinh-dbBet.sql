@@ -1,5 +1,9 @@
 -- #
--- reviewed total-invalid: dbBet_17032x.db3
+DELETE FROM AGIN
+DELETE FROM AGIN_TRACK
+
+-- #
+-- reviewed total-invalid: dbBet_17032x.db3, dbBet_170329_trungdt.db3
 
 -- #
 SELECT A.* FROM AGIN A ORDER BY A.Id ASC
@@ -34,6 +38,3 @@ BEGIN TRANSACTION;
 COMMIT;
 PRAGMA foreign_keys=on;
 DROP TABLE AGIN
-
--- DELETE FROM AGIN;
--- DELETE FROM AGIN_TRACK;

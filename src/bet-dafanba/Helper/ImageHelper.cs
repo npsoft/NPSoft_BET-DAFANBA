@@ -296,7 +296,8 @@ namespace SpiralEdge.Helper
         public double PercentB { get { return Math.Round((TotalB / (Width * Height * 255)) * 10000) / 10000; } }
         public double PercentG { get { return Math.Round((TotalG / (Width * Height * 255)) * 10000) / 10000; } }
         public double PercentR { get { return Math.Round((TotalR / (Width * Height * 255)) * 10000) / 10000; } }
-        
+        public int CircleFsLen { get; set; }
+
         private void Analysis(string path)
         {
             #region For: Width/Height and TotalB/TotalG/TotalR
@@ -342,7 +343,7 @@ namespace SpiralEdge.Helper
             #endregion
             #region For: bg-white, circle-red
             if (0.65 > PercentB && PercentB > 0.55 &&
-                0.65 > PercentG && PercentG > 0.60 &&
+                0.65 > PercentG && PercentG > 0.55 &&
                 0.85 > PercentR && PercentR > 0.80)
             {
                 Matches.AddRange(new List<string>() { "bg-white", "circle-red" });
@@ -351,8 +352,9 @@ namespace SpiralEdge.Helper
             if (0 == Matches.Count)
             {
                 #region For: Circles detection
-                var circles = EmguHelper.CircleFs(img, 1.0, 22.0, 200.0, 7, 8, 12);
-                if (0 == circles.Length) { circles = EmguHelper.CircleFs(img, 1.0, 22.0, 200.0, 7, 7, 12); }
+                var circles = EmguHelper.CircleFs(img, 1.0, 22.0, 200.0, 6.5, 8, 12);
+                if (0 == circles.Length) { circles = EmguHelper.CircleFs(img, 1.0, 22.0, 200.0, 7.0, 7, 12); }
+                if (0 == circles.Length) { circles = EmguHelper.CircleFs(img, 1.5, 22.0, 250.0, 30.0, 8, 12); }
                 #endregion
                 #region For: Slash's percentage | no need :-s
                 /* -: string file_name_rotate = string.Format("{0}-rotate{1}", Path.GetFileNameWithoutExtension(path), Path.GetExtension(path));
@@ -381,6 +383,7 @@ namespace SpiralEdge.Helper
                 #endregion
                 if (0 != circles.Length)
                 {
+                    CircleFsLen = circles.Length;
                     #region For: bg-white, circle-blue, slash-green
                     if (0.65 > PercentB && PercentB > 0.55 &&
                         0.60 > PercentG && PercentG > 0.50 &&
@@ -399,7 +402,7 @@ namespace SpiralEdge.Helper
                     #endregion
                     #region For: bg-white, circle-blue, slash-green, number-black
                     if (0.55 > PercentB && PercentB > 0.50 &&
-                        0.50 > PercentG && PercentG > 0.45 &&
+                        0.55 > PercentG && PercentG > 0.45 &&
                         0.45 > PercentR && PercentR > 0.35)
                     {
                         Matches.AddRange(new List<string>() { "bg-white", "circle-blue", "slash-green", "number-black" });

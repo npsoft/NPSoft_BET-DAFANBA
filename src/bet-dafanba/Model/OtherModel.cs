@@ -200,6 +200,7 @@ namespace SpiralEdge.Model
                     baccarat.DataAnalysis.Cells[x][y].PercentG = dataAnalysis.Cells[x][y].PercentG;
                     baccarat.DataAnalysis.Cells[x][y].PercentR = dataAnalysis.Cells[x][y].PercentR;
                     baccarat.DataAnalysis.Cells[x][y].Matches = dataAnalysis.Cells[x][y].Matches;
+                    baccarat.DataAnalysis.Cells[x][y].CircleFsLen = dataAnalysis.Cells[x][y].CircleFsLen;
                 }
             }
             baccarat.DataAnalysis.UpdTotal();
@@ -580,6 +581,8 @@ namespace SpiralEdge.Model
         public int Order { get; set; }
         [JsonProperty("order-confuse")]
         public bool OrderConfuse { get; set; }
+        [JsonProperty("circle-fs-length")]
+        public int CircleFsLen { get; set; }
 
         public DB_AGIN_Baccarat_Cell()
         {
