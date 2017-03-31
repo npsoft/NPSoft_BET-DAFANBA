@@ -19,9 +19,9 @@ CREATE TABLE AGIN_TRACK(
     FileNames NVARCHAR(255) NULL,
     DataAnalysis NVARCHAR(2147483647) NULL,
     CreatedOn DATETIME NULL,
-    CreatedBy DATETIME NULL,
+    CreatedBy BIGINT NULL,
     LastModifiedOn DATETIME NULL,
-    LastModifiedBy DATETIME NULL
+    LastModifiedBy BIGINT NULL
 )
 --
 DROP TABLE AGIN

@@ -21,7 +21,7 @@ namespace SpiralEdge.Model
         public DateTime LastModifiedOn { get; set; }
         public long LastModifiedBy { get; set; }
         public bool AlertPattern01 { get; set; }
-        public bool AlearPattern02 { get; set; }
+        public bool AlertPattern02 { get; set; }
         #endregion
         #region For: Ctors
         public DB_AGIN_Baccarat()
@@ -57,13 +57,34 @@ namespace SpiralEdge.Model
         /// <summary>
         /// Description: times(int), color-a(string), color-a-length(int), color-b(string), color-b-length(int)
         /// </summary>
-        public Tuple<int, string, int, string, int> ChkPattern02()
+        public Tuple<int, string, int, string, int> ChkPattern02(int ignore = 0)
         {
             List<DB_AGIN_Baccarat_Cell> cells = new List<DB_AGIN_Baccarat_Cell>();
             DataAnalysis.Cells.ForEach(x => {
                 cells.AddRange(x.Where(y => 0 != y.Order));
             });
             cells = cells.OrderByDescending(x => x.Order).ToList();
+            #region For: Ignore values
+            while (0 != ignore && 0 != cells.Count)
+            {
+                DB_AGIN_Baccarat_Cell star_cell = cells[0];
+                DB_AGIN_Baccarat_Cell next_cell = null;
+                string star_color = star_cell.Matches.Contains("circle-blue") ? "circle-blue" : star_cell.Matches.Contains("circle-red") ? "circle-red" : "";
+                string next_color = "";
+                do
+                {
+                    cells.RemoveAt(0);
+                    next_cell = null; next_color = "";
+                    if (0 != cells.Count)
+                    {
+                        next_cell = cells[0];
+                        next_color = next_cell.Matches.Contains("circle-blue") ? "circle-blue" : next_cell.Matches.Contains("circle-red") ? "circle-red" : "";
+                    }
+                }
+                while (star_color == next_color && 0 != cells.Count);
+                ignore--;
+            }
+            #endregion
             #region For: Calculate values
             int times = 0;
             string color_last = ""; int color_last_len = 0, color_last_len_tmp = 0;
@@ -73,11 +94,11 @@ namespace SpiralEdge.Model
             {
                 DB_AGIN_Baccarat_Cell cell = cells[i];
                 color_curr = cell.Matches.Contains("circle-blue") ? "circle-blue" : cell.Matches.Contains("circle-red") ? "circle-red" : "";
-                if ("" == color_curr) // For: Has only one and it's T case, break loop
+                if ("" == color_curr) // For: It's T case, break loop
                 {
                     break;
                 }
-                if ("" == color_curr) // For: Assign color for last, initialize color
+                if ("" == color_last) // For: Assign color for last, initialize color
                 {
                     color_last = color_curr;
                 }
@@ -87,7 +108,7 @@ namespace SpiralEdge.Model
                 }
                 if (color_curr == color_last)
                 {
-                    if (0 == times) // For: Assign length for last, initialize length
+                    if ("" == color_prev) // For: Assign length for last, initialize length
                     {
                         color_last_len++;
                     }
@@ -113,7 +134,7 @@ namespace SpiralEdge.Model
                         if (color_curr == color_last) // For: Previous pair, plus +1
                         {
                             times++;
-                            color_last_len_tmp = 0;
+                            color_last_len_tmp = 1;
                             color_prev_len_tmp = 0;
                         }
                     }
