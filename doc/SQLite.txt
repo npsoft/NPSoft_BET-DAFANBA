@@ -1,4 +1,6 @@
-﻿pragma table_info(AGIN)
+﻿SELECT * FROM sqlite_master
+--
+pragma table_info(AGIN)
 --
 CREATE TABLE AGIN(
 	Id BIGINT PRIMARY KEY NOT NULL,
@@ -32,6 +34,24 @@ INSERT INTO AGIN (Id, CoordinateX, CoordinateY, FileNames, DataAnalysis, Created
 --
 DELETE FROM AGIN
 --
-SELECT * FROM sqlite_master
-SELECT COUNT(*) FROM AGIN
-SELECT * FROM AGIN LIMIT 0, 5
+PRAGMA foreign_keys=off;
+BEGIN TRANSACTION;
+ALTER TABLE AGIN_TRACK RENAME TO tmpAGIN_TRACK;
+CREATE TABLE AGIN_TRACK(
+    Id BIGINT PRIMARY KEY NOT NULL,
+    CoordinateX INT NULL,
+    CoordinateY INT NULL,
+    FileNames NVARCHAR(255) NULL,
+    DataAnalysis NVARCHAR(2147483647) NULL,
+    CreatedOn DATETIME NULL,
+    CreatedBy BIGINT NULL,
+    LastModifiedOn DATETIME NULL,
+    LastModifiedBy BIGINT NULL
+);
+INSERT INTO AGIN_TRACK(Id, CoordinateX, CoordinateY, FileNames, DataAnalysis, CreatedOn, CreatedBy, LastModifiedOn, LastModifiedBy)
+SELECT Id, CoordinateX, CoordinateY, FileNames, DataAnalysis, CreatedOn, CreatedBy, LastModifiedOn, LastModifiedBy FROM tmpAGIN_TRACK;
+DROP TABLE tmpAGIN_TRACK;
+COMMIT;
+PRAGMA foreign_keys=on;
+--
+SELECT AT.*, strftime('%m/%d/%Y', substr(AT.CreatedOn, 0, 20)) FROM AGIN_TRACK AT ORDER BY AT.Id ASC LIMIT 0, 10

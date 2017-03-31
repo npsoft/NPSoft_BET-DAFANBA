@@ -12,15 +12,15 @@ jQuery.get("/vn/live-dealer/icore/get-lobby-url/ag", function(data) {
 });..]
 
 == Skype
-1. (x - xanh, d - đỏ)
-- x x x x x x x x x x x x x x x x x ....
-- d d d d d d d d d d d d d d ....
-2. x d x d x d x d x d x d x d ....
-3. xxd xxd xxd xxd ...
-4. xx dd xx dd xx ...
-đó là các loại đơn giản nhất để nhận thấy
-mà thường rất khó để duy trì khoảng 16 lượt chơi
-mình bắt từ lượt chơi thứ 10
+https://msdn.microsoft.com/en-us/library/windows/desktop/ms644936%28v=vs.85%29.aspx
+mày print hình ảnh muốn cho dung lượng nhẹ thì:- nếu đang là Image<,> x thì gọi x.Bitmap.Save(....) là nó ra có mấy kb thôi, lưu dạng jpg hình như nó nhẹ hơn png
+nói chung là dung Bitmap(System).Save(*.jpg) thì nó max nhẹ
+var ag = $('a.playnow[href="ag/client"]');var cl = $(ag).attr("href").replace("/client", "");$.get(Drupal.settings.basePath + Drupal.settings.pathPrefix + "icore/get-lobby-url/" + cl, function (data) {alert(data.url)})
+max mà 19 là sấp
+(200k + 400k + 800k) + (200k + 400k + 800k) x 10 + (200k + 400k) x 100
+thua tới ván thứ 8 ván sẽ mất chừng đó
+~ 75tr
+75.000 / 200 = 375
 
 == JS
 console.clear();
