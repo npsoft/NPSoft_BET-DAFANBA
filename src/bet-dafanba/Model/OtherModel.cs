@@ -20,6 +20,10 @@ namespace SpiralEdge.Model
         public long CreatedBy { get; set; }
         public DateTime LastModifiedOn { get; set; }
         public long LastModifiedBy { get; set; }
+
+        public long SummaryId { get; set; }
+        public string SummaryDb { get; set; }
+
         public bool AlertPattern01 { get; set; }
         public bool AlertPattern02 { get; set; }
         #endregion
@@ -30,6 +34,23 @@ namespace SpiralEdge.Model
         }
         #endregion
         #region For: Methods
+        public DB_AGIN_Baccarat Clone()
+        {
+            DB_AGIN_Baccarat baccarat = new DB_AGIN_Baccarat();
+            baccarat.Id = Id;
+            baccarat.CoordinateX = CoordinateX;
+            baccarat.CoordinateY = CoordinateY;
+            baccarat.FileNames = FileNames;
+            baccarat.DataAnalysis = DataAnalysis.Clone();
+            baccarat.CreatedOn = CreatedOn;
+            baccarat.CreatedBy = CreatedBy;
+            baccarat.LastModifiedOn = LastModifiedOn;
+            baccarat.LastModifiedBy = LastModifiedBy;
+            baccarat.SummaryId = SummaryId;
+            baccarat.SummaryDb = SummaryDb;
+            return baccarat;
+        }
+        
         /// <summary>
         /// Description: times(int)
         /// </summary>
@@ -149,7 +170,7 @@ namespace SpiralEdge.Model
             #endregion
             return new Tuple<int, string, int, string, int>(times, color_last, color_last_len, color_prev, color_prev_len);
         }
-
+        
         public void SaveDb(SQLiteHelper connHelper)
         {
             if (0 == Id) // For: Insert data
@@ -219,7 +240,18 @@ namespace SpiralEdge.Model
                 connHelper.ExecNonQueryCmdOptimize(paras, cmd);
             }
         }
-
+        
+        public void SaveDbResult(string type, int times, int latestOrder, SQLiteHelper connHelper)
+        {
+            string cmd = string.Format(@"INSERT INTO AGIN_RESULT (SubId, LatestOrder, Type, Times) VALUES (?, ?, ?, ?)");
+            List<SQLiteParameter> paras = new List<SQLiteParameter>();
+            paras.Add(new SQLiteParameter() { Value = SummaryId });
+            paras.Add(new SQLiteParameter() { Value = latestOrder });
+            paras.Add(new SQLiteParameter() { Value = type });
+            paras.Add(new SQLiteParameter() { Value = times });
+            connHelper.ExecNonQueryCmdOptimize(paras, cmd);
+        }
+               
         public static long IdentityMax(SQLiteHelper connHelper)
         {
             long identity = 0;
@@ -237,11 +269,28 @@ namespace SpiralEdge.Model
             if (DBNull.Value != scalar) { identity = (long)scalar; }
             return identity;
         }
-
+        
         public static DB_AGIN_Baccarat ExtractDB(DataRow dr, List<string> cols)
         {
             DB_AGIN_Baccarat baccarat = new DB_AGIN_Baccarat();
             if (cols.Contains("Id") && DBNull.Value != dr["Id"]) { baccarat.Id = (long)dr["Id"]; }
+            if (cols.Contains("CoordinateX") && DBNull.Value != dr["CoordinateX"]) { baccarat.CoordinateX = (int)dr["CoordinateX"]; }
+            if (cols.Contains("CoordinateY") && DBNull.Value != dr["CoordinateY"]) { baccarat.CoordinateY = (int)dr["CoordinateY"]; }
+            if (cols.Contains("FileNames") && DBNull.Value != dr["FileNames"]) { baccarat.FileNames = (string)dr["FileNames"]; }
+            if (cols.Contains("DataAnalysis") && DBNull.Value != dr["DataAnalysis"]) { baccarat.DataAnalysis = JsonConvert.DeserializeObject<DB_AGIN_Baccarat_Tbl>((string)dr["DataAnalysis"]); }
+            if (cols.Contains("CreatedOn") && DBNull.Value != dr["CreatedOn"]) { baccarat.CreatedOn = (DateTime)dr["CreatedOn"]; }
+            if (cols.Contains("CreatedBy") && DBNull.Value != dr["CreatedBy"]) { baccarat.CreatedBy = (long)dr["CreatedBy"]; }
+            if (cols.Contains("LastModifiedOn") && DBNull.Value != dr["LastModifiedOn"]) { baccarat.LastModifiedOn = (DateTime)dr["LastModifiedOn"]; }
+            if (cols.Contains("LastModifiedBy") && DBNull.Value != dr["LastModifiedBy"]) { baccarat.LastModifiedBy = (long)dr["LastModifiedBy"]; }
+            return baccarat;
+        }
+
+        public static DB_AGIN_Baccarat ExtractDBSum(DataRow dr, List<string> cols)
+        {
+            DB_AGIN_Baccarat baccarat = new DB_AGIN_Baccarat();
+            if (cols.Contains("Id") && DBNull.Value != dr["Id"]) { baccarat.SummaryId = (long)dr["Id"]; }
+            if (cols.Contains("Db") && DBNull.Value != dr["Db"]) { baccarat.SummaryDb = (string)dr["Db"]; }
+            if (cols.Contains("SubId") && DBNull.Value != dr["SubId"]) { baccarat.Id = (long)dr["SubId"]; }
             if (cols.Contains("CoordinateX") && DBNull.Value != dr["CoordinateX"]) { baccarat.CoordinateX = (int)dr["CoordinateX"]; }
             if (cols.Contains("CoordinateY") && DBNull.Value != dr["CoordinateY"]) { baccarat.CoordinateY = (int)dr["CoordinateY"]; }
             if (cols.Contains("FileNames") && DBNull.Value != dr["FileNames"]) { baccarat.FileNames = (string)dr["FileNames"]; }
@@ -371,6 +420,28 @@ namespace SpiralEdge.Model
             Cells = new List<List<DB_AGIN_Baccarat_Cell>>();
         }
         
+        public DB_AGIN_Baccarat_Tbl Clone()
+        {
+            DB_AGIN_Baccarat_Tbl tbl = new DB_AGIN_Baccarat_Tbl();
+            tbl.TotalCol = TotalCol;
+            tbl.TotalRow = TotalRow;
+            tbl.TotalInvalid = TotalInvalid;
+            tbl.LatestOrder = LatestOrder;
+            tbl.LatestOrderCircle = LatestOrderCircle;
+            tbl.LatestOrderX = LatestOrderX;
+            tbl.LatestOrderY = LatestOrderY;
+            tbl.LatestOrderXR = LatestOrderXR;
+            tbl.LatestOrderYR = LatestOrderYR;
+            Cells.ForEach(x => {
+                List<DB_AGIN_Baccarat_Cell> cells = new List<DB_AGIN_Baccarat_Cell>();
+                x.ForEach(y => {
+                    cells.Add(y.Clone());
+                });
+                tbl.Cells.Add(cells);
+            });
+            return tbl;
+        }
+
         /// <summary>
         /// Description: Update values for total-col | total-row | total-invalid properties
         /// </summary>
@@ -533,6 +604,15 @@ namespace SpiralEdge.Model
             UpdTotal();
         }
 
+        public void DelOrder(int maxOrder)
+        {
+            Cells.ForEach(x => {
+                x.ForEach(y => {
+                    y.Order = maxOrder < y.Order ? 0 : y.Order;
+                });
+            });
+        }
+
         public static int DistMax(DB_AGIN_Baccarat_Tbl tblOrg, DB_AGIN_Baccarat_Tbl tblNew)
         {
             return tblNew.TotalCol / 2;
@@ -658,6 +738,19 @@ namespace SpiralEdge.Model
         public DB_AGIN_Baccarat_Cell()
         {
             Matches = new List<string>();
+        }
+
+        public DB_AGIN_Baccarat_Cell Clone()
+        {
+            DB_AGIN_Baccarat_Cell cell = new DB_AGIN_Baccarat_Cell();
+            cell.PercentB = PercentB;
+            cell.PercentG = PercentG;
+            cell.PercentR = PercentR;
+            Matches.ForEach(x => { cell.Matches.Add(x); });
+            cell.Order = Order;
+            cell.OrderConfuse = OrderConfuse;
+            cell.CircleFsLen = CircleFsLen;
+            return cell;
         }
     }
 }

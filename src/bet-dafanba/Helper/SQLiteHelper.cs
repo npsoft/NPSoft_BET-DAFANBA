@@ -40,9 +40,6 @@ namespace SpiralEdge.Helper
                 cnn.ConnectionString = "Data Source = test.db3";
                 cnn.Open();
             }*/
-            /* -: ConnDb.ConnectionString = ConnString;
-            ConnDb.Open();
-            ConnDb.ChangePassword("trungdt");*/
         }
 
         public bool Open()
