@@ -33,7 +33,7 @@ namespace SpiralEdge
                 string file_path = @"D:\NPSoft_BET-DAFANBA\doc\170331\agin-170403-225322-662.png";
                 ImageHelper.AnalysisImg_AGIN_3840x2160(file_path, out output);*/
                 /* -: Config = new ConfigModel(true);
-                Config.Ex170328_HdlAGIN();*/
+                Config.Ex170401_HdlAGIN();*/
             }
             catch (Exception ex)
             {

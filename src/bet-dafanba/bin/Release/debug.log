@@ -136,3 +136,5 @@
 [0404/223523:INFO:(0)] WebCore is now online.
 [0404/223523:INFO:(0)] Running Awesomium 1.7.5.1
 [0404/223531:ERROR:ssl_client_socket_nss.cc(1529)] handshake with server radar.cedexis.com:443 failed; NSS error code -5961, net_error -101
+[0404/230212:INFO:(0)] WebCore is now online.
+[0404/230212:INFO:(0)] Running Awesomium 1.7.5.1

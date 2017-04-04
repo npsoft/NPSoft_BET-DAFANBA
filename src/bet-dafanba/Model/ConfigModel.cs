@@ -118,11 +118,7 @@ WHERE Id IN (SELECT MAX(Id) FROM AGIN GROUP BY CoordinateX, CoordinateY)");
                 #endregion
                 #region For: Retrieve
                 DataTable dt = ds.Tables[0];
-                List<string> cols = new List<string>();
-                foreach (DataColumn dc in dt.Columns)
-                {
-                    cols.Add(dc.ColumnName);
-                }
+                List<string> cols = ToCols(dt);
                 foreach (DataRow dr in dt.Rows)
                 {
                     LatestAGINs.Add(DB_AGIN_Baccarat.ExtractDB(dr, cols));
@@ -332,11 +328,7 @@ ORDER BY Id ASC");
                 #endregion
                 #region For: Retrieve
                 DataTable dt = ds.Tables[0];
-                List<string> cols = new List<string>();
-                foreach (DataColumn dc in dt.Columns)
-                {
-                    cols.Add(dc.ColumnName);
-                }
+                List<string> cols = ToCols(dt);
                 foreach (DataRow dr in dt.Rows)
                 {
                     agins.Add(DB_AGIN_Baccarat.Ex170323_ExtractDB(dr, cols));
@@ -412,11 +404,7 @@ ORDER BY AT.Id ASC");
                 #endregion
                 #region For: Retrieve
                 DataTable dt = ds.Tables[0];
-                List<string> cols = new List<string>();
-                foreach (DataColumn dc in dt.Columns)
-                {
-                    cols.Add(dc.ColumnName);
-                }
+                List<string> cols = ToCols(dt);
                 foreach (DataRow dr in dt.Rows)
                 {
                     var agin = DB_AGIN_Baccarat.ExtractDB(dr, cols);
@@ -453,6 +441,93 @@ ORDER BY AT.Id ASC");
                 pattern02 = agin.ChkPattern02(2);
                 System.Diagnostics.Debug.Print(string.Format("Information\t:: == 2: ({0},{1}) = {2}, {3}, {4}, {5}, {6}", agin.CoordinateX, agin.CoordinateY, pattern02.Item1, pattern02.Item2, pattern02.Item3, pattern02.Item4, pattern02.Item5));
             } 
+        }
+
+        public void Ex170401_HdlAGIN()
+        {
+            List<DB_AGIN_Baccarat> agins = new List<DB_AGIN_Baccarat>();
+            SQLiteCommand cmd = ConnHelper.ConnDb.CreateCommand();
+            try
+            {
+                #region SQLiteCommand: Initialize
+                #region cmd.CommandText = string.Format(@"")
+                cmd.CommandText = string.Format(@"
+SELECT ASUM.* FROM AGIN_SUMMARY ASUM ORDER BY ASUM.Id ASC");
+                #endregion
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandTimeout = CONFIG_CONN_TIMEOUT;
+                #endregion
+                #region SQLiteCommand: Parameters
+                #endregion
+                #region SQLiteCommand: Connection
+                DataSet ds = ConnHelper.ExecCmd(cmd);
+                #endregion
+                #region For: Retrieve
+                DataTable dt = ds.Tables[0];
+                List<string> cols = ToCols(dt);
+                foreach (DataRow dr in dt.Rows)
+                {
+                    agins.Add(DB_AGIN_Baccarat.ExtractDBSum(dr, cols));
+                }
+                #endregion
+                #region For: Clean
+                dt.Clear();
+                ds.Clear();
+                dt.Dispose();
+                ds.Dispose();
+                #endregion
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(string.Format("{0}{1}", ex.Message, ex.StackTrace), ex);
+            }
+            finally
+            {
+                cmd.Dispose();
+            }
+            int pattern01_min = 5, pattern02_min = 5;
+            foreach (DB_AGIN_Baccarat agin in agins)
+            {
+                int order = 0;
+                int pattern01_prev_len = 0, pattern02_prev_len = 0;
+                while (agin.DataAnalysis.LatestOrder > order++)
+                {
+                    DB_AGIN_Baccarat baccarat = agin.Clone();
+                    baccarat.DataAnalysis.DelOrder(order);
+
+                    int pattern01 = baccarat.ChkPattern01();
+                    if (pattern01_min - 1 < pattern01)
+                    {
+                        baccarat.SaveDbResult("pattern-01", pattern01, order, ConnHelper);
+                    }
+                    pattern01_prev_len = pattern01;
+
+                    Tuple<int, string, int, string, int> pattern02 = baccarat.ChkPattern02();
+                    if (pattern02_min > pattern02.Item1)
+                    {
+                        pattern02 = baccarat.ChkPattern02(1);
+                        if (pattern02_min > pattern02.Item1)
+                        {
+                            pattern02 = baccarat.ChkPattern02(2);
+                        }
+                    }
+                    if (pattern02_min - 1 < pattern02.Item1 && pattern02_prev_len < pattern02.Item1)
+                    {
+                        baccarat.SaveDbResult("pattern-02", pattern02.Item1, order, ConnHelper);
+                    }
+                    pattern02_prev_len = pattern02.Item1;
+                }
+            }
+        }
+
+        public static List<string> ToCols(DataTable dt)
+        {
+            List<string> cols = new List<string>();
+            foreach (DataColumn dc in dt.Columns)
+            {
+                cols.Add(dc.ColumnName);
+            }
+            return cols;
         }
 
         public static void SendEmailEx(ConfigModel config, Exception ex)
