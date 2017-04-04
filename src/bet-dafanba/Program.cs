@@ -30,7 +30,7 @@ namespace SpiralEdge
                 Application.SetCompatibleTextRenderingDefault(false);
                 Application.Run(new frmMain());
                 /* -: AGIN_3840x2160_Baccarat output = null;
-                string file_path = @"D:\NPSoft_BET-DAFANBA\doc\170329\agin-170330-023351-389.png";
+                string file_path = @"D:\NPSoft_BET-DAFANBA\doc\170331\agin-170403-225322-662.png";
                 ImageHelper.AnalysisImg_AGIN_3840x2160(file_path, out output);*/
                 /* -: Config = new ConfigModel(true);
                 Config.Ex170328_HdlAGIN();*/

@@ -167,8 +167,14 @@ WHERE Id IN (SELECT MAX(Id) FROM AGIN GROUP BY CoordinateX, CoordinateY)");
                     {
                         DB_AGIN_Baccarat agin_latest = LatestAGINs.Where(x => x.CoordinateX == agin_img.CoordinateX && x.CoordinateY == agin_img.CoordinateY).FirstOrDefault();
                         #region For: Save/Clean baccarat
-                        agin_img.SaveDbTrack(ConnHelper);
-                        if (0 != agin_img.DataAnalysis.TotalInvalid) { continue; }
+                        if (!new int[2] { 0, 204 }.Contains(agin_img.DataAnalysis.TotalInvalid))
+                        {
+                            agin_img.SaveDbTrack(ConnHelper);
+                        }
+                        if (0 != agin_img.DataAnalysis.TotalInvalid)
+                        {
+                            continue;
+                        }
                         agin_img.Id = 0;
                         agin_img.DataAnalysis.DelEmpty();
                         #endregion

@@ -353,7 +353,7 @@ namespace SpiralEdge.Helper
             {
                 #region For: Circles detection
                 var circles = EmguHelper.CircleFs(img, 1.0, 22.0, 200.0, 6.5, 8, 12);
-                if (0 == circles.Length) { circles = EmguHelper.CircleFs(img, 1.0, 22.0, 200.0, 7.0, 7, 12); }
+                if (0 == circles.Length) { circles = EmguHelper.CircleFs(img, 1.0, 22.0, 200.0, 6.5, 7, 12); }
                 if (0 == circles.Length) { circles = EmguHelper.CircleFs(img, 1.5, 22.0, 250.0, 30.0, 8, 12); }
                 #endregion
                 #region For: Slash's percentage | no need :-s
