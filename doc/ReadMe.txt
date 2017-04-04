@@ -11,11 +11,12 @@ jQuery.get("/vn/live-dealer/icore/get-lobby-url/ag", function(data) {
 	"" != data.url && newwindow.location.replace(data.url)
 });..]
 
+http://gci.agad.mstrom-uno.com:81/forwardGame.do?params=F36BBD1DCB90E0E1B27CD91440DEB976AA5D70EF9269BF655AE478CF0CF2630D234290D179BA74BD40C8FE463F8604638A0DCAFE2ABFF2118AB64624C0C2C863A87E63137C1786363909A692DC5120A02D37F9311540548CC257C781D60B3138A582F9AC722C2CE5069C684E90BAE144DCAA77AF6B083A15A2B5EAD110F72BDDB2EDF28D4D95F372D207018373E22DC80559B6CBD700069D6CF7A774DC096586C03B529914B8FCC86CBFB909076CE0BDD5AB8E3A624315867B1315903744F565&key=884198cae18acd47a88954dcd1c763b6
+
 == Skype
 https://msdn.microsoft.com/en-us/library/windows/desktop/ms644936%28v=vs.85%29.aspx
 mày print hình ảnh muốn cho dung lượng nhẹ thì:- nếu đang là Image<,> x thì gọi x.Bitmap.Save(....) là nó ra có mấy kb thôi, lưu dạng jpg hình như nó nhẹ hơn png
 nói chung là dung Bitmap(System).Save(*.jpg) thì nó max nhẹ
-var ag = $('a.playnow[href="ag/client"]');var cl = $(ag).attr("href").replace("/client", "");$.get(Drupal.settings.basePath + Drupal.settings.pathPrefix + "icore/get-lobby-url/" + cl, function (data) {alert(data.url)})
 max mà 19 là sấp
 (200k + 400k + 800k) + (200k + 400k + 800k) x 10 + (200k + 400k) x 100
 thua tới ván thứ 8 ván sẽ mất chừng đó
@@ -87,7 +88,7 @@ function FindCellInvalid(records) {
         record.cells.forEach(function (cells, x, array) {
             cells.forEach(function (cell, y, array) {
                 if (0 == cell["matches"].length) {
-                    console.log("x = " + x + ", y = " + y + ", order = " + cell["order"] + ", matches = " + cell["matches"].join(";") + ", percent-b = " + cell["percent-b"] + ", percent-g = " + cell["percent-g"] + ", percent-r = " + cell["percent-r"]);
+                    console.log("x = " + x + ", y = " + y + ", order = " + cell["order"] + ", matches = " + cell["matches"].join(";") + ", percent-b = " + cell["percent-b"] + ", percent-g = " + cell["percent-g"] + ", percent-r = " + cell["percent-r"] + ", circle-fs-length = " + cell["circle-fs-length"]);
                 }
             });
         });

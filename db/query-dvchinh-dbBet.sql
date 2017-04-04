@@ -61,3 +61,8 @@ ORDER BY AR.Id ASC;
 SELECT
     (SELECT MAX(AR.Times) FROM AGIN_RESULT AR WHERE AR.Type = 'pattern-01') [pattern01-max], -- 15
     (SELECT MAX(AR.Times) FROM AGIN_RESULT AR WHERE AR.Type = 'pattern-02') [pattern02-max]; -- 06
+
+SELECT AR.Type, AR.Times, Count(1) Frequency
+FROM AGIN_RESULT AR
+GROUP BY AR.Times, AR.Type
+ORDER BY AR.Type ASC, AR.Times DESC
