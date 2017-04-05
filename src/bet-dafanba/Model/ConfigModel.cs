@@ -485,7 +485,7 @@ SELECT ASUM.* FROM AGIN_SUMMARY ASUM ORDER BY ASUM.Id ASC");
             {
                 cmd.Dispose();
             }
-            int pattern01_min = 5, pattern02_min = 5;
+            int pattern01_min = 5, pattern02_min = 2;
             foreach (DB_AGIN_Baccarat agin in agins)
             {
                 int order = 0;
