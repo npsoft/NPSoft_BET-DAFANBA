@@ -168,13 +168,13 @@ jQuery.get(""/vn/live-dealer/icore/get-lobby-url/ag"", function(data) {
 
         private bool CheckUrlDefault(string url)
         {
-            Regex regex = new Regex(@"^https:\/\/www\.dafanba\.org\/vn$", RegexOptions.Compiled);
+            Regex regex = new Regex(@"^https:\/\/www\.dafanba\.org\/vn\/?$", RegexOptions.Compiled);
             return regex.IsMatch(url);
         }
 
         private bool CheckUrlLiveDealer(string url)
         {
-            Regex regex = new Regex(@"^https:\/\/www.dafanba.org\/vn\/live-dealer\/$", RegexOptions.Compiled);
+            Regex regex = new Regex(@"^https:\/\/www.dafanba.org\/vn\/live-dealer\/?$", RegexOptions.Compiled);
             return regex.IsMatch(url);
         }
         #endregion

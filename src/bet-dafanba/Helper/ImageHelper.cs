@@ -354,7 +354,7 @@ namespace SpiralEdge.Helper
                 #region For: Circles detection
                 var circles = EmguHelper.CircleFs(img, 1.0, 22.0, 200.0, 6.5, 8, 12);
                 if (0 == circles.Length) { circles = EmguHelper.CircleFs(img, 1.0, 22.0, 200.0, 6.5, 7, 12); }
-                if (0 == circles.Length) { circles = EmguHelper.CircleFs(img, 1.5, 22.0, 250.0, 30.0, 8, 12); }
+                if (0 == circles.Length) { circles = EmguHelper.CircleFs(img, 1.5, 22.0, 250.0, 25.0, 8, 12); }
                 #endregion
                 #region For: Slash's percentage | no need :-s
                 /* -: string file_name_rotate = string.Format("{0}-rotate{1}", Path.GetFileNameWithoutExtension(path), Path.GetExtension(path));
@@ -393,7 +393,7 @@ namespace SpiralEdge.Helper
                     }
                     #endregion
                     #region For: bg-white, circle-red, slash-green
-                    if (0.45 > PercentB && PercentB > 0.40 &&
+                    if (0.50 > PercentB && PercentB > 0.40 &&
                         0.60 > PercentG && PercentG > 0.55 &&
                         0.70 > PercentR && PercentR > 0.65)
                     {

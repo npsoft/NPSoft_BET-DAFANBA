@@ -219,7 +219,7 @@ WHERE Id IN (SELECT MAX(Id) FROM AGIN GROUP BY CoordinateX, CoordinateY)");
                         #endregion
                         #region For: Baccarat pattern #02
                         Tuple<int, string, int, string, int> pattern02 = agin_latest.ChkPattern02();
-                        if (CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02 < pattern02.Item1 && !agin_latest.AlertPattern02)
+                        if (CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02 <= pattern02.Item1 && !agin_latest.AlertPattern02)
                         {
                             AlertBaccaratPattern02(agin_latest.CoordinateX, agin_latest.CoordinateY, pattern02.Item2, pattern02.Item3, pattern02.Item4, pattern02.Item5, pattern02.Item1, file_path);
                         }

@@ -18,7 +18,7 @@ https://msdn.microsoft.com/en-us/library/windows/desktop/ms644936%28v=vs.85%29.a
 mày print hình ảnh muốn cho dung lượng nhẹ thì:- nếu đang là Image<,> x thì gọi x.Bitmap.Save(....) là nó ra có mấy kb thôi, lưu dạng jpg hình như nó nhẹ hơn png
 nói chung là dung Bitmap(System).Save(*.jpg) thì nó max nhẹ
 max mà 19 là sấp
-(200k + 400k + 800k) + (200k + 400k + 800k) x 10 + (200k + 400k) x 100
+(200 + 400 + 800) + (200 + 400 + 800) * 10 + (200 + 400) * 100
 thua tới ván thứ 8 ván sẽ mất chừng đó
 ~ 75tr
 75.000 / 200 = 375
