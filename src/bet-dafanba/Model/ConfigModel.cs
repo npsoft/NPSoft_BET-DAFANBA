@@ -269,7 +269,7 @@ WHERE Id IN (SELECT MAX(Id) FROM AGIN GROUP BY CoordinateX, CoordinateY)");
             Log.Log(string.Format("Information\t:: [ coordinate = ({0},{1}), last = ({2},{3}), previous = ({4},{5}), length = {6}, attachment = {7} ]", x, y, last_type, last_len, prev_type, prev_len, length, attachment));
             #endregion
             #region For: Send email(s)
-            string subject = string.Format("[BET - AGIN - 01] ({0},{1}) = {2} | {3:yyyy-MM-dd HH:mm:ss}", x, y, length, DateTime.Now);
+            string subject = string.Format("[BET - AGIN - 02] ({0},{1}) = {2} | {3:yyyy-MM-dd HH:mm:ss}", x, y, length, DateTime.Now);
             string content = string.Format(@"
             Hi you,<br/><br/>
             Please review alert for AGIN | {7:yyyy-MM-dd HH:mm:ss}:<br/>
