@@ -302,148 +302,7 @@ WHERE Id IN (SELECT MAX(Id) FROM AGIN GROUP BY CoordinateX, CoordinateY)");
             Log.Log(string.Format("Information\t:: Send email(s) processing has been completed."));
         }
         
-        public void Ex170323_HdlAGIN()
-        {
-            List<DB_AGIN_Baccarat> agins = new List<DB_AGIN_Baccarat>();
-            SQLiteCommand cmd = ConnHelper.ConnDb.CreateCommand();
-            try
-            {
-                #region SQLiteCommand: Initialize
-                #region cmd.CommandText = string.Format(@"")
-                cmd.CommandText = string.Format(@"
-SELECT T.*
-FROM AGIN T
-WHERE FileName IN ('agin-170318-215633-059.png', 'agin-170318-215702-621.png', 'agin-170318-215719-358.png', 'agin-170318-215735-731.png', 'agin-170318-215754-723.png', 'agin-170318-215820-010.png', 'agin-170318-215836-532.png', 'agin-170318-215853-198.png', 'agin-170318-215922-232.png', 'agin-170318-215939-653.png', 'agin-170318-215956-323.png', 'agin-170318-220019-930.png', 'agin-170318-220038-924.png', 'agin-170318-220055-380.png', 'agin-170318-220112-110.png', 'agin-170318-220141-792.png', 'agin-170318-220158-709.png', 'agin-170318-220215-153.png', 'agin-170318-220237-210.png', 'agin-170318-220259-457.png')
-  AND CoordinateX = 1 AND CoordinateY = 1
-ORDER BY Id ASC");
-                #endregion
-                cmd.CommandType = CommandType.Text;
-                cmd.CommandTimeout = CONFIG_CONN_TIMEOUT;
-                #endregion
-                #region SQLiteCommand: Parameters
-                // -: cmd.Parameters.Add(new SQLiteParameter() { Value = "agin-170318-213613-937.png" });
-                #endregion
-                #region SQLiteCommand: Connection
-                DataSet ds = ConnHelper.ExecCmd(cmd);
-                #endregion
-                #region For: Retrieve
-                DataTable dt = ds.Tables[0];
-                List<string> cols = ToCols(dt);
-                foreach (DataRow dr in dt.Rows)
-                {
-                    agins.Add(DB_AGIN_Baccarat.Ex170323_ExtractDB(dr, cols));
-                    agins.Last().Id = 0;
-                    agins.Last().DataAnalysis.DelEmpty();
-                    // agins.Last().DataAnalysis.UpdOrder(agins.Last().DataAnalysis.LatestOrder, agins.Last().DataAnalysis.LatestOrderCircle, agins.Last().DataAnalysis.LatestOrderX, agins.Last().DataAnalysis.LatestOrderY, agins.Last().DataAnalysis.LatestOrderXR, agins.Last().DataAnalysis.LatestOrderYR);
-                }
-                #endregion
-                #region For: Clean
-                dt.Clear();
-                ds.Clear();
-                dt.Dispose();
-                ds.Dispose();
-                #endregion
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(string.Format("{0}{1}", ex.Message, ex.StackTrace), ex);
-            }
-            finally
-            {
-                cmd.Dispose();
-            }
-            foreach (DB_AGIN_Baccarat agin in agins)
-            {
-                agin.SaveDbTrack(ConnHelper);
-            }
-            var agin_org = agins[0];
-            agin_org.DataAnalysis.UpdOrder(agin_org.DataAnalysis.LatestOrder, agin_org.DataAnalysis.LatestOrderCircle, agin_org.DataAnalysis.LatestOrderX, agin_org.DataAnalysis.LatestOrderY, agin_org.DataAnalysis.LatestOrderXR, agin_org.DataAnalysis.LatestOrderYR);
-            agin_org.Id = 0;
-            agin_org.SaveDbTrack(ConnHelper);
-            /* -: for (int i = 1; i < agins.Count; i++)
-            {*/
-                var agin_new = agins[agins.Count - 1];
-                int dist_max = DB_AGIN_Baccarat_Tbl.DistMax(agin_org.DataAnalysis, agin_new.DataAnalysis);
-                int dist = DB_AGIN_Baccarat_Tbl.DistMerge(agin_org.DataAnalysis, agin_new.DataAnalysis, dist_max);
-                Log.Log(string.Format("Information\t:: [ i: {0}, dist-max: {1}, dist: {2} ]", agins.Count/*i + 1*/, dist_max, dist));
-                if (-1 != dist)
-                {
-                    DB_AGIN_Baccarat_Tbl.ExecMerge(agin_org.DataAnalysis, agin_new.DataAnalysis, dist);
-                    agin_org.FileNames = Regex.Replace(agin_org.FileNames + agin_new.FileNames, @"(;;)", ";");
-                    agin_org.LastModifiedOn = agin_new.LastModifiedOn;
-                    agin_org.LastModifiedBy = agin_new.LastModifiedBy;
-                    agin_org.DataAnalysis.UpdOrder(agin_org.DataAnalysis.LatestOrder, agin_org.DataAnalysis.LatestOrderCircle, agin_org.DataAnalysis.LatestOrderX, agin_org.DataAnalysis.LatestOrderY, agin_org.DataAnalysis.LatestOrderXR, agin_org.DataAnalysis.LatestOrderYR);
-                    agin_org.Id = 0;
-                    agin_org.SaveDbTrack(ConnHelper);
-                }
-            /* -: }*/
-        }
-
-        public void Ex170328_HdlAGIN()
-        {
-            List<DB_AGIN_Baccarat> agins = new List<DB_AGIN_Baccarat>();
-            SQLiteCommand cmd = ConnHelper.ConnDb.CreateCommand();
-            try
-            {
-                #region SQLiteCommand: Initialize
-                #region cmd.CommandText = string.Format(@"")
-                cmd.CommandText = string.Format(@"
-SELECT AT.*
-FROM AGIN_TRACK AT
-WHERE AT.FileNames IN (?)
-ORDER BY AT.Id ASC");
-                #endregion
-                cmd.CommandType = CommandType.Text;
-                cmd.CommandTimeout = CONFIG_CONN_TIMEOUT;
-                #endregion
-                #region SQLiteCommand: Parameters
-                cmd.Parameters.Add(new SQLiteParameter() { Value = ";agin-170327-205354-415.png;" });
-                #endregion
-                #region SQLiteCommand: Connection
-                DataSet ds = ConnHelper.ExecCmd(cmd);
-                #endregion
-                #region For: Retrieve
-                DataTable dt = ds.Tables[0];
-                List<string> cols = ToCols(dt);
-                foreach (DataRow dr in dt.Rows)
-                {
-                    var agin = DB_AGIN_Baccarat.ExtractDB(dr, cols);
-                    if (0 == agin.DataAnalysis.TotalInvalid)
-                    {
-                        agin.DataAnalysis.DelEmpty();
-                        agin.DataAnalysis.UpdOrder(agin.DataAnalysis.LatestOrder, agin.DataAnalysis.LatestOrderCircle, agin.DataAnalysis.LatestOrderX, agin.DataAnalysis.LatestOrderY, agin.DataAnalysis.LatestOrderXR, agin.DataAnalysis.LatestOrderYR);
-                        agins.Add(agin);  
-                    }
-                }
-                #endregion
-                #region For: Clean
-                dt.Clear();
-                ds.Clear();
-                dt.Dispose();
-                ds.Dispose();
-                #endregion
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(string.Format("{0}{1}", ex.Message, ex.StackTrace), ex);
-            }
-            finally
-            {
-                cmd.Dispose();
-            }
-            foreach (DB_AGIN_Baccarat agin in agins)
-            {
-                Tuple<int, string, int, string, int> pattern02;
-                pattern02 = agin.ChkPattern02();
-                System.Diagnostics.Debug.Print(string.Format("Information\t:: == 0: ({0},{1}) = {2}, {3}, {4}, {5}, {6}", agin.CoordinateX, agin.CoordinateY, pattern02.Item1, pattern02.Item2, pattern02.Item3, pattern02.Item4, pattern02.Item5));
-                pattern02 = agin.ChkPattern02(1);
-                System.Diagnostics.Debug.Print(string.Format("Information\t:: == 1: ({0},{1}) = {2}, {3}, {4}, {5}, {6}", agin.CoordinateX, agin.CoordinateY, pattern02.Item1, pattern02.Item2, pattern02.Item3, pattern02.Item4, pattern02.Item5));
-                pattern02 = agin.ChkPattern02(2);
-                System.Diagnostics.Debug.Print(string.Format("Information\t:: == 2: ({0},{1}) = {2}, {3}, {4}, {5}, {6}", agin.CoordinateX, agin.CoordinateY, pattern02.Item1, pattern02.Item2, pattern02.Item3, pattern02.Item4, pattern02.Item5));
-            } 
-        }
-
-        public void Ex170401_HdlAGIN()
+        public void Analysis1_AGIN()
         {
             List<DB_AGIN_Baccarat> agins = new List<DB_AGIN_Baccarat>();
             SQLiteCommand cmd = ConnHelper.ConnDb.CreateCommand();
@@ -467,7 +326,7 @@ SELECT ASUM.* FROM AGIN_SUMMARY ASUM ORDER BY ASUM.Id ASC");
                 List<string> cols = ToCols(dt);
                 foreach (DataRow dr in dt.Rows)
                 {
-                    agins.Add(DB_AGIN_Baccarat.ExtractDBSum(dr, cols));
+                    agins.Add(DB_AGIN_Baccarat.ExtractDB(dr, cols));
                 }
                 #endregion
                 #region For: Clean
@@ -485,7 +344,7 @@ SELECT ASUM.* FROM AGIN_SUMMARY ASUM ORDER BY ASUM.Id ASC");
             {
                 cmd.Dispose();
             }
-            int pattern01_min = 5, pattern02_min = 2;
+            int pattern01_min = 5, pattern02_min = 2, idx = 1;
             foreach (DB_AGIN_Baccarat agin in agins)
             {
                 int order = 0;
@@ -498,7 +357,7 @@ SELECT ASUM.* FROM AGIN_SUMMARY ASUM ORDER BY ASUM.Id ASC");
                     int pattern01 = baccarat.ChkPattern01();
                     if (pattern01_min - 1 < pattern01)
                     {
-                        baccarat.SaveDbResult("pattern-01", pattern01, order, ConnHelper);
+                        baccarat.SaveDbResult1("pattern-01", pattern01, order, ConnHelper);
                     }
                     pattern01_prev_len = pattern01;
 
@@ -513,14 +372,17 @@ SELECT ASUM.* FROM AGIN_SUMMARY ASUM ORDER BY ASUM.Id ASC");
                     }
                     if (pattern02_min - 1 < pattern02.Item1 && pattern02_prev_len < pattern02.Item1)
                     {
-                        baccarat.SaveDbResult("pattern-02", pattern02.Item1, order, ConnHelper);
+                        baccarat.SaveDbResult1("pattern-02", pattern02.Item1, order, ConnHelper);
                     }
                     pattern02_prev_len = pattern02.Item1;
                 }
+                System.Threading.Thread.Sleep(0);
+                System.Windows.Forms.Application.DoEvents();
+                Console.WriteLine(string.Format("Information\t:: {0:P}", (double)idx++ / agins.Count));
             }
         }
 
-        public void Ex170414_HdlAGIN()
+        public void Analysis2_AGIN()
         {
             List<DB_AGIN_Baccarat> agins = new List<DB_AGIN_Baccarat>();
             SQLiteCommand cmd = ConnHelper.ConnDb.CreateCommand();
@@ -544,7 +406,7 @@ SELECT ASUM.* FROM AGIN_SUMMARY ASUM ORDER BY ASUM.Id ASC");
                 List<string> cols = ToCols(dt);
                 foreach (DataRow dr in dt.Rows)
                 {
-                    agins.Add(DB_AGIN_Baccarat.ExtractDBSum(dr, cols));
+                    agins.Add(DB_AGIN_Baccarat.ExtractDB(dr, cols));
                 }
                 #endregion
                 #region For: Clean
@@ -574,8 +436,9 @@ SELECT ASUM.* FROM AGIN_SUMMARY ASUM ORDER BY ASUM.Id ASC");
                     });
                     agin.SaveDbResult2(order, cells.Count(x => x.Matches.Contains("circle-red")), cells.Count(x => x.Matches.Contains("circle-blue")), ConnHelper);
                 }
-                System.Threading.Thread.Sleep(10);
+                System.Threading.Thread.Sleep(0);
                 System.Windows.Forms.Application.DoEvents();
+                Console.Clear();
                 Console.WriteLine(string.Format("Information\t:: {0:P}", (double)idx++ / agins.Count));
             }
         }

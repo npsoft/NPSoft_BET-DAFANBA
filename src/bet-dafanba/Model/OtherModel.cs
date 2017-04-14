@@ -20,10 +20,6 @@ namespace SpiralEdge.Model
         public long CreatedBy { get; set; }
         public DateTime LastModifiedOn { get; set; }
         public long LastModifiedBy { get; set; }
-
-        public long SummaryId { get; set; }
-        public string SummaryDb { get; set; }
-
         public bool AlertPattern01 { get; set; }
         public bool AlertPattern02 { get; set; }
         #endregion
@@ -46,8 +42,6 @@ namespace SpiralEdge.Model
             baccarat.CreatedBy = CreatedBy;
             baccarat.LastModifiedOn = LastModifiedOn;
             baccarat.LastModifiedBy = LastModifiedBy;
-            baccarat.SummaryId = SummaryId;
-            baccarat.SummaryDb = SummaryDb;
             return baccarat;
         }
         
@@ -221,11 +215,11 @@ namespace SpiralEdge.Model
             connHelper.ExecNonQueryCmdOptimize(paras, cmd);
         }
         
-        public void SaveDbResult(string type, int times, int latestOrder, SQLiteHelper connHelper)
+        public void SaveDbResult1(string type, int times, int latestOrder, SQLiteHelper connHelper)
         {
-            string cmd = string.Format(@"INSERT INTO AGIN_RESULT (SubId, LatestOrder, Type, Times) VALUES (?, ?, ?, ?)");
+            string cmd = string.Format(@"INSERT INTO AGIN_RESULT1 (SubId, LatestOrder, Type, Times) VALUES (?, ?, ?, ?)");
             List<SQLiteParameter> paras = new List<SQLiteParameter>();
-            paras.Add(new SQLiteParameter() { Value = SummaryId });
+            paras.Add(new SQLiteParameter() { Value = Id });
             paras.Add(new SQLiteParameter() { Value = latestOrder });
             paras.Add(new SQLiteParameter() { Value = type });
             paras.Add(new SQLiteParameter() { Value = times });
@@ -236,7 +230,7 @@ namespace SpiralEdge.Model
         {
             string cmd = string.Format(@"INSERT INTO AGIN_RESULT2 (SubId, LatestOrder, NumCircleRed, NumCircleBlue) VALUES (?, ?, ?, ?)");
             List<SQLiteParameter> paras = new List<SQLiteParameter>();
-            paras.Add(new SQLiteParameter() { Value = SummaryId });
+            paras.Add(new SQLiteParameter() { Value = Id });
             paras.Add(new SQLiteParameter() { Value = latestOrder });
             paras.Add(new SQLiteParameter() { Value = numCircleRed });
             paras.Add(new SQLiteParameter() { Value = numCircleBlue });
@@ -266,24 +260,7 @@ namespace SpiralEdge.Model
             if (cols.Contains("LastModifiedBy") && DBNull.Value != dr["LastModifiedBy"]) { baccarat.LastModifiedBy = (long)dr["LastModifiedBy"]; }
             return baccarat;
         }
-
-        public static DB_AGIN_Baccarat ExtractDBSum(DataRow dr, List<string> cols)
-        {
-            DB_AGIN_Baccarat baccarat = new DB_AGIN_Baccarat();
-            if (cols.Contains("Id") && DBNull.Value != dr["Id"]) { baccarat.SummaryId = (long)dr["Id"]; }
-            if (cols.Contains("Db") && DBNull.Value != dr["Db"]) { baccarat.SummaryDb = (string)dr["Db"]; }
-            if (cols.Contains("SubId") && DBNull.Value != dr["SubId"]) { baccarat.Id = (long)dr["SubId"]; }
-            if (cols.Contains("CoordinateX") && DBNull.Value != dr["CoordinateX"]) { baccarat.CoordinateX = (int)dr["CoordinateX"]; }
-            if (cols.Contains("CoordinateY") && DBNull.Value != dr["CoordinateY"]) { baccarat.CoordinateY = (int)dr["CoordinateY"]; }
-            if (cols.Contains("FileNames") && DBNull.Value != dr["FileNames"]) { baccarat.FileNames = (string)dr["FileNames"]; }
-            if (cols.Contains("DataAnalysis") && DBNull.Value != dr["DataAnalysis"]) { baccarat.DataAnalysis = JsonConvert.DeserializeObject<DB_AGIN_Baccarat_Tbl>((string)dr["DataAnalysis"]); }
-            if (cols.Contains("CreatedOn") && DBNull.Value != dr["CreatedOn"]) { baccarat.CreatedOn = (DateTime)dr["CreatedOn"]; }
-            if (cols.Contains("CreatedBy") && DBNull.Value != dr["CreatedBy"]) { baccarat.CreatedBy = (long)dr["CreatedBy"]; }
-            if (cols.Contains("LastModifiedOn") && DBNull.Value != dr["LastModifiedOn"]) { baccarat.LastModifiedOn = (DateTime)dr["LastModifiedOn"]; }
-            if (cols.Contains("LastModifiedBy") && DBNull.Value != dr["LastModifiedBy"]) { baccarat.LastModifiedBy = (long)dr["LastModifiedBy"]; }
-            return baccarat;
-        }
-
+        
         public static DB_AGIN_Baccarat ExtractObj(int coordinateX, int coordinateY, string fileName, AGIN_3840x2160_Baccarat_TblLevel1 dataAnalysis, DateTime createdOn, long createdBy, DateTime lastModifiedOn, long lastModifiedBy)
         {
             DB_AGIN_Baccarat baccarat = new DB_AGIN_Baccarat();
@@ -327,40 +304,6 @@ namespace SpiralEdge.Model
                 }
             }
             return agins;
-        }
-        
-        public static DB_AGIN_Baccarat Ex170323_ExtractDB(DataRow dr, List<string> cols)
-        {
-            DB_AGIN_Baccarat baccarat = new DB_AGIN_Baccarat();
-            if (cols.Contains("Id") && DBNull.Value != dr["Id"]) { baccarat.Id = (long)dr["Id"]; }
-            if (cols.Contains("CoordinateX") && DBNull.Value != dr["CoordinateX"]) { baccarat.CoordinateX = (int)dr["CoordinateX"]; }
-            if (cols.Contains("CoordinateY") && DBNull.Value != dr["CoordinateY"]) { baccarat.CoordinateY = (int)dr["CoordinateY"]; }
-            if (cols.Contains("FileName") && DBNull.Value != dr["FileName"]) { baccarat.FileNames = string.Format(";{0};", dr["FileName"]); }
-            if (cols.Contains("AnalysisData") && DBNull.Value != dr["AnalysisData"])
-            {
-                dynamic data = JsonConvert.DeserializeObject((string)dr["AnalysisData"]);
-                foreach (dynamic cells in data["cells"])
-                {
-                    baccarat.DataAnalysis.Cells.Add(new List<DB_AGIN_Baccarat_Cell>());
-                    foreach (dynamic cell in cells)
-                    {
-                        baccarat.DataAnalysis.Cells.Last().Add(new DB_AGIN_Baccarat_Cell());
-                        baccarat.DataAnalysis.Cells.Last().Last().PercentB = (double)cell["percent-b"];
-                        baccarat.DataAnalysis.Cells.Last().Last().PercentG = (double)cell["percent-g"];
-                        baccarat.DataAnalysis.Cells.Last().Last().PercentR = (double)cell["percent-r"];
-                        foreach (dynamic match in cell["matches"])
-                        {
-                            baccarat.DataAnalysis.Cells.Last().Last().Matches.Add((string)match);
-                        }
-                    }
-                }
-            }
-            if (cols.Contains("CreatedOn") && DBNull.Value != dr["CreatedOn"]) { baccarat.CreatedOn = (DateTime)dr["CreatedOn"]; }
-            if (cols.Contains("CreatedBy") && DBNull.Value != dr["CreatedBy"]) { baccarat.CreatedBy = (long)dr["CreatedBy"]; }
-            if (cols.Contains("LastModifiedOn") && DBNull.Value != dr["LastModifiedOn"]) { baccarat.LastModifiedOn = (DateTime)dr["LastModifiedOn"]; }
-            if (cols.Contains("LastModifiedBy") && DBNull.Value != dr["LastModifiedBy"]) { baccarat.LastModifiedBy = (long)dr["LastModifiedBy"]; }
-            baccarat.DataAnalysis.UpdTotal();
-            return baccarat;
         }
         #endregion
     }
