@@ -520,6 +520,66 @@ SELECT ASUM.* FROM AGIN_SUMMARY ASUM ORDER BY ASUM.Id ASC");
             }
         }
 
+        public void Ex170414_HdlAGIN()
+        {
+            List<DB_AGIN_Baccarat> agins = new List<DB_AGIN_Baccarat>();
+            SQLiteCommand cmd = ConnHelper.ConnDb.CreateCommand();
+            try
+            {
+                #region SQLiteCommand: Initialize
+                #region cmd.CommandText = string.Format(@"")
+                cmd.CommandText = string.Format(@"
+SELECT ASUM.* FROM AGIN_SUMMARY ASUM ORDER BY ASUM.Id ASC");
+                #endregion
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandTimeout = CONFIG_CONN_TIMEOUT;
+                #endregion
+                #region SQLiteCommand: Parameters
+                #endregion
+                #region SQLiteCommand: Connection
+                DataSet ds = ConnHelper.ExecCmd(cmd);
+                #endregion
+                #region For: Retrieve
+                DataTable dt = ds.Tables[0];
+                List<string> cols = ToCols(dt);
+                foreach (DataRow dr in dt.Rows)
+                {
+                    agins.Add(DB_AGIN_Baccarat.ExtractDBSum(dr, cols));
+                }
+                #endregion
+                #region For: Clean
+                dt.Clear();
+                ds.Clear();
+                dt.Dispose();
+                ds.Dispose();
+                #endregion
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(string.Format("{0}{1}", ex.Message, ex.StackTrace), ex);
+            }
+            finally
+            {
+                cmd.Dispose();
+            }
+            int order_min = 1, idx = 1;
+            foreach (DB_AGIN_Baccarat agin in agins)
+            {
+                int order = order_min - 1;
+                while (agin.DataAnalysis.LatestOrder > order++)
+                {
+                    List<DB_AGIN_Baccarat_Cell> cells = new List<DB_AGIN_Baccarat_Cell>();
+                    agin.DataAnalysis.Cells.ForEach(x => {
+                        cells.AddRange(x.Where(y => order + 1 > y.Order));
+                    });
+                    agin.SaveDbResult2(order, cells.Count(x => x.Matches.Contains("circle-red")), cells.Count(x => x.Matches.Contains("circle-blue")), ConnHelper);
+                }
+                System.Threading.Thread.Sleep(10);
+                System.Windows.Forms.Application.DoEvents();
+                Console.WriteLine(string.Format("Information\t:: {0:P}", (double)idx++ / agins.Count));
+            }
+        }
+
         public static List<string> ToCols(DataTable dt)
         {
             List<string> cols = new List<string>();

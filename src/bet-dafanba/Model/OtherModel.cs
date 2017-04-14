@@ -251,6 +251,17 @@ namespace SpiralEdge.Model
             paras.Add(new SQLiteParameter() { Value = times });
             connHelper.ExecNonQueryCmdOptimize(paras, cmd);
         }
+
+        public void SaveDbResult2(int latestOrder, int numCircleRed, int numCircleBlue, SQLiteHelper connHelper)
+        {
+            string cmd = string.Format(@"INSERT INTO AGIN_RESULT2 (SubId, LatestOrder, NumCircleRed, NumCircleBlue) VALUES (?, ?, ?, ?)");
+            List<SQLiteParameter> paras = new List<SQLiteParameter>();
+            paras.Add(new SQLiteParameter() { Value = SummaryId });
+            paras.Add(new SQLiteParameter() { Value = latestOrder });
+            paras.Add(new SQLiteParameter() { Value = numCircleRed });
+            paras.Add(new SQLiteParameter() { Value = numCircleBlue });
+            connHelper.ExecNonQueryCmdOptimize(paras, cmd);
+        }
                
         public static long IdentityMax(SQLiteHelper connHelper)
         {
