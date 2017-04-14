@@ -17,10 +17,9 @@ CREATE TABLE AGIN(
 	CreatedBy BIGINT NULL,
 	LastModifiedOn DATETIME NULL,
 	LastModifiedBy BIGINT NULL
-)
---
+);
 CREATE TABLE AGIN_TRACK(
-    Id BIGINT PRIMARY KEY NOT NULL,
+    Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     CoordinateX INT NULL,
     CoordinateY INT NULL,
     FileNames NVARCHAR(255) NULL,
@@ -29,12 +28,9 @@ CREATE TABLE AGIN_TRACK(
     CreatedBy BIGINT NULL,
     LastModifiedOn DATETIME NULL,
     LastModifiedBy BIGINT NULL
-)
---
+);
 CREATE TABLE AGIN_SUMMARY(
 	Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-	Db NVARCHAR(2147483647) NULL,
-	SubId BIGINT NULL,
 	CoordinateX INT NULL,
 	CoordinateY INT NULL,
 	FileNames NVARCHAR(2147483647) NULL,
@@ -43,29 +39,30 @@ CREATE TABLE AGIN_SUMMARY(
 	CreatedBy BIGINT NULL,
 	LastModifiedOn DATETIME NULL,
 	LastModifiedBy BIGINT NULL
-)
---
-CREATE TABLE AGIN_RESULT(
+);
+CREATE TABLE AGIN_RESULT1(
 	Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 	SubId INTEGER NULL,
 	LatestOrder INT NULL,
 	Type NVARCHAR(2147483647) NULL,
 	Times INT NULL
-)
---
+);
 CREATE TABLE AGIN_RESULT2(
 	Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 	SubId INTEGER NULL,
 	LatestOrder INT NULL,
 	NumCircleRed INT NULL,
 	NumCircleBlue INT NULL
-)
+);
 --
 DROP TABLE AGIN
 --
 ALTER TABLE AGIN RENAME TO AGIN_TRACK
 --
-INSERT INTO AGIN (Id, CoordinateX, CoordinateY, FileNames, DataAnalysis, CreatedOn, CreatedBy, LastModifiedOn, LastModifiedBy) VALUES (0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL)
+INSERT INTO AGIN (Id, CoordinateX, CoordinateY, FileNames, DataAnalysis, CreatedOn, CreatedBy, LastModifiedOn, LastModifiedBy)
+VALUES (0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO AGIN_SUMMARY (CoordinateX, CoordinateY, FileNames, DataAnalysis, CreatedOn, CreatedBy, LastModifiedOn, LastModifiedBy)
+SELECT CoordinateX, CoordinateY, FileNames, DataAnalysis, CreatedOn, CreatedBy, LastModifiedOn, LastModifiedBy FROM aux.AGIN;
 --
 DELETE FROM AGIN
 --

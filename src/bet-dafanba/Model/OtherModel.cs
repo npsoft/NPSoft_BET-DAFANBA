@@ -208,37 +208,17 @@ namespace SpiralEdge.Model
 
         public void SaveDbTrack(SQLiteHelper connHelper)
         {
-            if (0 == Id) // For: Insert data
-            {
-                Id = IdentityMaxTrack(connHelper) + 1;
-                string cmd = string.Format(@"INSERT INTO AGIN_TRACK (Id, CoordinateX, CoordinateY, FileNames, DataAnalysis, CreatedOn, CreatedBy, LastModifiedOn, LastModifiedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                List<SQLiteParameter> paras = new List<SQLiteParameter>();
-                paras.Add(new SQLiteParameter() { Value = Id });
-                paras.Add(new SQLiteParameter() { Value = CoordinateX });
-                paras.Add(new SQLiteParameter() { Value = CoordinateY });
-                paras.Add(new SQLiteParameter() { Value = FileNames });
-                paras.Add(new SQLiteParameter() { Value = JsonConvert.SerializeObject(DataAnalysis) });
-                paras.Add(new SQLiteParameter() { Value = CreatedOn });
-                paras.Add(new SQLiteParameter() { Value = CreatedBy });
-                paras.Add(new SQLiteParameter() { Value = LastModifiedOn });
-                paras.Add(new SQLiteParameter() { Value = LastModifiedBy });
-                connHelper.ExecNonQueryCmdOptimize(paras, cmd);
-            }
-            else // For: Update data
-            {
-                string cmd = string.Format(@"UPDATE AGIN_TRACK SET CoordinateX = ?, CoordinateY = ?, FileNames = ?, DataAnalysis = ?, CreatedOn = ?, CreatedBy = ?, LastModifiedOn = ?, LastModifiedBy = ? WHERE Id = ?");
-                List<SQLiteParameter> paras = new List<SQLiteParameter>();
-                paras.Add(new SQLiteParameter() { Value = CoordinateX });
-                paras.Add(new SQLiteParameter() { Value = CoordinateY });
-                paras.Add(new SQLiteParameter() { Value = FileNames });
-                paras.Add(new SQLiteParameter() { Value = JsonConvert.SerializeObject(DataAnalysis) });
-                paras.Add(new SQLiteParameter() { Value = CreatedOn });
-                paras.Add(new SQLiteParameter() { Value = CreatedBy });
-                paras.Add(new SQLiteParameter() { Value = LastModifiedOn });
-                paras.Add(new SQLiteParameter() { Value = LastModifiedBy });
-                paras.Add(new SQLiteParameter() { Value = Id });
-                connHelper.ExecNonQueryCmdOptimize(paras, cmd);
-            }
+            string cmd = string.Format(@"INSERT INTO AGIN_TRACK (CoordinateX, CoordinateY, FileNames, DataAnalysis, CreatedOn, CreatedBy, LastModifiedOn, LastModifiedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            List<SQLiteParameter> paras = new List<SQLiteParameter>();
+            paras.Add(new SQLiteParameter() { Value = CoordinateX });
+            paras.Add(new SQLiteParameter() { Value = CoordinateY });
+            paras.Add(new SQLiteParameter() { Value = FileNames });
+            paras.Add(new SQLiteParameter() { Value = JsonConvert.SerializeObject(DataAnalysis) });
+            paras.Add(new SQLiteParameter() { Value = CreatedOn });
+            paras.Add(new SQLiteParameter() { Value = CreatedBy });
+            paras.Add(new SQLiteParameter() { Value = LastModifiedOn });
+            paras.Add(new SQLiteParameter() { Value = LastModifiedBy });
+            connHelper.ExecNonQueryCmdOptimize(paras, cmd);
         }
         
         public void SaveDbResult(string type, int times, int latestOrder, SQLiteHelper connHelper)
@@ -267,15 +247,6 @@ namespace SpiralEdge.Model
         {
             long identity = 0;
             string cmd = string.Format(@"SELECT MAX(Id) FROM AGIN");
-            object scalar = connHelper.ExecScalarCmd(null, cmd);
-            if (DBNull.Value != scalar) { identity = (long)scalar; }
-            return identity;
-        }
-
-        public static long IdentityMaxTrack(SQLiteHelper connHelper)
-        {
-            long identity = 0;
-            string cmd = string.Format(@"SELECT MAX(Id) FROM AGIN_TRACK");
             object scalar = connHelper.ExecScalarCmd(null, cmd);
             if (DBNull.Value != scalar) { identity = (long)scalar; }
             return identity;

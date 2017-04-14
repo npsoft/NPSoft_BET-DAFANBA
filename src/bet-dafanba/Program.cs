@@ -25,18 +25,18 @@ namespace SpiralEdge
         {
             try
             {
-                AllocConsole();
-                /* -: Config = new ConfigModel(true);
+                /* -: AllocConsole();*/
+                Config = new ConfigModel(true);
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new frmMain());*/
+                Application.Run(new frmMain());
                 /* -: AGIN_3840x2160_Baccarat output = null;
                 string file_path = @"D:\NPSoft_BET-DAFANBA\doc\170410\agin-170412-021437-607.png";
                 ImageHelper.AnalysisImg_AGIN_3840x2160(file_path, out output);*/
                 /* -: Config = new ConfigModel(true);
                 Config.Ex170401_HdlAGIN();*/
-                Config = new ConfigModel(true);
-                Config.Ex170414_HdlAGIN();
+                /* -: Config = new ConfigModel(true);
+                Config.Ex170414_HdlAGIN();*/
             }
             catch (Exception ex)
             {
