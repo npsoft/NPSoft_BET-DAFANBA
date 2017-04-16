@@ -1,4 +1,4 @@
-﻿BLOB | INTEGER | INT | REAL | CHAR(50) | TEXT
+﻿BLOB | INTEGER | INT | REAL | CHAR(50) | VARCHAR | TEXT
 --
 vacuum;
 --
@@ -63,6 +63,8 @@ DROP TABLE AGIN;
 --
 ALTER TABLE AGIN RENAME TO AGIN_TRACK;
 --
+ALTER TABLE AGIN ADD Status VARCHAR NULL;
+--
 INSERT INTO AGIN (Id, CoordinateX, CoordinateY, FileNames, DataAnalysis, CreatedOn, CreatedBy, LastModifiedOn, LastModifiedBy)
 VALUES (0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO AGIN_SUMMARY (CoordinateX, CoordinateY, FileNames, DataAnalysis, CreatedOn, CreatedBy, LastModifiedOn, LastModifiedBy)
@@ -89,6 +91,15 @@ SELECT Id, CoordinateX, CoordinateY, FileNames, DataAnalysis, CreatedOn, Created
 DROP TABLE tmpAGIN_TRACK;
 COMMIT;
 PRAGMA foreign_keys=on;
+--
+BEGIN TRANSACTION;
+WITH RECURSIVE fibo (curr, next)
+AS (
+    SELECT 1, 1
+    UNION ALL
+    SELECT next, curr + next FROM fibo LIMIT 10)
+SELECT group_concat(CAST(curr AS NVARCHAR) || '-' || CAST(next AS NVARCHAR)) Result FROM fibo;
+END TRANSACTION;
 --
 SELECT AT.*, strftime('%m/%d/%Y', substr(AT.CreatedOn, 0, 20)) FROM AGIN_TRACK AT ORDER BY AT.Id ASC LIMIT 0, 10;
 SELECT last_insert_rowid();

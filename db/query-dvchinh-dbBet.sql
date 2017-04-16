@@ -121,29 +121,3 @@ ORDER BY COUNT(1) DESC;
 
 -- 33 times
 SELECT AR.* FROM tmpAR1 AR WHERE AR.SubId = 122 ORDER BY LatestOrder ASC;
-
-BEGIN TRANSACTION;
-DROP TABLE IF EXISTS t;
-CREATE TABLE t (startrange INT NOT NULL, endrange INT NOT NULL);
-INSERT INTO t VALUES (1, 10);
-DROP TABLE IF EXISTS target;
-CREATE TABLE target(Id INTEGER PRIMARY KEY NOT NULL, i INT NOT NULL);
-PRAGMA recursive_triggers = on;
-CREATE TEMP trigger ttring
-BEFORE INSERT ON target
-WHEN new.i < (SELECT t.endrange FROM t) BEGIN
-    INSERT INTO target (i) VALUES (new.i + 1);
-END;
-INSERT INTO target (i) VALUES ((SELECT t.startrange FROM t));
-SELECT * FROM t;
-SELECT * FROM target;
-END TRANSACTION;
-
-BEGIN TRANSACTION;
-WITH RECURSIVE fibo (curr, next)
-AS (
-    SELECT 1, 1
-    UNION ALL
-    SELECT next, curr + next FROM fibo LIMIT 100)
-SELECT * /*group_concat(curr)*/ FROM fibo;
-END TRANSACTION;
