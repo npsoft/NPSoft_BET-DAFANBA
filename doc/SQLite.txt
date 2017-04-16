@@ -1,11 +1,13 @@
-﻿vacuum
+﻿BLOB | INTEGER | INT | REAL | CHAR(50) | TEXT
+--
+vacuum;
 --
 ATTACH DATABASE 'I:\NPSoft_BET-DAFANBA\db\dbBet_17032x.db3' AS aux_17032x;
 DETACH DATABASE aux_17032x;
 --
-SELECT * FROM sqlite_master
+SELECT * FROM sqlite_master;
 --
-pragma table_info(AGIN)
+pragma table_info(AGIN);
 --
 CREATE TABLE AGIN(
 	Id BIGINT PRIMARY KEY NOT NULL,
@@ -45,26 +47,28 @@ CREATE TABLE AGIN_RESULT1(
 	SubId INTEGER NULL,
 	LatestOrder INT NULL,
 	Type NVARCHAR(2147483647) NULL,
-	Times INT NULL
+	Times INT NULL,
+	FOREIGN KEY(SubId) REFERENCES AGIN_SUMMARY(Id)
 );
 CREATE TABLE AGIN_RESULT2(
 	Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 	SubId INTEGER NULL,
 	LatestOrder INT NULL,
 	NumCircleRed INT NULL,
-	NumCircleBlue INT NULL
+	NumCircleBlue INT NULL,
+	FOREIGN KEY(SubId) REFERENCES AGIN_SUMMARY(Id)
 );
 --
-DROP TABLE AGIN
+DROP TABLE AGIN;
 --
-ALTER TABLE AGIN RENAME TO AGIN_TRACK
+ALTER TABLE AGIN RENAME TO AGIN_TRACK;
 --
 INSERT INTO AGIN (Id, CoordinateX, CoordinateY, FileNames, DataAnalysis, CreatedOn, CreatedBy, LastModifiedOn, LastModifiedBy)
 VALUES (0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO AGIN_SUMMARY (CoordinateX, CoordinateY, FileNames, DataAnalysis, CreatedOn, CreatedBy, LastModifiedOn, LastModifiedBy)
 SELECT CoordinateX, CoordinateY, FileNames, DataAnalysis, CreatedOn, CreatedBy, LastModifiedOn, LastModifiedBy FROM aux.AGIN;
 --
-DELETE FROM AGIN
+DELETE FROM AGIN;
 --
 PRAGMA foreign_keys=off;
 BEGIN TRANSACTION;
@@ -86,4 +90,5 @@ DROP TABLE tmpAGIN_TRACK;
 COMMIT;
 PRAGMA foreign_keys=on;
 --
-SELECT AT.*, strftime('%m/%d/%Y', substr(AT.CreatedOn, 0, 20)) FROM AGIN_TRACK AT ORDER BY AT.Id ASC LIMIT 0, 10
+SELECT AT.*, strftime('%m/%d/%Y', substr(AT.CreatedOn, 0, 20)) FROM AGIN_TRACK AT ORDER BY AT.Id ASC LIMIT 0, 10;
+SELECT last_insert_rowid();
