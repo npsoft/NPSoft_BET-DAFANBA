@@ -140,6 +140,37 @@ namespace SpiralEdge.Helper
             }
             Close();
         }
+
+        public void ExecNonQueryCmdOptimizeMany(List<List<object>> lstVals, string cmdText)
+        {
+            if (1 != lstVals.Count)
+            {
+                Open();
+                using (SQLiteTransaction transaction = ConnDb.BeginTransaction())
+                {
+                    using (SQLiteCommand cmd = new SQLiteCommand(ConnDb))
+                    {
+                        SQLiteParameter[] paras = new SQLiteParameter[lstVals[0].Count];
+                        for (int i = 0; i < paras.Length; i++)
+                        {
+                            paras[i] = new SQLiteParameter();
+                        }
+                        cmd.CommandText = cmdText;
+                        cmd.Parameters.AddRange(paras);
+                        foreach (List<object> vals in lstVals)
+                        {
+                            for (int i = 0; i < paras.Length; i++)
+                            {
+                                paras[i].Value = vals[i];
+                            }
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+                    transaction.Commit();
+                }
+                Close();
+            }
+        }
         
         public void SampleExecCmd()
         {

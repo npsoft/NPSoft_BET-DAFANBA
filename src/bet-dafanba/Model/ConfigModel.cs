@@ -345,6 +345,8 @@ SELECT ASUM.* FROM AGIN_SUMMARY ASUM ORDER BY ASUM.Id ASC");
                 cmd.Dispose();
             }
             int pattern01_min = 5, pattern02_min = 2, idx = 1;
+            List<List<object>> lst_vals = new List<List<object>>();
+            string cmd_text = string.Format(@"INSERT INTO AGIN_RESULT1 (SubId, LatestOrder, Type, Times) VALUES (?, ?, ?, ?)");
             foreach (DB_AGIN_Baccarat agin in agins)
             {
                 int order = 0;
@@ -357,7 +359,7 @@ SELECT ASUM.* FROM AGIN_SUMMARY ASUM ORDER BY ASUM.Id ASC");
                     int pattern01 = baccarat.ChkPattern01();
                     if (pattern01_min - 1 < pattern01)
                     {
-                        baccarat.SaveDbResult1("pattern-01", pattern01, order, ConnHelper);
+                        lst_vals.Add(new List<object>() { baccarat.Id, order, "pattern-01", pattern01 });
                     }
                     pattern01_prev_len = pattern01;
 
@@ -372,14 +374,16 @@ SELECT ASUM.* FROM AGIN_SUMMARY ASUM ORDER BY ASUM.Id ASC");
                     }
                     if (pattern02_min - 1 < pattern02.Item1 && pattern02_prev_len < pattern02.Item1)
                     {
-                        baccarat.SaveDbResult1("pattern-02", pattern02.Item1, order, ConnHelper);
+                        lst_vals.Add(new List<object>() { baccarat.Id, order, "pattern-02", pattern02.Item1 });
                     }
                     pattern02_prev_len = pattern02.Item1;
                 }
                 System.Threading.Thread.Sleep(0);
                 System.Windows.Forms.Application.DoEvents();
+                Console.Clear();
                 Console.WriteLine(string.Format("Information\t:: {0:P}", (double)idx++ / agins.Count));
             }
+            ConnHelper.ExecNonQueryCmdOptimizeMany(lst_vals, cmd_text);
         }
 
         public void Analysis2_AGIN()
@@ -425,6 +429,8 @@ SELECT ASUM.* FROM AGIN_SUMMARY ASUM ORDER BY ASUM.Id ASC");
                 cmd.Dispose();
             }
             int order_min = 1, idx = 1;
+            List<List<object>> lst_vals = new List<List<object>>();
+            string cmd_text = string.Format(@"INSERT INTO AGIN_RESULT2 (SubId, LatestOrder, NumCircleRed, NumCircleBlue, Matches) VALUES (?, ?, ?, ?, ?)");
             foreach (DB_AGIN_Baccarat agin in agins)
             {
                 int order = order_min - 1;
@@ -434,13 +440,19 @@ SELECT ASUM.* FROM AGIN_SUMMARY ASUM ORDER BY ASUM.Id ASC");
                     agin.DataAnalysis.Cells.ForEach(x => {
                         cells.AddRange(x.Where(y => order + 1 > y.Order));
                     });
-                    agin.SaveDbResult2(order, cells.Count(x => x.Matches.Contains("circle-red")), cells.Count(x => x.Matches.Contains("circle-blue")), ConnHelper);
+                    cells = cells.OrderBy(x => x.Order).ToList();
+                    lst_vals.Add(new List<object>() {
+                        agin.Id, order,
+                        cells.Count(x => x.Matches.Contains("circle-red")),
+                        cells.Count(x => x.Matches.Contains("circle-blue")),
+                        string.Format(";{0};", string.Join(";", cells[cells.Count - 1].Matches)) });
                 }
                 System.Threading.Thread.Sleep(0);
                 System.Windows.Forms.Application.DoEvents();
                 Console.Clear();
                 Console.WriteLine(string.Format("Information\t:: {0:P}", (double)idx++ / agins.Count));
             }
+            ConnHelper.ExecNonQueryCmdOptimizeMany(lst_vals, cmd_text);
         }
 
         public static List<string> ToCols(DataTable dt)
