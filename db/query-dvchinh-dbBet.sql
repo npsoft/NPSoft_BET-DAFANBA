@@ -1,4 +1,15 @@
 -- #
+ATTACH DATABASE 'D:\NPSoft_BET-DAFANBA\dbBet.db3' AS aux;
+BEGIN TRANSACTION;
+INSERT INTO AGIN_SUMMARY (CoordinateX, CoordinateY, FileNames, DataAnalysis, CreatedOn, CreatedBy, LastModifiedOn, LastModifiedBy)
+SELECT CoordinateX, CoordinateY, FileNames, DataAnalysis, CreatedOn, CreatedBy, LastModifiedOn, LastModifiedBy
+FROM aux.AGIN
+WHERE Id IN (SELECT MAX(Id) FROM aux.AGIN GROUP BY CoordinateX, CoordinateY);
+DELETE FROM aux.AGIN;
+END TRANSACTION;
+DETACH DATABASE aux;
+
+-- #
 -- DELETE FROM AGIN;
 -- DELETE FROM AGIN_TRACK;
 -- DELETE FROM AGIN_RESULT1;
@@ -7,7 +18,7 @@
 -- #
 SELECT A.* FROM AGIN A ORDER BY A.Id ASC;
 SELECT AT.* FROM AGIN_TRACK AT ORDER BY AT.Id ASC;
-SELECT COUNT(1) FROM AGIN_SUMMARY ASUM; -- 1.843 record(s)
+SELECT COUNT(1) FROM AGIN_SUMMARY ASUM; -- 2.200 record(s); max-id = 1843 > 2200
 SELECT COUNT(1) FROM AGIN_RESULT1 AR; -- 11.664 record(s)
 SELECT COUNT(1) FROM AGIN_RESULT2 AR; -- 116.148 record(s) > 1.843 group(s)
 
@@ -71,10 +82,10 @@ WITH FT_CTE AS (
         AND AR.NumCircleRed > 0
         AND AR.NumCircleBlue > 0
         AND (
-               CAST(AR.NumCircleRed AS DOUBLE) / AR.NumCircleBlue < (SELECT COALESCE(Value, NULL) FROM _Variables WHERE Name = 'min-p-num-circle-rb' LIMIT 1)
-            OR CAST(AR.NumCircleRed AS DOUBLE) / AR.NumCircleBlue > (SELECT COALESCE(Value, NULL) FROM _Variables WHERE Name = 'max-p-num-circle-rb' LIMIT 1)
-            OR CAST(AR.NumCircleBlue AS DOUBLE) / AR.NumCircleRed < (SELECT COALESCE(Value, NULL) FROM _Variables WHERE Name = 'min-p-num-circle-br' LIMIT 1)
-            OR CAST(AR.NumCircleBlue AS DOUBLE) / AR.NumCircleRed > (SELECT COALESCE(Value, NULL) FROM _Variables WHERE Name = 'max-p-num-circle-br' LIMIT 1)))
+               (CAST(AR.NumCircleRed AS DOUBLE) / AR.NumCircleBlue) < (SELECT CAST(COALESCE(Value, NULL) AS DOUBLE) FROM _Variables WHERE Name = 'min-p-num-circle-rb' LIMIT 1)
+            OR (CAST(AR.NumCircleRed AS DOUBLE) / AR.NumCircleBlue) > (SELECT CAST(COALESCE(Value, NULL) AS DOUBLE) FROM _Variables WHERE Name = 'max-p-num-circle-rb' LIMIT 1)
+            OR (CAST(AR.NumCircleBlue AS DOUBLE) / AR.NumCircleRed) < (SELECT CAST(COALESCE(Value, NULL) AS DOUBLE) FROM _Variables WHERE Name = 'min-p-num-circle-br' LIMIT 1)
+            OR (CAST(AR.NumCircleBlue AS DOUBLE) / AR.NumCircleRed) > (SELECT CAST(COALESCE(Value, NULL) AS DOUBLE) FROM _Variables WHERE Name = 'max-p-num-circle-br' LIMIT 1)))
 SELECT * FROM FT_CTE;
 -- SELECT * FROM tmpAR1 ORDER BY SubId ASC, LatestOrder ASC;
 
@@ -112,12 +123,13 @@ DROP TABLE tmpAR2;
 END TRANSACTION;
 -- END;
 
--- 592 record(s)
-SELECT AR.SubId, COUNT(1)
+-- 850 record(s)
+SELECT AR.SubId, AR.[Match], COUNT(1), MIN(LatestOrder), MAX(Latestorder)
 FROM tmpAR1 AR
-GROUP BY AR.SubId
-HAVING COUNT(1) > 5
-ORDER BY COUNT(1) DESC;
+GROUP BY AR.SubId, AR.[Match]
+ORDER BY COUNT(1) DESC, AR.[Match] ASC, AR.SubId ASC;
 
 -- 33 times
 SELECT AR.* FROM tmpAR1 AR WHERE AR.SubId = 122 ORDER BY LatestOrder ASC;
+
+-- 2.322 record(s) > 2.322 record(s) > 850 match(es) > 170.000.000 VND
