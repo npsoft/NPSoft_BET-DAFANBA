@@ -9,7 +9,7 @@ SELECT COUNT(1) FROM AGIN;
 SELECT COUNT(1) FROM AGIN_TRACK;
 SELECT COUNT(1) FROM AGIN_SUMMARY; -- 2.200 record(s)
 SELECT COUNT(1) FROM AGIN_RESULT1; -- 13.961 record(s)
-SELECT COUNT(1) FROM AGIN_RESULT2; -- 139.308 record(s) > 1.843 group(s)
+SELECT COUNT(1) FROM AGIN_RESULT2; -- 139.308 record(s) > 3.238 group(s) > 1.159 match(es) > 231.800.000 VND; max-count = 34
 
 -- #
 ATTACH DATABASE 'D:\NPSoft_BET-DAFANBA\dbBet.db3' AS aux;
@@ -45,8 +45,7 @@ WITH FT_CTE AS (
     GROUP BY AR.SubId)
 SELECT * FROM FT_CTE;
 
--- num-circle-red > 00 & num-circle-blue > 00 & latest-order > 05: 0.3333, 3.0000, 0.3333, 3.0000
--- num-circle-red > 00 & num-circle-blue > 00 & latest-order > 10: 0.3333, 2.8888, 0.3461, 3.0000
+-- num-circle-red > 00 & num-circle-blue > 00 & latest-order > 10: 0.3333, 2.8888, 0.3461, 3.0000 ~ 1/3, 26/9, 9/26, 3/1
 -- num-circle-red > 09 & num-circle-blue > 09 & latest-order > 00: 0.4390, 2.2500, 0.4444, 2.2777
 --                                                               : 0.4300, 2.1400, 0.4600, 2.2700
 SELECT
@@ -55,9 +54,16 @@ SELECT
     , MIN(ARG.PNumCircleBR)
     , MAX(ARG.PNumCircleBR)
 FROM tmpARGroup ARG
-WHERE ARG.LatestOrder > 5
+WHERE ARG.LatestOrder > 9
     AND ARG.NumCircleRed > 0
     AND ARG.NumCircleBlue > 0;
+
+SELECT ARG.*
+FROM tmpARGroup ARG
+WHERE ARG.LatestOrder > 9
+    AND ARG.NumCircleRed > 0
+    AND ARG.NumCircleBlue > 0
+    AND substr(ARG.PNumCircleBR, 0, 7) = '3.0';
 
 -- BEGIN;
 BEGIN TRANSACTION;
@@ -65,8 +71,8 @@ PRAGMA temp_store = 2;
 
 CREATE TEMP TABLE IF NOT EXISTS _Variables (Name TEXT PRIMARY KEY NOT NULL, Value TEXT);
 INSERT OR REPLACE INTO _Variables VALUES ('min-p-num-circle-rb', CAST(1 AS DOUBLE) / 3);
-INSERT OR REPLACE INTO _Variables VALUES ('max-p-num-circle-rb', CAST(3 AS DOUBLE) / 1);
-INSERT OR REPLACE INTO _Variables VALUES ('min-p-num-circle-br', CAST(1 AS DOUBLE) / 3);
+INSERT OR REPLACE INTO _Variables VALUES ('max-p-num-circle-rb', CAST(26 AS DOUBLE) / 9);
+INSERT OR REPLACE INTO _Variables VALUES ('min-p-num-circle-br', CAST(9 AS DOUBLE) / 26);
 INSERT OR REPLACE INTO _Variables VALUES ('max-p-num-circle-br', CAST(3 AS DOUBLE) / 1);
 INSERT OR REPLACE INTO _Variables VALUES ('num-match', CAST(0 AS INT));
 -- SELECT * FROM _Variables;
@@ -123,10 +129,7 @@ DROP TABLE tmpAR2;
 END TRANSACTION;
 -- END;
 
--- 850 record(s)
 SELECT AR.SubId, AR.[Match], COUNT(1), MIN(LatestOrder), MAX(Latestorder)
 FROM tmpAR1 AR
 GROUP BY AR.SubId, AR.[Match]
 ORDER BY COUNT(1) DESC, AR.[Match] ASC, AR.SubId ASC;
-
--- 2.322 record(s) > 2.322 record(s) > 850 match(es) > 170.000.000 VND
