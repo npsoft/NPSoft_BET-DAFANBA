@@ -57,13 +57,18 @@ namespace SpiralEdge.Model
             cells = cells.OrderByDescending(x => x.Order).ToList();
             #region For: Calculate values
             int times = 0;
-            foreach (var cell in cells)
+            string color = "";
+            if (0 != cells.Count)
             {
-                if (!cell.Matches.Contains(DataAnalysis.LatestOrderCircle))
+                color = cells[0].Matches.Contains("circle-blue") ? "circle-blue" : cells[0].Matches.Contains("circle-red") ? "circle-red" : "";
+                foreach (var cell in cells)
                 {
-                    break;
+                    if (!cell.Matches.Contains(color))
+                    {
+                        break;
+                    }
+                    times++;
                 }
-                times++;
             }
             return times;
             #endregion

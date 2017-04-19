@@ -7,18 +7,22 @@ DELETE FROM AGIN_RESULT1;
 DELETE FROM AGIN_RESULT2;
 SELECT COUNT(1) FROM AGIN;
 SELECT COUNT(1) FROM AGIN_TRACK;
-SELECT COUNT(1) FROM AGIN_SUMMARY; -- 2.200 record(s)
-SELECT COUNT(1) FROM AGIN_RESULT1; -- 13.961 record(s)
-SELECT COUNT(1) FROM AGIN_RESULT2; -- 139.308 record(s) > 3.238 group(s) > 1.159 match(es) > 231.800.000 VND; max-count = 34
+SELECT COUNT(1) FROM AGIN_SUMMARY; -- 2.392 record(s)
+SELECT COUNT(1) FROM AGIN_RESULT1; -- 19.558 record(s)
+SELECT COUNT(1) FROM AGIN_RESULT2; -- 151.506 record(s) > 1.265 match(es) > 253.000.000; max-count = 34
 
 -- #
-ATTACH DATABASE 'D:\NPSoft_BET-DAFANBA\dbBet.db3' AS aux;
+ATTACH DATABASE 'D:\NPSoft_BET-DAFANBA\db\dbBet.db3' AS aux;
+-- SELECT * FROM aux.AGIN;
+-- SELECT * FROM aux.AGIN_TRACK;
+-- DELETE FROM aux.AGIN;
+-- DELETE FROM aux.AGIN_TRACK;
 BEGIN TRANSACTION;
 INSERT INTO AGIN_SUMMARY (CoordinateX, CoordinateY, FileNames, DataAnalysis, CreatedOn, CreatedBy, LastModifiedOn, LastModifiedBy)
 SELECT CoordinateX, CoordinateY, FileNames, DataAnalysis, CreatedOn, CreatedBy, LastModifiedOn, LastModifiedBy
 FROM aux.AGIN
-WHERE Id IN (SELECT MAX(Id) FROM aux.AGIN GROUP BY CoordinateX, CoordinateY);
-DELETE FROM aux.AGIN;
+WHERE Id NOT IN (SELECT MAX(Id) FROM aux.AGIN GROUP BY CoordinateX, CoordinateY);
+DELETE FROM aux.AGIN WHERE Id NOT IN ((SELECT MAX(Id) FROM aux.AGIN GROUP BY CoordinateX, CoordinateY);
 END TRANSACTION;
 DETACH DATABASE aux;
 
@@ -45,7 +49,7 @@ WITH FT_CTE AS (
     GROUP BY AR.SubId)
 SELECT * FROM FT_CTE;
 
--- num-circle-red > 00 & num-circle-blue > 00 & latest-order > 10: 0.3333, 2.8888, 0.3461, 3.0000 ~ 1/3, 26/9, 9/26, 3/1
+-- num-circle-red > 00 & num-circle-blue > 00 & latest-order > 09: 0.3333, 2.8888, 0.3461, 3.0000 ~ 1/3, 26/9, 9/26, 3/1
 -- num-circle-red > 09 & num-circle-blue > 09 & latest-order > 00: 0.4390, 2.2500, 0.4444, 2.2777
 --                                                               : 0.4300, 2.1400, 0.4600, 2.2700
 SELECT
@@ -66,9 +70,8 @@ WHERE ARG.LatestOrder > 9
     AND substr(ARG.PNumCircleBR, 0, 7) = '3.0';
 
 -- BEGIN;
-BEGIN TRANSACTION;
 PRAGMA temp_store = 2;
-
+BEGIN TRANSACTION;
 CREATE TEMP TABLE IF NOT EXISTS _Variables (Name TEXT PRIMARY KEY NOT NULL, Value TEXT);
 INSERT OR REPLACE INTO _Variables VALUES ('min-p-num-circle-rb', CAST(1 AS DOUBLE) / 3);
 INSERT OR REPLACE INTO _Variables VALUES ('max-p-num-circle-rb', CAST(26 AS DOUBLE) / 9);
