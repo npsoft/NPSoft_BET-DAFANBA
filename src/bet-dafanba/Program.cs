@@ -25,7 +25,7 @@ namespace SpiralEdge
         {
             try
             {
-                AllocConsole();
+                /* -: AllocConsole();*/
                 Config = new ConfigModel(true);
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);

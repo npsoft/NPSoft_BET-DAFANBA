@@ -210,20 +210,20 @@ WHERE Id IN (SELECT MAX(Id) FROM AGIN GROUP BY CoordinateX, CoordinateY)");
                         #endregion
                         #region For: Alert via pattern(s)
                         #region For: Baccarat pattern #01
-                        int pattern01 = agin_latest.ChkPattern01();
-                        if (CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN01 <= pattern01 && !agin_latest.AlertPattern01)
+                        Tuple<int, DB_AGIN_Baccarat_Cell> pattern01 = agin_latest.ChkPattern01(int.MaxValue);
+                        if (CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN01 <= pattern01.Item1 && !agin_latest.AlertPattern01)
                         {
-                            AlertBaccaratPattern01(agin_latest.CoordinateX, agin_latest.CoordinateY, agin_latest.DataAnalysis.LatestOrderCircle, pattern01, file_path);
+                            AlertBaccaratPattern01(agin_latest.CoordinateX, agin_latest.CoordinateY, pattern01.Item2.CircleColor, pattern01.Item1, file_path);
                         }
-                        agin_latest.AlertPattern01 = CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN01 <= pattern01;
+                        agin_latest.AlertPattern01 = CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN01 <= pattern01.Item1;
                         #endregion
                         #region For: Baccarat pattern #02
-                        Tuple<int, string, int, string, int> pattern02 = agin_latest.ChkPattern02();
+                        Tuple<int, DB_AGIN_Baccarat_Cell, int, DB_AGIN_Baccarat_Cell, int> pattern02 = agin_latest.ChkPattern02(int.MaxValue, 0);
                         if (CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02 <= pattern02.Item1 && !agin_latest.AlertPattern02)
                         {
-                            AlertBaccaratPattern02(agin_latest.CoordinateX, agin_latest.CoordinateY, pattern02.Item2, pattern02.Item3, pattern02.Item4, pattern02.Item5, pattern02.Item1, file_path);
+                            AlertBaccaratPattern02(agin_latest.CoordinateX, agin_latest.CoordinateY, pattern02.Item2.CircleColor, pattern02.Item3, pattern02.Item4.CircleColor, pattern02.Item5, pattern02.Item1, file_path);
                         }
-                        agin_latest.AlertPattern02 = CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02 <= pattern02.Item1 || CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02 <= agin_latest.ChkPattern02(1).Item1 || CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02 <= agin_latest.ChkPattern02(2).Item1;
+                        agin_latest.AlertPattern02 = CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02 <= pattern02.Item1 || CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02 <= agin_latest.ChkPattern02(int.MaxValue, 1).Item1 || CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02 <= agin_latest.ChkPattern02(int.MaxValue, 2).Item1;
                         #endregion
                         #endregion
                         #region For: Save data to database
@@ -346,35 +346,33 @@ SELECT ASUM.* FROM AGIN_SUMMARY ASUM ORDER BY ASUM.Id ASC");
             }
             int pattern01_min = 5, pattern02_min = 2, idx = 1;
             List<List<object>> lst_vals = new List<List<object>>();
-            string cmd_text = string.Format(@"INSERT INTO AGIN_RESULT1 (SubId, LatestOrder, Type, Times) VALUES (?, ?, ?, ?)");
+            string cmd_text = string.Format(@"INSERT INTO AGIN_RESULT1 (SubId, LatestOrder, Type, Times, Tags) VALUES (?, ?, ?, ?, ?)");
             foreach (DB_AGIN_Baccarat agin in agins)
             {
+                agin.DataAnalysis.UpdCoordinate();
                 int order = 0;
                 int pattern01_prev_len = 0, pattern02_prev_len = 0;
                 while (agin.DataAnalysis.LatestOrder > order++)
                 {
-                    DB_AGIN_Baccarat baccarat = agin.Clone();
-                    baccarat.DataAnalysis.DelOrder(order);
-
-                    int pattern01 = baccarat.ChkPattern01();
-                    if (pattern01_min - 1 < pattern01)
+                    Tuple<int, DB_AGIN_Baccarat_Cell> pattern01 = agin.ChkPattern01(order);
+                    if (pattern01_min - 1 < pattern01.Item1)
                     {
-                        lst_vals.Add(new List<object>() { baccarat.Id, order, "pattern-01", pattern01 });
+                        lst_vals.Add(new List<object>() { agin.Id, order, "pattern-01", pattern01.Item1, pattern01.Item2.CircleColor });
                     }
-                    pattern01_prev_len = pattern01;
+                    pattern01_prev_len = pattern01.Item1;
 
-                    Tuple<int, string, int, string, int> pattern02 = baccarat.ChkPattern02();
+                    Tuple<int, DB_AGIN_Baccarat_Cell, int, DB_AGIN_Baccarat_Cell, int> pattern02 = agin.ChkPattern02(order, 0);
                     if (pattern02_min > pattern02.Item1)
                     {
-                        pattern02 = baccarat.ChkPattern02(1);
+                        pattern02 = agin.ChkPattern02(order, 1);
                         if (pattern02_min > pattern02.Item1)
                         {
-                            pattern02 = baccarat.ChkPattern02(2);
+                            pattern02 = agin.ChkPattern02(order, 2);
                         }
                     }
                     if (pattern02_min - 1 < pattern02.Item1 && pattern02_prev_len < pattern02.Item1)
                     {
-                        lst_vals.Add(new List<object>() { baccarat.Id, order, "pattern-02", pattern02.Item1 });
+                        lst_vals.Add(new List<object>() { agin.Id, order, "pattern-02", pattern02.Item1, string.Format("{0}={1}|{2}={3}", pattern02.Item2.CircleColor, pattern02.Item3, pattern02.Item4.CircleColor, pattern02.Item5) });
                     }
                     pattern02_prev_len = pattern02.Item1;
                 }
@@ -433,6 +431,7 @@ SELECT ASUM.* FROM AGIN_SUMMARY ASUM ORDER BY ASUM.Id ASC");
             string cmd_text = string.Format(@"INSERT INTO AGIN_RESULT2 (SubId, LatestOrder, NumCircleRed, NumCircleBlue, Matches) VALUES (?, ?, ?, ?, ?)");
             foreach (DB_AGIN_Baccarat agin in agins)
             {
+                agin.DataAnalysis.UpdCoordinate();
                 int order = order_min - 1;
                 while (agin.DataAnalysis.LatestOrder > order++)
                 {

@@ -46,21 +46,22 @@ namespace SpiralEdge.Model
         }
         
         /// <summary>
-        /// Description: times(int)
+        /// Description: times(int), last(cell)
         /// </summary>
-        public int ChkPattern01()
+        public Tuple<int, DB_AGIN_Baccarat_Cell> ChkPattern01(int maxOrder = int.MaxValue)
         {
             List<DB_AGIN_Baccarat_Cell> cells = new List<DB_AGIN_Baccarat_Cell>();
             DataAnalysis.Cells.ForEach(x => {
-                cells.AddRange(x.Where(y => 0 != y.Order));
+                cells.AddRange(x.Where(y => 0 != y.Order && maxOrder >= y.Order));
             });
             cells = cells.OrderByDescending(x => x.Order).ToList();
             #region For: Calculate values
             int times = 0;
-            string color = "";
+            DB_AGIN_Baccarat_Cell last = null;
             if (0 != cells.Count)
             {
-                color = cells[0].Matches.Contains("circle-blue") ? "circle-blue" : cells[0].Matches.Contains("circle-red") ? "circle-red" : "";
+                last = cells[0];
+                string color = cells[0].CircleColor;
                 foreach (var cell in cells)
                 {
                     if (!cell.Matches.Contains(color))
@@ -70,18 +71,18 @@ namespace SpiralEdge.Model
                     times++;
                 }
             }
-            return times;
+            return new Tuple<int, DB_AGIN_Baccarat_Cell>(times, last);
             #endregion
         }
 
         /// <summary>
-        /// Description: times(int), color-a(string), color-a-length(int), color-b(string), color-b-length(int)
+        /// Description: times(int), last(cell), last-length(int), prev(cell), prev-length(int)
         /// </summary>
-        public Tuple<int, string, int, string, int> ChkPattern02(int ignore = 0)
+        public Tuple<int, DB_AGIN_Baccarat_Cell, int, DB_AGIN_Baccarat_Cell, int> ChkPattern02(int maxOrder = int.MaxValue, int ignore = 0)
         {
             List<DB_AGIN_Baccarat_Cell> cells = new List<DB_AGIN_Baccarat_Cell>();
             DataAnalysis.Cells.ForEach(x => {
-                cells.AddRange(x.Where(y => 0 != y.Order));
+                cells.AddRange(x.Where(y => 0 != y.Order && maxOrder >= y.Order));
             });
             cells = cells.OrderByDescending(x => x.Order).ToList();
             #region For: Ignore values
@@ -89,7 +90,7 @@ namespace SpiralEdge.Model
             {
                 DB_AGIN_Baccarat_Cell star_cell = cells[0];
                 DB_AGIN_Baccarat_Cell next_cell = null;
-                string star_color = star_cell.Matches.Contains("circle-blue") ? "circle-blue" : star_cell.Matches.Contains("circle-red") ? "circle-red" : "";
+                string star_color = star_cell.CircleColor;
                 string next_color = "";
                 do
                 {
@@ -98,7 +99,7 @@ namespace SpiralEdge.Model
                     if (0 != cells.Count)
                     {
                         next_cell = cells[0];
-                        next_color = next_cell.Matches.Contains("circle-blue") ? "circle-blue" : next_cell.Matches.Contains("circle-red") ? "circle-red" : "";
+                        next_color = next_cell.CircleColor;
                     }
                 }
                 while (star_color == next_color && 0 != cells.Count);
@@ -107,23 +108,25 @@ namespace SpiralEdge.Model
             #endregion
             #region For: Calculate values
             int times = 0;
-            string color_last = ""; int color_last_len = 0, color_last_len_tmp = 0;
-            string color_prev = ""; int color_prev_len = 0, color_prev_len_tmp = 0;
+            DB_AGIN_Baccarat_Cell last = null; string color_last = ""; int color_last_len = 0, color_last_len_tmp = 0;
+            DB_AGIN_Baccarat_Cell prev = null; string color_prev = ""; int color_prev_len = 0, color_prev_len_tmp = 0;
             string color_curr = "", color_curr_prev = "";
             for (int i = 0; i < cells.Count; i++)
             {
                 DB_AGIN_Baccarat_Cell cell = cells[i];
-                color_curr = cell.Matches.Contains("circle-blue") ? "circle-blue" : cell.Matches.Contains("circle-red") ? "circle-red" : "";
+                color_curr = cell.CircleColor;
                 if ("" == color_curr) // For: It's T case, break loop
                 {
                     break;
                 }
                 if ("" == color_last) // For: Assign color for last, initialize color
                 {
+                    last = cell;
                     color_last = color_curr;
                 }
                 if ("" == color_prev && color_curr != color_last) // For: Assign color for previous, initialize color
                 {
+                    prev = cell;
                     color_prev = color_curr;
                 }
                 if (color_curr == color_last)
@@ -167,7 +170,7 @@ namespace SpiralEdge.Model
                 }
             }
             #endregion
-            return new Tuple<int, string, int, string, int>(times, color_last, color_last_len, color_prev, color_prev_len);
+            return new Tuple<int, DB_AGIN_Baccarat_Cell, int, DB_AGIN_Baccarat_Cell, int>(times, last, color_last_len, prev, color_prev_len);
         }
         
         public void SaveDb(SQLiteHelper connHelper)
@@ -280,6 +283,8 @@ namespace SpiralEdge.Model
                 for (int y = 0; y < dataAnalysis.Cells[x].Length; y++)
                 {
                     baccarat.DataAnalysis.Cells[x].Add(new DB_AGIN_Baccarat_Cell());
+                    baccarat.DataAnalysis.Cells[x][y].CoordinateX = x;
+                    baccarat.DataAnalysis.Cells[x][y].CoordinateY = y;
                     baccarat.DataAnalysis.Cells[x][y].PercentB = dataAnalysis.Cells[x][y].PercentB;
                     baccarat.DataAnalysis.Cells[x][y].PercentG = dataAnalysis.Cells[x][y].PercentG;
                     baccarat.DataAnalysis.Cells[x][y].PercentR = dataAnalysis.Cells[x][y].PercentR;
@@ -515,6 +520,21 @@ namespace SpiralEdge.Model
             #endregion
         }
         
+        /// <summary>
+        /// Description: Update values for coordinate-x | coordinate-y
+        /// </summary>
+        public void UpdCoordinate()
+        {
+            for (int col = 0; col < TotalCol; col++)
+            {
+                for (int row = 0; row < TotalRow; row++)
+                {
+                    Cells[col][row].CoordinateX = col;
+                    Cells[col][row].CoordinateY = row;
+                }
+            }
+        }
+
         public void DelEmpty()
         {
             for (int x = Cells.Count - 1; -1 < x; x--)
@@ -645,11 +665,16 @@ namespace SpiralEdge.Model
                 }
             }
             tblOrg.UpdTotal();
+            tblOrg.UpdCoordinate();
         }
     }
 
     public class DB_AGIN_Baccarat_Cell
     {
+        [JsonProperty("coordinate-x")]
+        public int CoordinateX { get; set; }
+        [JsonProperty("coordinate-y")]
+        public int CoordinateY { get; set; }
         [JsonProperty("percent-b")]
         public double PercentB { get; set; }
         [JsonProperty("percent-g")]
@@ -664,6 +689,7 @@ namespace SpiralEdge.Model
         public bool OrderConfuse { get; set; }
         [JsonProperty("circle-fs-length")]
         public int CircleFsLen { get; set; }
+        public string CircleColor { get { return Matches.Contains("circle-blue") ? "circle-blue" : Matches.Contains("circle-red") ? "circle-red" : ""; } }
 
         public DB_AGIN_Baccarat_Cell()
         {
@@ -673,6 +699,8 @@ namespace SpiralEdge.Model
         public DB_AGIN_Baccarat_Cell Clone()
         {
             DB_AGIN_Baccarat_Cell cell = new DB_AGIN_Baccarat_Cell();
+            cell.CoordinateX = CoordinateX;
+            cell.CoordinateY = CoordinateY;
             cell.PercentB = PercentB;
             cell.PercentG = PercentG;
             cell.PercentR = PercentR;
