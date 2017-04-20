@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 using SpiralEdge.Helper;
 
 namespace SpiralEdge.Model
@@ -39,6 +40,7 @@ namespace SpiralEdge.Model
         public int CONFIG_DAFANBA_INTERVAL_CAPTURE_AG { get; set; }
         public int CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN01 { get; set; }
         public int CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02 { get; set; }
+        public dynamic CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN03 { get; set; }
         #endregion
         #region For: Configuration for schedule, settings
         #endregion
@@ -83,6 +85,7 @@ namespace SpiralEdge.Model
             CONFIG_DAFANBA_INTERVAL_CAPTURE_AG = int.Parse(ConfigurationManager.AppSettings["Dafanba_Interval_Capture_AG"]) * 1000;
             CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN01 = int.Parse(ConfigurationManager.AppSettings["Dafanba_Alert_Baccarat_Pattern01"]);
             CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02 = int.Parse(ConfigurationManager.AppSettings["Dafanba_Alert_Baccarat_Pattern02"]);
+            CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN03 = JsonConvert.DeserializeObject<dynamic>(ConfigurationManager.AppSettings["Dafanba_Alert_Baccarat_Pattern03"]);
             #endregion
             #region For: Initialize for schedule, settings
             #endregion
@@ -245,14 +248,14 @@ WHERE Id IN (SELECT MAX(Id) FROM AGIN GROUP BY CoordinateX, CoordinateY)");
             Log.Log(string.Format("Information\t:: [ coordinate = ({0},{1}), type = {2}, length = {3}, attachment = {4} ]", x, y, type, length, attachment));
             #endregion
             #region For: Send email(s)
-            string subject = string.Format("[BET - AGIN - 01] ({0},{1}) = {2} | {3:yyyy-MM-dd HH:mm:ss}", x, y, length, DateTime.Now);
+            string subject = string.Format("[AGIN - 01] ({0},{1}) = {2} | {3:yyyy-MM-dd HH:mm:ss}", x, y, length, DateTime.Now);
             string content = string.Format(@"
-            Hi you,<br/><br/>
-            Please review alert for AGIN | {4:yyyy-MM-dd HH:mm:ss}:<br/>
-            <ul style='padding:0'>
-                <li>[ coordinate = ({0},{1}), type = {2}, length = {3} ]</li>
-            </ul><br/>
-            Best regards!", x, y, type, length, DateTime.Now);
+Hi you,<br/><br/>
+Please review alert for AGIN | {4:yyyy-MM-dd HH:mm:ss}:<br/>
+<ul style='padding:0'>
+    <li>[ coordinate = ({0},{1}), type = {2}, length = {3} ]</li>
+</ul><br/>
+Best regards!", x, y, type, length, DateTime.Now);
             string[] attachments = new string[1] { attachment };
             string display_name = "BET TOOL";
             MailHelper mail_helper = new MailHelper(CONFIG_EMAIL_USER, CONFIG_EMAIL_PASS);
@@ -262,21 +265,21 @@ WHERE Id IN (SELECT MAX(Id) FROM AGIN GROUP BY CoordinateX, CoordinateY)");
             Log.Log(string.Format("Information\t:: [BACCARAT PATTERN 01] Alert processing has been completed."));
         }
 
-        public void AlertBaccaratPattern02(int x, int y, string last_type, int last_len, string prev_type, int prev_len, int length, string attachment)
+        public void AlertBaccaratPattern02(int x, int y, string lastType, int lastLen, string prev_type, int prev_len, int length, string attachment)
         {
             Log.Log(string.Format("Information\t:: [BACCARAT PATTERN 02] Alert processing has been started."));
             #region For: Write log
-            Log.Log(string.Format("Information\t:: [ coordinate = ({0},{1}), last = ({2},{3}), previous = ({4},{5}), length = {6}, attachment = {7} ]", x, y, last_type, last_len, prev_type, prev_len, length, attachment));
+            Log.Log(string.Format("Information\t:: [ coordinate = ({0},{1}), last = ({2},{3}), previous = ({4},{5}), length = {6}, attachment = {7} ]", x, y, lastType, lastLen, prev_type, prev_len, length, attachment));
             #endregion
             #region For: Send email(s)
-            string subject = string.Format("[BET - AGIN - 02] ({0},{1}) = {2} | {3:yyyy-MM-dd HH:mm:ss}", x, y, length, DateTime.Now);
+            string subject = string.Format("[AGIN - 02] ({0},{1}) = {2} | {3:yyyy-MM-dd HH:mm:ss}", x, y, length, DateTime.Now);
             string content = string.Format(@"
-            Hi you,<br/><br/>
-            Please review alert for AGIN | {7:yyyy-MM-dd HH:mm:ss}:<br/>
-            <ul style='padding:0'>
-                <li>[ coordinate = ({0},{1}), last = ({2},{3}), previous = ({4},{5}), length = {6} ]</li>
-            </ul><br/>
-            Best regards!", x, y, last_type, last_len, prev_type, prev_len, length, DateTime.Now);
+Hi you,<br/><br/>
+Please review alert for AGIN | {7:yyyy-MM-dd HH:mm:ss}:<br/>
+<ul style='padding:0'>
+    <li>[ coordinate = ({0},{1}), last = ({2},{3}), previous = ({4},{5}), length = {6} ]</li>
+</ul><br/>
+Best regards!", x, y, lastType, lastLen, prev_type, prev_len, length, DateTime.Now);
             string[] attachments = new string[1] { attachment };
             string display_name = "BET TOOL";
             MailHelper mail_helper = new MailHelper(CONFIG_EMAIL_USER, CONFIG_EMAIL_PASS);
@@ -284,6 +287,78 @@ WHERE Id IN (SELECT MAX(Id) FROM AGIN GROUP BY CoordinateX, CoordinateY)");
             Log.Log(string.Format("Information\t:: [ send email(s) = {0} ]", send_email));
             #endregion
             Log.Log(string.Format("Information\t:: [BACCARAT PATTERN 02] Alert processing has been completed."));
+        }
+
+        public void AlertBaccaratPattern03_Open(int x, int y, int lastX, int lastY, int numRed, int numBlue, long id, string color, string attachment)
+        {
+            Log.Log(string.Format("Information\t:: [BACCARAT PATTERN 03] OPEN - Alert processing has been started."));
+            #region For: Write log
+            Log.Log(string.Format("Information\t:: [ coordinate = ({0},{1}), last = ({2},{3}), number-red = {4}, number-blue = {5}, open = ({6},{7}), attachment = {8} ]", x, y, lastX, lastY, numRed, numBlue, id, color));
+            #endregion
+            #region For: Send email(s)
+            string subject = string.Format("[AGIN - 03] OPEN = ({0},{1}) | ({2},{3}) = ({4},{5}) | {6:yyyy-MM-dd HH:mm:ss}", id, color, x, y, lastX, lastY, DateTime.Now);
+            string content = string.Format(@"
+Hi you,<br/><br/>
+Please review alert for AGIN | {8:yyyy-MM-dd HH:mm:ss}:<br/>
+<ul style='padding:0'>
+    <li>[ coordinate = ({0},{1}), last = ({2},{3}), number-red = {4}, number-blue = {5}, open = ({6},{7}) ]</li>
+</ul><br/>
+Best regards!", x, y, lastX, lastY, numRed, numBlue, id, color, DateTime.Now);
+            string[] attachments = new string[1] { attachment };
+            string display_name = "BET TOOL";
+            MailHelper mail_helper = new MailHelper(CONFIG_EMAIL_USER, CONFIG_EMAIL_PASS);
+            string send_email = mail_helper.SendEmail(CONFIG_EMAIL_RECEIVED, subject, content, attachments, display_name);
+            Log.Log(string.Format("Information\t:: [ send email(s) = {0} ]", send_email));
+            #endregion
+            Log.Log(string.Format("Information\t:: [BACCARAT PATTERN 03] OPEN - Alert processing has been completed."));
+        }
+
+        public void AlertBaccaratPattern03_Close(int x, int y, int lastX, int lastY, int numRed, int numBlue, long id, string color, string attachment)
+        {
+            Log.Log(string.Format("Information\t:: [BACCARAT PATTERN 03] CLOSE - Alert processing has been started."));
+            #region For: Write log
+            Log.Log(string.Format("Information\t:: [ coordinate = ({0},{1}), last = ({2},{3}), number-red = {4}, number-blue = {5}, close = ({6},{7}), attachment = {8} ]", x, y, lastX, lastY, numRed, numBlue, id, color));
+            #endregion
+            #region For: Send email(s)
+            string subject = string.Format("[AGIN - 03] CLOSE = ({0},{1}) | ({2},{3}) = ({4},{5}) | {6:yyyy-MM-dd HH:mm:ss}", id, color, x, y, lastX, lastY, DateTime.Now);
+            string content = string.Format(@"
+Hi you,<br/><br/>
+Please review alert for AGIN | {8:yyyy-MM-dd HH:mm:ss}:<br/>
+<ul style='padding:0'>
+    <li>[ coordinate = ({0},{1}), last = ({2},{3}), number-red = {4}, number-blue = {5}, close = ({6},{7}) ]</li>
+</ul>
+Best regards!", x, y, lastX, lastY, numRed, numBlue, id, color, DateTime.Now);
+            string[] attachments = new string[1] { attachment };
+            string display_name = "BET TOOL";
+            MailHelper mail_helper = new MailHelper(CONFIG_EMAIL_USER, CONFIG_EMAIL_PASS);
+            string send_email = mail_helper.SendEmail(CONFIG_EMAIL_RECEIVED, subject, content, attachments, display_name);
+            Log.Log(string.Format("Information\t:: [ send email(s) = {0} ]", send_email));
+            #endregion
+            Log.Log(string.Format("Information\t:: [BACCARAT PATTERN 03] CLOSE - Alert processing has been completed."));
+        }
+
+        public void AlertBaccaratPattern03_Fail(int x, int y, int numRed, int numBlue, long id, string color, string attachment)
+        {
+            Log.Log(string.Format("Information\t:: [BACCARAT PATTERN 03] FAIL - Alert processing has been started."));
+            #region For: Write log
+            Log.Log(string.Format("Information\t:: [ coordinate = ({0},{1}), number-red = {2}, number-blue = {3}, fail = ({4},{5}) ]", x, y, numRed, numBlue, id, color));
+            #endregion
+            #region For: Send email(s)
+            string subject = string.Format("[AGIN - 03] FAIL = ({0},{1}) | ({2},{3}) = {4}-r/{5}-b | {6:yyyy-MM-dd HH:mm:ss}", id, color, x, y, numRed, numBlue, DateTime.Now);
+            string content = string.Format(@"
+Hi you,<br/><br/>
+Please review alert for AGIN | {6:yyyy-MM-dd HH:mm:ss}:<br/>
+<ul style='padding:0'>
+    <li>[ coordinate = ({0},{1}), number-red = {2}, number-blue = {3}, fail = ({4},{5}) ]</li>
+</ul>
+Best regards!", x, y, numRed, numBlue, id, color, DateTime.Now);
+            string[] attachments = new string[1] { attachment };
+            string display_name = "BET TOOL";
+            MailHelper mail_helper = new MailHelper(CONFIG_EMAIL_USER, CONFIG_EMAIL_PASS);
+            string send_email = mail_helper.SendEmail(CONFIG_EMAIL_RECEIVED, subject, content, attachments, display_name);
+            Log.Log(string.Format("Information\t:: [ send email(s) = {0} ]", send_email));
+            #endregion
+            Log.Log(string.Format("Information\t:: [BACCARAT PATTERN 03] FAIL - Alert processing has been completed."));
         }
 
         public void SendEmail(string mainContent = null)
