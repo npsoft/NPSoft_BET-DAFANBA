@@ -85,7 +85,11 @@ namespace SpiralEdge.Model
             CONFIG_DAFANBA_INTERVAL_CAPTURE_AG = int.Parse(ConfigurationManager.AppSettings["Dafanba_Interval_Capture_AG"]) * 1000;
             CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN01 = int.Parse(ConfigurationManager.AppSettings["Dafanba_Alert_Baccarat_Pattern01"]);
             CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02 = int.Parse(ConfigurationManager.AppSettings["Dafanba_Alert_Baccarat_Pattern02"]);
-            CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN03 = JsonConvert.DeserializeObject<dynamic>(ConfigurationManager.AppSettings["Dafanba_Alert_Baccarat_Pattern03"]);
+            CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN03 = JsonConvert.DeserializeObject(ConfigurationManager.AppSettings["Dafanba_Alert_Baccarat_Pattern03"]);
+            CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN03["p-circle-rb-min"] = (double)JsonHelper.GetElBySelector(CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN03, "p-circle-rb-min-n").Value / JsonHelper.GetElBySelector(CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN03, "p-circle-rb-min-d").Value;
+            CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN03["p-circle-rb-max"] = (double)JsonHelper.GetElBySelector(CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN03, "p-circle-rb-max-n").Value / JsonHelper.GetElBySelector(CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN03, "p-circle-rb-max-d").Value;
+            CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN03["p-circle-br-min"] = (double)JsonHelper.GetElBySelector(CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN03, "p-circle-br-min-n").Value / JsonHelper.GetElBySelector(CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN03, "p-circle-br-min-d").Value;
+            CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN03["p-circle-br-max"] = (double)JsonHelper.GetElBySelector(CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN03, "p-circle-br-max-n").Value / JsonHelper.GetElBySelector(CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN03, "p-circle-br-max-d").Value;
             #endregion
             #region For: Initialize for schedule, settings
             #endregion
@@ -199,6 +203,14 @@ WHERE Id IN (SELECT MAX(Id) FROM AGIN GROUP BY CoordinateX, CoordinateY)");
                         {
                             if (null != agin_latest)
                             {
+                                #region For: Alert | Baccarat pattern #03 | Fail
+                                Tuple<string, DB_AGIN_Baccarat_Cell, int, int> pattern03_fail = agin_latest.ChkPattern03(CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN03, int.MaxValue);
+                                if (!string.IsNullOrEmpty(pattern03_fail.Item1) && agin_latest.AlertPattern03)
+                                {
+                                    AlertBaccaratPattern03_Fail(agin_latest.CoordinateX, agin_latest.CoordinateY, pattern03_fail.Item3, pattern03_fail.Item4, agin_latest.Id,
+                                        Path.Combine(CONFIG_DAFANBA_DIR_PRINT, agin_latest.FileNames.Split(new string[1] { ";" }, StringSplitOptions.RemoveEmptyEntries).Last()));
+                                }
+                                #endregion
                                 LatestAGINs.Remove(agin_latest);
                             }
                             LatestAGINs.Add(agin_img);
@@ -211,6 +223,9 @@ WHERE Id IN (SELECT MAX(Id) FROM AGIN GROUP BY CoordinateX, CoordinateY)");
                             agin_latest.DataAnalysis.LatestOrderX, agin_latest.DataAnalysis.LatestOrderY,
                             agin_latest.DataAnalysis.LatestOrderXR, agin_latest.DataAnalysis.LatestOrderYR);
                         #endregion
+                        #region For: Save baccarat
+                        agin_latest.SaveDb(ConnHelper);
+                        #endregion
                         #region For: Alert via pattern(s)
                         #region For: Baccarat pattern #01
                         Tuple<int, DB_AGIN_Baccarat_Cell> pattern01 = agin_latest.ChkPattern01(int.MaxValue);
@@ -221,16 +236,25 @@ WHERE Id IN (SELECT MAX(Id) FROM AGIN GROUP BY CoordinateX, CoordinateY)");
                         agin_latest.AlertPattern01 = CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN01 <= pattern01.Item1;
                         #endregion
                         #region For: Baccarat pattern #02
-                        Tuple<int, DB_AGIN_Baccarat_Cell, int, DB_AGIN_Baccarat_Cell, int> pattern02 = agin_latest.ChkPattern02(int.MaxValue, 0);
+                        Tuple<int, DB_AGIN_Baccarat_Cell, int, DB_AGIN_Baccarat_Cell, int> pattern02 = agin_latest.ChkPattern02(0, int.MaxValue);
                         if (CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02 <= pattern02.Item1 && !agin_latest.AlertPattern02)
                         {
                             AlertBaccaratPattern02(agin_latest.CoordinateX, agin_latest.CoordinateY, pattern02.Item2.CircleColor, pattern02.Item3, pattern02.Item4.CircleColor, pattern02.Item5, pattern02.Item1, file_path);
                         }
-                        agin_latest.AlertPattern02 = CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02 <= pattern02.Item1 || CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02 <= agin_latest.ChkPattern02(int.MaxValue, 1).Item1 || CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02 <= agin_latest.ChkPattern02(int.MaxValue, 2).Item1;
+                        agin_latest.AlertPattern02 = CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02 <= pattern02.Item1 || CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02 <= agin_latest.ChkPattern02(1, int.MaxValue).Item1 || CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02 <= agin_latest.ChkPattern02(2, int.MaxValue).Item1;
                         #endregion
+                        #region For: Baccarat pattern #03
+                        Tuple<string, DB_AGIN_Baccarat_Cell, int, int> pattern03 = agin_latest.ChkPattern03(CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN03, int.MaxValue);
+                        if (!string.IsNullOrEmpty(pattern03.Item1) && !agin_latest.AlertPattern03)
+                        {
+                            AlertBaccaratPattern03_Open(agin_latest.CoordinateX, agin_latest.CoordinateY, pattern03.Item2.CoordinateX, pattern03.Item2.CoordinateY, pattern03.Item3, pattern03.Item4, agin_latest.Id, pattern03.Item1, file_path);
+                        }
+                        if (string.IsNullOrEmpty(pattern03.Item1) && agin_latest.AlertPattern03)
+                        {
+                            AlertBaccaratPattern03_Close(agin_latest.CoordinateX, agin_latest.CoordinateY, pattern03.Item2.CoordinateX, pattern03.Item2.CoordinateY, pattern03.Item3, pattern03.Item4, agin_latest.Id, file_path);
+                        }
+                        agin_latest.AlertPattern03 = !string.IsNullOrEmpty(pattern03.Item1);
                         #endregion
-                        #region For: Save data to database
-                        agin_latest.SaveDb(ConnHelper);
                         #endregion
                     }
                 }
@@ -313,21 +337,21 @@ Best regards!", x, y, lastX, lastY, numRed, numBlue, id, color, DateTime.Now);
             Log.Log(string.Format("Information\t:: [BACCARAT PATTERN 03] OPEN - Alert processing has been completed."));
         }
 
-        public void AlertBaccaratPattern03_Close(int x, int y, int lastX, int lastY, int numRed, int numBlue, long id, string color, string attachment)
+        public void AlertBaccaratPattern03_Close(int x, int y, int lastX, int lastY, int numRed, int numBlue, long id, string attachment)
         {
             Log.Log(string.Format("Information\t:: [BACCARAT PATTERN 03] CLOSE - Alert processing has been started."));
             #region For: Write log
-            Log.Log(string.Format("Information\t:: [ coordinate = ({0},{1}), last = ({2},{3}), number-red = {4}, number-blue = {5}, close = ({6},{7}), attachment = {8} ]", x, y, lastX, lastY, numRed, numBlue, id, color));
+            Log.Log(string.Format("Information\t:: [ coordinate = ({0},{1}), last = ({2},{3}), number-red = {4}, number-blue = {5}, close = ({6},_), attachment = {7} ]", x, y, lastX, lastY, numRed, numBlue, id));
             #endregion
             #region For: Send email(s)
-            string subject = string.Format("[AGIN - 03] CLOSE = ({0},{1}) | ({2},{3}) = ({4},{5}) | {6:yyyy-MM-dd HH:mm:ss}", id, color, x, y, lastX, lastY, DateTime.Now);
+            string subject = string.Format("[AGIN - 03] CLOSE = ({0},_) | ({1},{2}) = ({3},{4}) | {5:yyyy-MM-dd HH:mm:ss}", id, x, y, lastX, lastY, DateTime.Now);
             string content = string.Format(@"
 Hi you,<br/><br/>
-Please review alert for AGIN | {8:yyyy-MM-dd HH:mm:ss}:<br/>
+Please review alert for AGIN | {7:yyyy-MM-dd HH:mm:ss}:<br/>
 <ul style='padding:0'>
-    <li>[ coordinate = ({0},{1}), last = ({2},{3}), number-red = {4}, number-blue = {5}, close = ({6},{7}) ]</li>
+    <li>[ coordinate = ({0},{1}), last = ({2},{3}), number-red = {4}, number-blue = {5}, close = ({6},_) ]</li>
 </ul>
-Best regards!", x, y, lastX, lastY, numRed, numBlue, id, color, DateTime.Now);
+Best regards!", x, y, lastX, lastY, numRed, numBlue, id, DateTime.Now);
             string[] attachments = new string[1] { attachment };
             string display_name = "BET TOOL";
             MailHelper mail_helper = new MailHelper(CONFIG_EMAIL_USER, CONFIG_EMAIL_PASS);
@@ -337,21 +361,21 @@ Best regards!", x, y, lastX, lastY, numRed, numBlue, id, color, DateTime.Now);
             Log.Log(string.Format("Information\t:: [BACCARAT PATTERN 03] CLOSE - Alert processing has been completed."));
         }
 
-        public void AlertBaccaratPattern03_Fail(int x, int y, int numRed, int numBlue, long id, string color, string attachment)
+        public void AlertBaccaratPattern03_Fail(int x, int y, int numRed, int numBlue, long id, string attachment)
         {
             Log.Log(string.Format("Information\t:: [BACCARAT PATTERN 03] FAIL - Alert processing has been started."));
             #region For: Write log
-            Log.Log(string.Format("Information\t:: [ coordinate = ({0},{1}), number-red = {2}, number-blue = {3}, fail = ({4},{5}) ]", x, y, numRed, numBlue, id, color));
+            Log.Log(string.Format("Information\t:: [ coordinate = ({0},{1}), number-red = {2}, number-blue = {3}, fail = ({4},_) ]", x, y, numRed, numBlue, id));
             #endregion
             #region For: Send email(s)
-            string subject = string.Format("[AGIN - 03] FAIL = ({0},{1}) | ({2},{3}) = {4}-r/{5}-b | {6:yyyy-MM-dd HH:mm:ss}", id, color, x, y, numRed, numBlue, DateTime.Now);
+            string subject = string.Format("[AGIN - 03] FAIL = ({0},_) | ({1},{2}) = {3}-r/{4}-b | {5:yyyy-MM-dd HH:mm:ss}", id, x, y, numRed, numBlue, DateTime.Now);
             string content = string.Format(@"
 Hi you,<br/><br/>
-Please review alert for AGIN | {6:yyyy-MM-dd HH:mm:ss}:<br/>
+Please review alert for AGIN | {5:yyyy-MM-dd HH:mm:ss}:<br/>
 <ul style='padding:0'>
-    <li>[ coordinate = ({0},{1}), number-red = {2}, number-blue = {3}, fail = ({4},{5}) ]</li>
+    <li>[ coordinate = ({0},{1}), number-red = {2}, number-blue = {3}, fail = ({4},_) ]</li>
 </ul>
-Best regards!", x, y, numRed, numBlue, id, color, DateTime.Now);
+Best regards!", x, y, numRed, numBlue, id, DateTime.Now);
             string[] attachments = new string[1] { attachment };
             string display_name = "BET TOOL";
             MailHelper mail_helper = new MailHelper(CONFIG_EMAIL_USER, CONFIG_EMAIL_PASS);
@@ -436,13 +460,13 @@ SELECT ASUM.* FROM AGIN_SUMMARY ASUM ORDER BY ASUM.Id ASC");
                     }
                     pattern01_prev_len = pattern01.Item1;
 
-                    Tuple<int, DB_AGIN_Baccarat_Cell, int, DB_AGIN_Baccarat_Cell, int> pattern02 = agin.ChkPattern02(order, 0);
+                    Tuple<int, DB_AGIN_Baccarat_Cell, int, DB_AGIN_Baccarat_Cell, int> pattern02 = agin.ChkPattern02(0, order);
                     if (pattern02_min > pattern02.Item1)
                     {
-                        pattern02 = agin.ChkPattern02(order, 1);
+                        pattern02 = agin.ChkPattern02(1, order);
                         if (pattern02_min > pattern02.Item1)
                         {
-                            pattern02 = agin.ChkPattern02(order, 2);
+                            pattern02 = agin.ChkPattern02(2, order);
                         }
                     }
                     if (pattern02_min - 1 < pattern02.Item1 && pattern02_prev_len < pattern02.Item1)

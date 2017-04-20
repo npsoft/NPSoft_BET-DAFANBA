@@ -91,6 +91,7 @@
     <Compile Include="Helper\FileHelper.cs" />
     <Compile Include="Helper\ImageHelper.cs" />
     <Compile Include="Helper\IRBLog.cs" />
+    <Compile Include="Helper\JsonHelper.cs" />
     <Compile Include="Helper\MailHelper.cs" />
     <Compile Include="Helper\RBLog.cs" />
     <Compile Include="Helper\SQLiteHelper.cs" />

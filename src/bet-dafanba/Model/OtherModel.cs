@@ -20,8 +20,10 @@ namespace SpiralEdge.Model
         public long CreatedBy { get; set; }
         public DateTime LastModifiedOn { get; set; }
         public long LastModifiedBy { get; set; }
+
         public bool AlertPattern01 { get; set; }
         public bool AlertPattern02 { get; set; }
+        public bool AlertPattern03 { get; set; }
         #endregion
         #region For: Ctors
         public DB_AGIN_Baccarat()
@@ -78,7 +80,7 @@ namespace SpiralEdge.Model
         /// <summary>
         /// Description: times(int), last(cell), last-length(int), prev(cell), prev-length(int)
         /// </summary>
-        public Tuple<int, DB_AGIN_Baccarat_Cell, int, DB_AGIN_Baccarat_Cell, int> ChkPattern02(int maxOrder = int.MaxValue, int ignore = 0)
+        public Tuple<int, DB_AGIN_Baccarat_Cell, int, DB_AGIN_Baccarat_Cell, int> ChkPattern02(int ignore, int maxOrder = int.MaxValue)
         {
             List<DB_AGIN_Baccarat_Cell> cells = new List<DB_AGIN_Baccarat_Cell>();
             DataAnalysis.Cells.ForEach(x => {
@@ -172,7 +174,40 @@ namespace SpiralEdge.Model
             #endregion
             return new Tuple<int, DB_AGIN_Baccarat_Cell, int, DB_AGIN_Baccarat_Cell, int>(times, last, color_last_len, prev, color_prev_len);
         }
-        
+
+        /// <summary>
+        /// Description: color(string), last(cell), number-red(int), number-blue(int)
+        /// </summary>
+        public Tuple<string, DB_AGIN_Baccarat_Cell, int, int> ChkPattern03(dynamic config, int maxOrder = int.MaxValue)
+        {
+            List<DB_AGIN_Baccarat_Cell> cells = new List<DB_AGIN_Baccarat_Cell>();
+            DataAnalysis.Cells.ForEach(x => {
+                cells.AddRange(x.Where(y => 0 != y.Order && maxOrder >= y.Order));
+            });
+            cells = cells.OrderByDescending(x => x.Order).ToList();
+            #region For: Calculate values
+            string color = "";
+            DB_AGIN_Baccarat_Cell last = null;
+            int num_red = cells.Count(x => x.Matches.Contains("circle-red"));
+            int num_blue = cells.Count(x => x.Matches.Contains("circle-blue"));
+            if (0 != cells.Count)
+            {
+                last = cells[0];
+                if (JsonHelper.GetElBySelector(config, "min-order").Value <= last.Order &&
+                    JsonHelper.GetElBySelector(config, "min-circle-red").Value <= num_red &&
+                    JsonHelper.GetElBySelector(config, "min-circle-blue").Value <= num_blue)
+                {
+                    double p_circle_rb = (double)num_red / num_blue;
+                    double p_circle_br = 1 / p_circle_rb;
+                    color =
+                        JsonHelper.GetElBySelector(config, "p-circle-rb-min").Value > p_circle_rb || JsonHelper.GetElBySelector(config, "p-circle-br-max").Value < p_circle_br ? "circle-red" :
+                        JsonHelper.GetElBySelector(config, "p-circle-rb-max").Value < p_circle_rb || JsonHelper.GetElBySelector(config, "p-circle-br-min").Value > p_circle_br ? "circle-blue" : color;
+                }
+            }
+            return new Tuple<string, DB_AGIN_Baccarat_Cell, int, int>(color, last, num_red, num_blue);
+            #endregion
+        }
+
         public void SaveDb(SQLiteHelper connHelper)
         {
             if (0 == Id) // For: Insert data
