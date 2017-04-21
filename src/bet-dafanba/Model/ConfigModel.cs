@@ -317,7 +317,7 @@ Best regards!", x, y, lastType, lastLen, prev_type, prev_len, length, DateTime.N
         {
             Log.Log(string.Format("Information\t:: [BACCARAT PATTERN 03] OPEN - Alert processing has been started."));
             #region For: Write log
-            Log.Log(string.Format("Information\t:: [ coordinate = ({0},{1}), last = ({2},{3}), number-red = {4}, number-blue = {5}, open = ({6},{7}), attachment = {8} ]", x, y, lastX, lastY, numRed, numBlue, id, color));
+            Log.Log(string.Format("Information\t:: [ coordinate = ({0},{1}), last = ({2},{3}), number-red = {4}, number-blue = {5}, open = ({6},{7}), attachment = {8} ]", x, y, lastX, lastY, numRed, numBlue, id, color, attachment));
             #endregion
             #region For: Send email(s)
             string subject = string.Format("[AGIN - 03] OPEN = ({0},{1}) | ({2},{3}) = ({4},{5}) | {6:yyyy-MM-dd HH:mm:ss}", id, color, x, y, lastX, lastY, DateTime.Now);
@@ -341,7 +341,7 @@ Best regards!", x, y, lastX, lastY, numRed, numBlue, id, color, DateTime.Now);
         {
             Log.Log(string.Format("Information\t:: [BACCARAT PATTERN 03] CLOSE - Alert processing has been started."));
             #region For: Write log
-            Log.Log(string.Format("Information\t:: [ coordinate = ({0},{1}), last = ({2},{3}), number-red = {4}, number-blue = {5}, close = ({6},_), attachment = {7} ]", x, y, lastX, lastY, numRed, numBlue, id));
+            Log.Log(string.Format("Information\t:: [ coordinate = ({0},{1}), last = ({2},{3}), number-red = {4}, number-blue = {5}, close = ({6},_), attachment = {7} ]", x, y, lastX, lastY, numRed, numBlue, id, attachment));
             #endregion
             #region For: Send email(s)
             string subject = string.Format("[AGIN - 03] CLOSE = ({0},_) | ({1},{2}) = ({3},{4}) | {5:yyyy-MM-dd HH:mm:ss}", id, x, y, lastX, lastY, DateTime.Now);
@@ -365,7 +365,7 @@ Best regards!", x, y, lastX, lastY, numRed, numBlue, id, DateTime.Now);
         {
             Log.Log(string.Format("Information\t:: [BACCARAT PATTERN 03] FAIL - Alert processing has been started."));
             #region For: Write log
-            Log.Log(string.Format("Information\t:: [ coordinate = ({0},{1}), number-red = {2}, number-blue = {3}, fail = ({4},_) ]", x, y, numRed, numBlue, id));
+            Log.Log(string.Format("Information\t:: [ coordinate = ({0},{1}), number-red = {2}, number-blue = {3}, fail = ({4},_), attachment = {5} ]", x, y, numRed, numBlue, id, attachment));
             #endregion
             #region For: Send email(s)
             string subject = string.Format("[AGIN - 03] FAIL = ({0},_) | ({1},{2}) = {3}-r/{4}-b | {5:yyyy-MM-dd HH:mm:ss}", id, x, y, numRed, numBlue, DateTime.Now);
