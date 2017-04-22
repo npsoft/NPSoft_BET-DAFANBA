@@ -317,17 +317,17 @@ Best regards!", x, y, lastType, lastLen, prev_type, prev_len, length, DateTime.N
         {
             Log.Log(string.Format("Information\t:: [BACCARAT PATTERN 03] OPEN - Alert processing has been started."));
             #region For: Write log
-            Log.Log(string.Format("Information\t:: [ coordinate = ({0},{1}), last = ({2},{3}), number-red = {4}, number-blue = {5}, open = ({6},{7}), attachment = {8} ]", x, y, lastX, lastY, numRed, numBlue, id, color, attachment));
+            Log.Log(string.Format("Information\t:: [ id = {0} → open → {1}, coordinate = ({2},{3}) → ({4},{5}), number-red = {6}, number-blue = {7}, attachment = {8} ]", id, color, x, y, lastX, lastY, numRed, numBlue, attachment));
             #endregion
             #region For: Send email(s)
-            string subject = string.Format("[AGIN - 03] OPEN = ({0},{1}) | ({2},{3}) = ({4},{5}) | {6:yyyy-MM-dd HH:mm:ss}", id, color, x, y, lastX, lastY, DateTime.Now);
+            string subject = string.Format("[AGIN - 03] {0} | OPEN &rarr; {1} | ({2},{3}) &rarr; ({4},{5})", id, color, x, y, lastX, lastY);
             string content = string.Format(@"
 Hi you,<br/><br/>
 Please review alert for AGIN | {8:yyyy-MM-dd HH:mm:ss}:<br/>
 <ul style='padding:0'>
-    <li>[ coordinate = ({0},{1}), last = ({2},{3}), number-red = {4}, number-blue = {5}, open = ({6},{7}) ]</li>
+    <li>[ id = {0} &rarr; open &rarr; {1}, coordinate = ({2},{3}) &rarr; ({4},{5}), number-red = {6}, number-blue = {7} ]</li>
 </ul><br/>
-Best regards!", x, y, lastX, lastY, numRed, numBlue, id, color, DateTime.Now);
+Best regards!", id, color, x, y, lastX, lastY, numRed, numBlue, DateTime.Now);
             string[] attachments = new string[1] { attachment };
             string display_name = "BET TOOL";
             MailHelper mail_helper = new MailHelper(CONFIG_EMAIL_USER, CONFIG_EMAIL_PASS);
@@ -341,17 +341,17 @@ Best regards!", x, y, lastX, lastY, numRed, numBlue, id, color, DateTime.Now);
         {
             Log.Log(string.Format("Information\t:: [BACCARAT PATTERN 03] CLOSE - Alert processing has been started."));
             #region For: Write log
-            Log.Log(string.Format("Information\t:: [ coordinate = ({0},{1}), last = ({2},{3}), number-red = {4}, number-blue = {5}, close = ({6},_), attachment = {7} ]", x, y, lastX, lastY, numRed, numBlue, id, attachment));
+            Log.Log(string.Format("Information\t:: [ id = {0} → close, coordinate = ({1},{2}) → ({3},{4}), number-red = {5}, number-blue = {6}, attachment = {7} ]", id, x, y, lastX, lastY, numRed, numBlue, attachment));
             #endregion
             #region For: Send email(s)
-            string subject = string.Format("[AGIN - 03] CLOSE = ({0},_) | ({1},{2}) = ({3},{4}) | {5:yyyy-MM-dd HH:mm:ss}", id, x, y, lastX, lastY, DateTime.Now);
+            string subject = string.Format("[AGIN - 03] {0} | CLOSE | ({1},{2}) &rarr; ({3},{4})", id, x, y, lastX, lastY);
             string content = string.Format(@"
 Hi you,<br/><br/>
 Please review alert for AGIN | {7:yyyy-MM-dd HH:mm:ss}:<br/>
 <ul style='padding:0'>
-    <li>[ coordinate = ({0},{1}), last = ({2},{3}), number-red = {4}, number-blue = {5}, close = ({6},_) ]</li>
+    <li>[ id = {0} &rarr; close, coordinate = ({1},{2}) &rarr; ({3},{4}), number-red = {5}, number-blue = {6} ]</li>
 </ul>
-Best regards!", x, y, lastX, lastY, numRed, numBlue, id, DateTime.Now);
+Best regards!", id, x, y, lastX, lastY, numRed, numBlue, DateTime.Now);
             string[] attachments = new string[1] { attachment };
             string display_name = "BET TOOL";
             MailHelper mail_helper = new MailHelper(CONFIG_EMAIL_USER, CONFIG_EMAIL_PASS);
@@ -365,17 +365,17 @@ Best regards!", x, y, lastX, lastY, numRed, numBlue, id, DateTime.Now);
         {
             Log.Log(string.Format("Information\t:: [BACCARAT PATTERN 03] FAIL - Alert processing has been started."));
             #region For: Write log
-            Log.Log(string.Format("Information\t:: [ coordinate = ({0},{1}), number-red = {2}, number-blue = {3}, fail = ({4},_), attachment = {5} ]", x, y, numRed, numBlue, id, attachment));
+            Log.Log(string.Format("Information\t:: [ id = {0} → fail, coordinate = ({1},{2}), number-red = {3}, number-blue = {4}, attachment = {5} ]", id, x, y, numRed, numBlue, attachment));
             #endregion
             #region For: Send email(s)
-            string subject = string.Format("[AGIN - 03] FAIL = ({0},_) | ({1},{2}) = {3}-r/{4}-b | {5:yyyy-MM-dd HH:mm:ss}", id, x, y, numRed, numBlue, DateTime.Now);
+            string subject = string.Format("[AGIN - 03] {0} | FAIL | ({1},{2}) &rarr; {3}-r / {4}-b", id, x, y, numRed, numBlue);
             string content = string.Format(@"
 Hi you,<br/><br/>
 Please review alert for AGIN | {5:yyyy-MM-dd HH:mm:ss}:<br/>
 <ul style='padding:0'>
-    <li>[ coordinate = ({0},{1}), number-red = {2}, number-blue = {3}, fail = ({4},_) ]</li>
+    <li>[ id = {0} &rarr; fail, coordinate = ({1},{2}), number-red = {3}, number-blue = {4} ]</li>
 </ul>
-Best regards!", x, y, numRed, numBlue, id, DateTime.Now);
+Best regards!", id, x, y, numRed, numBlue, DateTime.Now);
             string[] attachments = new string[1] { attachment };
             string display_name = "BET TOOL";
             MailHelper mail_helper = new MailHelper(CONFIG_EMAIL_USER, CONFIG_EMAIL_PASS);
