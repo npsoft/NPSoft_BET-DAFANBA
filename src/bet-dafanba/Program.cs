@@ -35,7 +35,7 @@ namespace SpiralEdge
                 ImageHelper.AnalysisImg_AGIN_3840x2160(file_path, out output);*/
                 /* -: Config = new ConfigModel(true);
                 Config.Analysis1_AGIN();*/
-                /* -: Config = new ConfigModel(true);
+                /*-: Config = new ConfigModel(true);
                 Config.Analysis2_AGIN();*/
                 /* -: Config = new ConfigModel(true);*/
             }
