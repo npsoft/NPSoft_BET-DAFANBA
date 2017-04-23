@@ -9,7 +9,7 @@ SELECT COUNT(1) FROM AGIN;
 SELECT COUNT(1) FROM AGIN_TRACK;
 SELECT COUNT(1) FROM AGIN_SUMMARY; -- 2.754 record(s)
 SELECT COUNT(1) FROM AGIN_RESULT1; -- 22.568 record(s)
-SELECT COUNT(1) FROM AGIN_RESULT2; -- 174.564 record(s) > 1.922 match(es) > 384.400.000; max-count = 41
+SELECT COUNT(1) FROM AGIN_RESULT2; -- 174.564 record(s)
 
 -- #
 ATTACH DATABASE 'D:\NPSoft_BET-DAFANBA\db\dbBet.db3' AS aux;
@@ -35,6 +35,14 @@ SELECT AR.Type, AR.Times, Count(1) Frequency
 FROM AGIN_RESULT1 AR
 GROUP BY AR.Times, AR.Type
 ORDER BY AR.Type ASC, AR.Times DESC;
+
+-- MIN(R - B) = -24, MAX(R - B) = 29
+-- R - B IN (-24,+29): 5 record(s)
+SELECT AR.SubId, MAX(AR.NumCircleRed), MAX(AR.NumCircleBlue), MAX(AR.NumCircleRed) - MAX(AR.NumCircleBlue)
+FROM AGIN_RESULT2 AR
+GROUP BY AR.SubId
+HAVING MAX(AR.NumCircleRed) - MAX(AR.NumCircleBlue) NOT IN (-24,29)
+ORDER BY MAX(AR.NumCircleRed) - MAX(AR.NumCircleBlue) DESC;
 
 -- #
 CREATE TEMPORARY TABLE tmpARGroup AS
@@ -132,7 +140,23 @@ DROP TABLE tmpAR2;
 END TRANSACTION;
 -- END;
 
-SELECT AR.SubId, AR.[Match], COUNT(1), MIN(LatestOrder), MAX(Latestorder)
-FROM tmpAR1 AR
-GROUP BY AR.SubId, AR.[Match]
-ORDER BY COUNT(1) DESC, AR.[Match] ASC, AR.SubId ASC;
+-- total-match: 1.922 record(s)
+-- total-match-win: 988 record(s)
+-- total-match-not-win: 934 record(s)
+SELECT *
+FROM (
+    SELECT AR.SubId, AR.[Match], COUNT(1)
+        , CASE
+            WHEN MIN(PNumCircleRB) > (SELECT CAST(COALESCE(Value, NULL) AS DOUBLE) FROM _Variables WHERE Name = 'max-p-num-circle-rb' LIMIT 1) THEN
+                'circle-blue'
+            WHEN MIN(PNumCircleBR) > (SELECT CAST(COALESCE(Value, NULL) AS DOUBLE) FROM _Variables WHERE Name = 'max-p-num-circle-br' LIMIT 1) THEN
+                'circle-red'
+            ELSE NULL END Color
+        , MIN(LatestOrder) MinLatestOrder, MAX(Latestorder) MaxLatestOrder
+        , MIN(NumCircleRed) MinNumCircleRed, MIN(NumCircleBlue) MinNumCircleBlue
+        , MAX(NumCircleRed) MaxNumCircleRed, MAX(NumCircleBlue) MaxNumCircleBlue
+    FROM tmpAR1 AR
+    GROUP BY AR.SubId, AR.[Match]
+    ORDER BY COUNT(1) DESC, AR.[Match] ASC, AR.SubId ASC)
+WHERE (Color = 'circle-blue' AND (MaxNumCircleBlue - MinNumCircleBlue + 1) > (MaxNumCircleRed - MinNumCircleRed))
+    OR (Color = 'circle-red' AND (MaxNumCircleRed - MinNumCircleRed + 1) > (MaxNumCircleBlue - MinNumCircleBlue));
