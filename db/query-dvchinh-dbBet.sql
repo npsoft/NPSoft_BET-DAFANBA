@@ -31,21 +31,36 @@ SELECT
     (SELECT MAX(AR.Times) FROM AGIN_RESULT1 AR WHERE AR.Type = 'pattern-01') [pattern01-max], -- 16
     (SELECT MAX(AR.Times) FROM AGIN_RESULT1 AR WHERE AR.Type = 'pattern-02') [pattern02-max]; -- 07
 
-SELECT AR.Type, AR.Times, Count(1) Frequency
+SELECT AR.Type, AR.Times, COUNT(1) Frequency
 FROM AGIN_RESULT1 AR
-GROUP BY AR.Times, AR.Type
+GROUP BY AR.Type, AR.Times
 ORDER BY AR.Type ASC, AR.Times DESC;
 
--- MIN(R - B) = -24, MAX(R - B) = 29
--- R - B IN (-24,+29): 5 record(s)
-SELECT AR.SubId, MAX(AR.NumCircleRed), MAX(AR.NumCircleBlue), MAX(AR.NumCircleRed) - MAX(AR.NumCircleBlue)
-FROM AGIN_RESULT2 AR
-GROUP BY AR.SubId
-HAVING MAX(AR.NumCircleRed) - MAX(AR.NumCircleBlue) NOT IN (-24,29)
-ORDER BY MAX(AR.NumCircleRed) - MAX(AR.NumCircleBlue) DESC;
+SELECT AR.Type, AR.Times, AR.Tags, COUNT(1) Frequency
+FROM AGIN_RESULT1 AR
+WHERE AR.Type = 'pattern-01'
+GROUP BY AR.Type, AR.Times, AR.Tags
+ORDER BY AR.Type ASC, AR.Times DESC, AR.Tags ASC;
+
+-- total: 2.754 record(s)
+-- r > b: 1.437 record(s)
+-- r = b: 0.144 record(s)
+-- r < b: 1.173 record(s)
+-- sum-r: 88.305
+-- sum-b: 85.984
+-- -24 <= r - b <= 29
+SELECT MIN(SubNumCircleRB), MAX(SubNumCircleRB)
+FROM (
+    SELECT AR.SubId
+        , MAX(AR.NumCircleRed) NumCircleRed
+        , MAX(AR.NumCircleBlue) NumCircleBlue
+        , MAX(AR.NumCircleRed) - MAX(AR.NumCircleBlue) SubNumCircleRB
+    FROM AGIN_RESULT2 AR
+    GROUP BY AR.SubId)
+WHERE SubNumCircleRB = 0;
 
 -- #
-CREATE TEMPORARY TABLE tmpARGroup AS
+CREATE TEMPORARY TABLE tmpARG AS
 WITH FT_CTE AS (
     SELECT AR.SubId
         , MAX(AR.LatestOrder) LatestOrder
@@ -57,21 +72,18 @@ WITH FT_CTE AS (
     GROUP BY AR.SubId)
 SELECT * FROM FT_CTE;
 
--- num-cricle-red > 04 & num-circle-blue > 04 & latest-order > 00: 0.4090, 2.8888, 0.3461, 2.4444 ~ 9/22, 26/9, 9/26, 22/9
--- num-circle-red > 00 & num-circle-blue > 00 & latest-order > 09: 0.3333, 2.8888, 0.3461, 3.0000 ~ 1/3, 26/9, 9/26, 3/1
--- num-circle-red > 09 & num-circle-blue > 09 & latest-order > 00: 0.4390, 2.2500, 0.4444, 2.2777
---                                                               : 0.4300, 2.1400, 0.4600, 2.2700
+-- num-cricle-red > 05 & num-circle-blue > 05 & latest-order > 00: 0.4090, 2.8888, 0.3461, 2.4444 ~ 9/22, 26/9, 9/26, 22/9
 SELECT
       MIN(ARG.PNumCircleRB)
     , MAX(ARG.PNumCircleRB)
     , MIN(ARG.PNumCircleBR)
     , MAX(ARG.PNumCircleBR)
-FROM tmpARGroup ARG
-WHERE ARG.NumCircleRed > 5
-    AND ARG.NumCircleBlue > 5;
+FROM tmpARG ARG
+WHERE ARG.NumCircleRed >= 5
+    AND ARG.NumCircleBlue >= 5;
 
 SELECT ARG.*
-FROM tmpARGroup ARG
+FROM tmpARG ARG
 WHERE ARG.LatestOrder > 9
     AND ARG.NumCircleRed > 0
     AND ARG.NumCircleBlue > 0
@@ -80,6 +92,7 @@ WHERE ARG.LatestOrder > 9
 -- BEGIN;
 PRAGMA temp_store = 2;
 BEGIN TRANSACTION;
+
 CREATE TEMP TABLE IF NOT EXISTS _Variables (Name TEXT PRIMARY KEY NOT NULL, Value TEXT);
 INSERT OR REPLACE INTO _Variables VALUES ('min-p-num-circle-rb', CAST(9 AS DOUBLE) / 22);
 INSERT OR REPLACE INTO _Variables VALUES ('max-p-num-circle-rb', CAST(26 AS DOUBLE) / 9);
@@ -95,16 +108,16 @@ WITH FT_CTE AS (
         , CAST(AR.NumCircleBlue AS DOUBLE) / AR.NumCircleRed PNumCircleBR
         , CAST(0 AS INT) [Match]
     FROM AGIN_RESULT2 AR
-    WHERE AR.LatestOrder > 5
-        AND AR.NumCircleRed > 0
-        AND AR.NumCircleBlue > 0
+    WHERE AR.LatestOrder > 0
+        AND AR.NumCircleRed > 5
+        AND AR.NumCircleBlue > 5
         AND (
                (CAST(AR.NumCircleRed AS DOUBLE) / AR.NumCircleBlue) < (SELECT CAST(COALESCE(Value, NULL) AS DOUBLE) FROM _Variables WHERE Name = 'min-p-num-circle-rb' LIMIT 1)
             OR (CAST(AR.NumCircleRed AS DOUBLE) / AR.NumCircleBlue) > (SELECT CAST(COALESCE(Value, NULL) AS DOUBLE) FROM _Variables WHERE Name = 'max-p-num-circle-rb' LIMIT 1)
             OR (CAST(AR.NumCircleBlue AS DOUBLE) / AR.NumCircleRed) < (SELECT CAST(COALESCE(Value, NULL) AS DOUBLE) FROM _Variables WHERE Name = 'min-p-num-circle-br' LIMIT 1)
             OR (CAST(AR.NumCircleBlue AS DOUBLE) / AR.NumCircleRed) > (SELECT CAST(COALESCE(Value, NULL) AS DOUBLE) FROM _Variables WHERE Name = 'max-p-num-circle-br' LIMIT 1)))
 SELECT * FROM FT_CTE;
--- SELECT * FROM tmpAR1 ORDER BY SubId ASC, LatestOrder ASC;
+-- SELECT * FROM tmpAR1;
 
 DROP TABLE IF EXISTS tmpAR2;
 CREATE TEMP TABLE tmpAR2 (
@@ -134,17 +147,12 @@ INSERT INTO tmpAR2(Id, SubId, LatestOrder, NumCircleRed, NumCircleBlue, PNumCirc
 SELECT Id, SubId, LatestOrder, NumCircleRed, NumCircleBlue, PNumCircleRB, PNumCircleBR FROM tmpAR1 ORDER BY SubId ASC, LatestOrder ASC;
 -- SELECT * FROM tmpAR2;
 
-DROP TABLE _Variables;
-DROP TABLE tmpAR1;
-DROP TABLE tmpAR2;
-END TRANSACTION;
--- END;
+INSERT OR REPLACE INTO _Variables VALUES('min-latest-order', (SELECT MIN(LatestOrder) FROM tmpAR1));
+INSERT OR REPLACE INTO _Variables VALUES('max-latest-order', (SELECT MAX(LatestOrder) FROM tmpAR1));
+-- SELECT * FROM _Variables;
 
--- total-match: 1.922 record(s)
--- total-match-win: 988 record(s)
--- total-match-not-win: 934 record(s)
-SELECT *
-FROM (
+CREATE TEMPORARY TABLE tmpAR3 AS
+WITH FT_CTE AS (
     SELECT AR.SubId, AR.[Match], COUNT(1)
         , CASE
             WHEN MIN(PNumCircleRB) > (SELECT CAST(COALESCE(Value, NULL) AS DOUBLE) FROM _Variables WHERE Name = 'max-p-num-circle-rb' LIMIT 1) THEN
@@ -152,11 +160,56 @@ FROM (
             WHEN MIN(PNumCircleBR) > (SELECT CAST(COALESCE(Value, NULL) AS DOUBLE) FROM _Variables WHERE Name = 'max-p-num-circle-br' LIMIT 1) THEN
                 'circle-red'
             ELSE NULL END Color
+        , CASE
+            WHEN MIN(PNumCircleRB) > (SELECT CAST(COALESCE(Value, NULL) AS DOUBLE) FROM _Variables WHERE Name = 'max-p-num-circle-rb' LIMIT 1) THEN
+                (MAX(NumCircleBlue) - MIN(NumCircleBlue) + 1) - (MAX(NumCircleRed) - MIN(NumCircleRed))
+            WHEN MIN(PNumCircleBR) > (SELECT CAST(COALESCE(Value, NULL) AS DOUBLE) FROM _Variables WHERE Name = 'max-p-num-circle-br' LIMIT 1) THEN
+                (MAX(NumCircleRed) - MIN(NumCircleRed) + 1) - (MAX(NumCircleBlue) - MIN(NumCircleBlue))
+            ELSE NULL END Profit
         , MIN(LatestOrder) MinLatestOrder, MAX(Latestorder) MaxLatestOrder
         , MIN(NumCircleRed) MinNumCircleRed, MIN(NumCircleBlue) MinNumCircleBlue
         , MAX(NumCircleRed) MaxNumCircleRed, MAX(NumCircleBlue) MaxNumCircleBlue
     FROM tmpAR1 AR
-    GROUP BY AR.SubId, AR.[Match]
-    ORDER BY COUNT(1) DESC, AR.[Match] ASC, AR.SubId ASC)
-WHERE (Color = 'circle-blue' AND (MaxNumCircleBlue - MinNumCircleBlue + 1) > (MaxNumCircleRed - MinNumCircleRed))
-    OR (Color = 'circle-red' AND (MaxNumCircleRed - MinNumCircleRed + 1) > (MaxNumCircleBlue - MinNumCircleBlue));
+    GROUP BY AR.SubId, AR.[Match])
+SELECT * FROM FT_CTE;
+-- SELECT * FROM tmpAR3;
+
+CREATE TEMPORARY TABLE tmpLOC AS
+    WITH FT_CTE AS (
+    WITH RECURSIVE fibo (LatestOrder, Color)
+    AS (
+        SELECT (SELECT CAST(COALESCE(Value, NULL) AS INT) FROM _Variables WHERE Name = 'min-latest-order' LIMIT 1), 'circle-red'
+        UNION ALL
+        SELECT (SELECT CAST(COALESCE(Value, NULL) AS INT) FROM _Variables WHERE Name = 'min-latest-order' LIMIT 1), 'circle-blue'
+        UNION ALL
+        SELECT LatestOrder + 1, Color FROM fibo WHERE LatestOrder < (SELECT CAST(COALESCE(Value, NULL) AS INT) FROM _Variables WHERE Name = 'max-latest-order' LIMIT 1)
+    )
+    SELECT * FROM fibo)
+SELECT * FROM FT_CTE;
+-- SELECT * FROM tmpLOC;
+
+SELECT LOC.LatestOrder, LOC.Color, AR.Profit
+FROM tmpLOC LOC
+    LEFT JOIN (
+        SELECT MinLatestOrder LatestOrder, Color Color, SUM(Profit) Profit
+        FROM tmpAR3
+        WHERE Profit > 0
+        GROUP BY MinLatestOrder, Color) AR ON AR.LatestOrder = LOC.LatestOrder AND AR.Color = LOC.Color
+ORDER BY LOC.LatestOrder ASC, LOC.Color ASC;
+
+SELECT LOC.LatestOrder, LOC.Color, AR.Profit
+FROM tmpLOC LOC
+    LEFT JOIN (
+        SELECT MinLatestOrder LatestOrder, Color Color, SUM(Profit) Profit
+        FROM tmpAR3
+        WHERE Profit < 0
+        GROUP BY MinLatestOrder, Color) AR ON AR.LatestOrder = LOC.LatestOrder AND AR.Color = LOC.Color
+ORDER BY LOC.LatestOrder ASC, LOC.Color ASC;
+
+DROP TABLE _Variables;
+DROP TABLE tmpAR1;
+DROP TABLE tmpAR2;
+DROP TABLE tmpAR3;
+DROP TABLE tmpLOC;
+END TRANSACTION;
+-- END;
