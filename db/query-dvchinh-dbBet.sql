@@ -42,23 +42,6 @@ WHERE AR.Type = 'pattern-01'
 GROUP BY AR.Type, AR.Times, AR.Tags
 ORDER BY AR.Type ASC, AR.Times DESC, AR.Tags ASC;
 
--- total: 2.754 record(s)
--- r > b: 1.437 record(s)
--- r = b: 0.144 record(s)
--- r < b: 1.173 record(s)
--- sum-r: 88.305
--- sum-b: 85.984
--- -24 <= r - b <= 29
-SELECT MIN(SubNumCircleRB), MAX(SubNumCircleRB)
-FROM (
-    SELECT AR.SubId
-        , MAX(AR.NumCircleRed) NumCircleRed
-        , MAX(AR.NumCircleBlue) NumCircleBlue
-        , MAX(AR.NumCircleRed) - MAX(AR.NumCircleBlue) SubNumCircleRB
-    FROM AGIN_RESULT2 AR
-    GROUP BY AR.SubId)
-WHERE SubNumCircleRB = 0;
-
 -- #
 CREATE TEMPORARY TABLE tmpARG AS
 WITH FT_CTE AS (
@@ -79,14 +62,13 @@ SELECT
     , MIN(ARG.PNumCircleBR)
     , MAX(ARG.PNumCircleBR)
 FROM tmpARG ARG
-WHERE ARG.NumCircleRed >= 5
-    AND ARG.NumCircleBlue >= 5;
+WHERE ARG.NumCircleRed > 5
+    AND ARG.NumCircleBlue > 5;
 
 SELECT ARG.*
 FROM tmpARG ARG
-WHERE ARG.LatestOrder > 9
-    AND ARG.NumCircleRed > 0
-    AND ARG.NumCircleBlue > 0
+WHERE ARG.NumCircleRed > 5
+    AND ARG.NumCircleBlue > 5
     AND substr(ARG.PNumCircleBR, 0, 7) = '2.4444';
 
 -- BEGIN;
@@ -140,8 +122,8 @@ WHEN 1 = 1 BEGIN
         ELSE
             (SELECT COALESCE(Value, NULL) FROM _Variables WHERE Name = 'num-match' LIMIT 1) + 1
         END
-     WHERE Id = new.Id;
-     INSERT OR REPLACE INTO _Variables VALUES('num-match', (SELECT MAX([Match]) FROM tmpAR1));
+    WHERE Id = new.Id;
+    INSERT OR REPLACE INTO _Variables VALUES('num-match', (SELECT MAX([Match]) FROM tmpAR1));
 END;
 INSERT INTO tmpAR2(Id, SubId, LatestOrder, NumCircleRed, NumCircleBlue, PNumCircleRB, PNumCircleBR)
 SELECT Id, SubId, LatestOrder, NumCircleRed, NumCircleBlue, PNumCircleRB, PNumCircleBR FROM tmpAR1 ORDER BY SubId ASC, LatestOrder ASC;
@@ -164,8 +146,14 @@ WITH FT_CTE AS (
             WHEN MIN(PNumCircleRB) > (SELECT CAST(COALESCE(Value, NULL) AS DOUBLE) FROM _Variables WHERE Name = 'max-p-num-circle-rb' LIMIT 1) THEN
                 (MAX(NumCircleBlue) - MIN(NumCircleBlue) + 1) - (MAX(NumCircleRed) - MIN(NumCircleRed))
             WHEN MIN(PNumCircleBR) > (SELECT CAST(COALESCE(Value, NULL) AS DOUBLE) FROM _Variables WHERE Name = 'max-p-num-circle-br' LIMIT 1) THEN
-                (MAX(NumCircleRed) - MIN(NumCircleRed) + 1) - (MAX(NumCircleBlue) - MIN(NumCircleBlue))
+                (MAX(NumCircleRed) - MIN(NumCircleRed) + 1) * 0.95 - (MAX(NumCircleBlue) - MIN(NumCircleBlue))
             ELSE NULL END Profit
+        , CASE
+            WHEN MIN(PNumCircleRB) > (SELECT CAST(COALESCE(Value, NULL) AS DOUBLE) FROM _Variables WHERE Name = 'max-p-num-circle-rb' LIMIT 1) THEN
+                (SELECT COUNT(1) FROM tmpAR1 WHERE [Match] = AR.[Match] AND NumCircleBlue = MIN(AR.NumCircleBlue)) - 1
+            WHEN MIN(PNumCircleBR) > (SELECT CAST(COALESCE(Value, NULL) AS DOUBLE) FROM _Variables WHERE Name = 'max-p-num-circle-br' LIMIT 1) THEN
+                (SELECT COUNT(1) FROM tmpAR1 WHERE [Match] = AR.[Match] AND NumCircleRed = MIN(AR.NumCircleRed)) - 1
+            ELSE NULL END Field1
         , MIN(LatestOrder) MinLatestOrder, MAX(Latestorder) MaxLatestOrder
         , MIN(NumCircleRed) MinNumCircleRed, MIN(NumCircleBlue) MinNumCircleBlue
         , MAX(NumCircleRed) MaxNumCircleRed, MAX(NumCircleBlue) MaxNumCircleBlue
@@ -173,6 +161,39 @@ WITH FT_CTE AS (
     GROUP BY AR.SubId, AR.[Match])
 SELECT * FROM FT_CTE;
 -- SELECT * FROM tmpAR3;
+
+-- 248 = 121 + 127 
+-- 38.65 | 116.60 | -78.05
+SELECT SUM(Profit) FROM tmpAR3 WHERE MinLatestOrder <> MaxLatestOrder;
+SELECT COUNT(1) FROM tmpAR3 WHERE MinLatestOrder <> MaxLatestOrder;
+SELECT 38.65 * 200
+ 
+SELECT *
+FROM (
+    SELECT AR3.*,
+        CASE
+            WHEN Color = 'circle-blue' THEN
+                (SELECT COUNT(1) FROM tmpAR1 AR1 WHERE AR1.SubId = AR3.SubId AND AR1.[Match] = AR3.[Match] AND AR1.NumCircleRed = AR3.MinNumCircleRed)
+            WHEN Color = 'circle-red' THEN
+                (SELECT COUNT(1) FROM tmpAR1 AR1 WHERE AR1.SubId = AR3.SubId AND AR1.[Match] = AR3.[Match] AND AR1.NumCircleBlue = AR3.MinNumCircleBlue)
+            ELSE NULL END Field1
+FROM tmpAR3 AR3)
+ORDER BY Field1 DESC;
+
+SELECT SUM(Profit) FROM tmpAR3 WHERE Profit NOT IN (1, 0, -1);
+SELECT COUNT(1) FROM tmpAR3;
+SELECT CAST(51 AS DOUBLE) / 248
+
+-- Match = 15, circle-blue, 5 first-lose
+-- Match = 199, circle-red, 
+SELECT *, MaxLatestOrder - MinLatestOrder FROM tmpAR3
+WHERE MaxLatestOrder - MinLatestOrder + 1 > 3
+ORDER BY MaxLatestOrder - MinLatestOrder ASC;
+
+SELECT *
+FROM tmpAR1
+WHERE [Match] IN (17)
+ORDER BY LatestOrder ASC;
 
 CREATE TEMPORARY TABLE tmpLOC AS
     WITH FT_CTE AS (
