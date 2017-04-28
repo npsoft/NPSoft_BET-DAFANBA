@@ -33,9 +33,9 @@ namespace SpiralEdge
                 /* -: AGIN_3840x2160_Baccarat output = null;
                 string file_path = @"D:\NPSoft_BET-DAFANBA\doc\170410\agin-170412-021437-607.png";
                 ImageHelper.AnalysisImg_AGIN_3840x2160(file_path, out output);*/
-                /* -: Config = new ConfigModel(true);
-                Config.Analysis1_AGIN();*/
                 /*-: Config = new ConfigModel(true);
+                Config.Analysis1_AGIN();*/
+                /* -: Config = new ConfigModel(true);
                 Config.Analysis2_AGIN();*/
                 /* -: Config = new ConfigModel(true);*/
             }

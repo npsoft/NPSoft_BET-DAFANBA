@@ -7,9 +7,9 @@ DELETE FROM AGIN_RESULT1;
 DELETE FROM AGIN_RESULT2;
 SELECT COUNT(1) FROM AGIN;
 SELECT COUNT(1) FROM AGIN_TRACK;
-SELECT COUNT(1) FROM AGIN_SUMMARY; -- 2.754 record(s)
-SELECT COUNT(1) FROM AGIN_RESULT1; -- 22.568 record(s)
-SELECT COUNT(1) FROM AGIN_RESULT2; -- 174.564 record(s)
+SELECT COUNT(1) FROM AGIN_SUMMARY; -- 3.202 record(s)
+SELECT COUNT(1) FROM AGIN_RESULT1; -- 26.142 record(s)
+SELECT COUNT(1) FROM AGIN_RESULT2; -- 203.122 record(s)
 
 -- #
 ATTACH DATABASE 'D:\NPSoft_BET-DAFANBA\db\dbBet.db3' AS aux;
@@ -54,8 +54,9 @@ WITH FT_CTE AS (
     FROM AGIN_RESULT2 AR
     GROUP BY AR.SubId)
 SELECT * FROM FT_CTE;
+-- SELECT COUNT(1) FROM tmpARG;
 
--- num-cricle-red > 05 & num-circle-blue > 05 & latest-order > 00: 0.4090, 2.8888, 0.3461, 2.4444 ~ 9/22, 26/9, 9/26, 22/9
+-- num-cricle-red > 05 & num-circle-blue > 05: 0.4090, 2.8888, 0.3461, 2.4444 ~ 9/22, 26/9, 9/26, 22/9
 SELECT
       MIN(ARG.PNumCircleRB)
     , MAX(ARG.PNumCircleRB)
@@ -90,8 +91,7 @@ WITH FT_CTE AS (
         , CAST(AR.NumCircleBlue AS DOUBLE) / AR.NumCircleRed PNumCircleBR
         , CAST(0 AS INT) [Match]
     FROM AGIN_RESULT2 AR
-    WHERE AR.LatestOrder > 0
-        AND AR.NumCircleRed > 5
+    WHERE AR.NumCircleRed > 5
         AND AR.NumCircleBlue > 5
         AND (
                (CAST(AR.NumCircleRed AS DOUBLE) / AR.NumCircleBlue) < (SELECT CAST(COALESCE(Value, NULL) AS DOUBLE) FROM _Variables WHERE Name = 'min-p-num-circle-rb' LIMIT 1)
@@ -162,39 +162,6 @@ WITH FT_CTE AS (
 SELECT * FROM FT_CTE;
 -- SELECT * FROM tmpAR3;
 
--- 248 = 121 + 127 
--- 38.65 | 116.60 | -78.05
-SELECT SUM(Profit) FROM tmpAR3 WHERE MinLatestOrder <> MaxLatestOrder;
-SELECT COUNT(1) FROM tmpAR3 WHERE MinLatestOrder <> MaxLatestOrder;
-SELECT 38.65 * 200
- 
-SELECT *
-FROM (
-    SELECT AR3.*,
-        CASE
-            WHEN Color = 'circle-blue' THEN
-                (SELECT COUNT(1) FROM tmpAR1 AR1 WHERE AR1.SubId = AR3.SubId AND AR1.[Match] = AR3.[Match] AND AR1.NumCircleRed = AR3.MinNumCircleRed)
-            WHEN Color = 'circle-red' THEN
-                (SELECT COUNT(1) FROM tmpAR1 AR1 WHERE AR1.SubId = AR3.SubId AND AR1.[Match] = AR3.[Match] AND AR1.NumCircleBlue = AR3.MinNumCircleBlue)
-            ELSE NULL END Field1
-FROM tmpAR3 AR3)
-ORDER BY Field1 DESC;
-
-SELECT SUM(Profit) FROM tmpAR3 WHERE Profit NOT IN (1, 0, -1);
-SELECT COUNT(1) FROM tmpAR3;
-SELECT CAST(51 AS DOUBLE) / 248
-
--- Match = 15, circle-blue, 5 first-lose
--- Match = 199, circle-red, 
-SELECT *, MaxLatestOrder - MinLatestOrder FROM tmpAR3
-WHERE MaxLatestOrder - MinLatestOrder + 1 > 3
-ORDER BY MaxLatestOrder - MinLatestOrder ASC;
-
-SELECT *
-FROM tmpAR1
-WHERE [Match] IN (17)
-ORDER BY LatestOrder ASC;
-
 CREATE TEMPORARY TABLE tmpLOC AS
     WITH FT_CTE AS (
     WITH RECURSIVE fibo (LatestOrder, Color)
@@ -208,24 +175,6 @@ CREATE TEMPORARY TABLE tmpLOC AS
     SELECT * FROM fibo)
 SELECT * FROM FT_CTE;
 -- SELECT * FROM tmpLOC;
-
-SELECT LOC.LatestOrder, LOC.Color, AR.Profit
-FROM tmpLOC LOC
-    LEFT JOIN (
-        SELECT MinLatestOrder LatestOrder, Color Color, SUM(Profit) Profit
-        FROM tmpAR3
-        WHERE Profit > 0
-        GROUP BY MinLatestOrder, Color) AR ON AR.LatestOrder = LOC.LatestOrder AND AR.Color = LOC.Color
-ORDER BY LOC.LatestOrder ASC, LOC.Color ASC;
-
-SELECT LOC.LatestOrder, LOC.Color, AR.Profit
-FROM tmpLOC LOC
-    LEFT JOIN (
-        SELECT MinLatestOrder LatestOrder, Color Color, SUM(Profit) Profit
-        FROM tmpAR3
-        WHERE Profit < 0
-        GROUP BY MinLatestOrder, Color) AR ON AR.LatestOrder = LOC.LatestOrder AND AR.Color = LOC.Color
-ORDER BY LOC.LatestOrder ASC, LOC.Color ASC;
 
 DROP TABLE _Variables;
 DROP TABLE tmpAR1;
