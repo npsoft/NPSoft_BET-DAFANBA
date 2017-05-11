@@ -393,7 +393,7 @@ namespace SpiralEdge.Helper
                     }
                     #endregion
                     #region For: bg-white, circle-red, slash-green
-                    if (0.50 > PercentB && PercentB > 0.40 &&
+                    if (0.50 > PercentB && PercentB > 0.35 &&
                         0.60 > PercentG && PercentG > 0.55 &&
                         0.70 > PercentR && PercentR > 0.65)
                     {
