@@ -30,7 +30,6 @@ namespace SpiralEdge
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 Application.Run(new frmMain());
-                /* -: Config = new ConfigModel(true);*/
                 /* -: Config = new ConfigModel(true);
                 Config.Analysis1_AGIN();
                 Config.Analysis2_AGIN();*/

@@ -725,6 +725,7 @@ namespace SpiralEdge.Model
         [JsonProperty("circle-fs-length")]
         public int CircleFsLen { get; set; }
         public string CircleColor { get { return Matches.Contains("circle-blue") ? "circle-blue" : Matches.Contains("circle-red") ? "circle-red" : ""; } }
+        public string CircleColorBR { get { return Matches.Contains("circle-blue") ? "B" : Matches.Contains("circle-red") ? "R" : ""; } }
 
         public DB_AGIN_Baccarat_Cell()
         {
@@ -745,5 +746,158 @@ namespace SpiralEdge.Model
             cell.CircleFsLen = CircleFsLen;
             return cell;
         }
+    }
+
+    public class DB_AGIN_Baccarat_Check
+    {
+        #region For: Properties
+        private int SubLMax { get; set; }
+        private int FreqMin { get; set; }
+        private KeyValuePair<int, int>[] TotalLMin { get; set; }
+        private DB_AGIN_Baccarat Baccarat { get; set; }
+        #endregion
+        #region For: Ctors
+        public DB_AGIN_Baccarat_Check(DB_AGIN_Baccarat baccarat)
+        {
+            Baccarat = baccarat;
+            SubLMax = 9;
+            FreqMin = 3;
+            TotalLMin = new KeyValuePair<int, int>[9] {
+                new KeyValuePair<int, int>(1, 5),
+                new KeyValuePair<int, int>(2, 6),
+                new KeyValuePair<int, int>(3, 9),
+                new KeyValuePair<int, int>(4, 12),
+                new KeyValuePair<int, int>(5, 15),
+                new KeyValuePair<int, int>(6, 18),
+                new KeyValuePair<int, int>(7, 21),
+                new KeyValuePair<int, int>(8, 24),
+                new KeyValuePair<int, int>(9, 27)};
+        }
+
+        public DB_AGIN_Baccarat_Check(DB_AGIN_Baccarat baccarat, int subLMax, int freqMin, KeyValuePair<int, int>[] totalLMin)
+        {
+            Baccarat = baccarat;
+            SubLMax = subLMax;
+            FreqMin = freqMin;
+            TotalLMin = totalLMin;
+        }
+        #endregion
+        #region For: Methods
+        private bool IsDupFreq(IEnumerable<DB_AGIN_Baccarat_Cell> cellsFreq)
+        {
+            int pos_mid = cellsFreq.Count() / 2;
+            if (0 == pos_mid) { return false; }
+            if (2 * pos_mid != cellsFreq.Count())
+            {
+                for (int i = 1; i < 2 * pos_mid + 1; i++)
+                {
+                    if (cellsFreq.ElementAt(0).CircleColor != cellsFreq.ElementAt(i).CircleColor)
+                    {
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < pos_mid; i++)
+                {
+                    if (cellsFreq.ElementAt(i).CircleColor != cellsFreq.ElementAt(pos_mid + i).CircleColor)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        private bool IsValidRstItem(DB_AGIN_Baccarat_Check_RstItem rstItem)
+        {
+            if (FreqMin > rstItem.NFreq) { return false; }
+            foreach (KeyValuePair<int, int> total_l_min in TotalLMin)
+            {
+                if (rstItem.CellsFreq.Count == total_l_min.Key)
+                {
+                    return total_l_min.Value <= rstItem.NFreq * rstItem.CellsFreq.Count + rstItem.CellsSub.Count;
+                }
+            }
+            return true;
+        }
+
+        public List<DB_AGIN_Baccarat_Check_RstItem> Search(int maxOrder = int.MaxValue)
+        {
+            List<DB_AGIN_Baccarat_Check_RstItem> items = new List<DB_AGIN_Baccarat_Check_RstItem>();
+            #region For: List cells and Sort by order
+            List<DB_AGIN_Baccarat_Cell> cells = new List<DB_AGIN_Baccarat_Cell>();
+            Baccarat.DataAnalysis.Cells.ForEach(x => {
+                cells.AddRange(x.Where(y => 0 != y.Order && maxOrder >= y.Order));
+            });
+            cells = cells.OrderBy(x => x.Order).ToList();
+            #endregion
+            for (int sub_l = 0; sub_l <= SubLMax && sub_l + FreqMin * (sub_l + 1) <= cells.Count; sub_l++)
+            {
+                IEnumerable<DB_AGIN_Baccarat_Cell> cells_main = cells.Take(cells.Count - sub_l);
+                IEnumerable<DB_AGIN_Baccarat_Cell> cells_sub = cells.Skip(cells.Count - sub_l).Take(sub_l);
+                for (int freq_l = sub_l + 1; freq_l <= SubLMax + 1 && FreqMin * freq_l <= cells_main.Count(); freq_l++)
+                {
+                    bool stop = false; int freq_n = 0;
+                    int skip = cells_main.Count() - freq_l * (freq_n + 1);
+                    IEnumerable<DB_AGIN_Baccarat_Cell> cells_freq = cells_main.Skip(0 > skip ? int.MaxValue : skip).Take(freq_l);
+
+                    if (IsDupFreq(cells_freq)) { continue; }
+                    for (int i = 0; i < cells_sub.Count(); i++)
+                    {
+                        if (i + 1 > cells_freq.Count() || cells_sub.ElementAt(i).CircleColor != cells_freq.ElementAt(i).CircleColor)
+                        {
+                            stop = true; break;
+                        }
+                    }
+                    while (!stop && 0 != ++freq_n)
+                    {
+                        skip = cells_main.Count() - freq_l * (freq_n + 1);
+                        IEnumerable<DB_AGIN_Baccarat_Cell> cells_freqn = cells_main.Skip(0 > skip ? int.MaxValue : skip).Take(freq_l);
+                        for (int i = 0; i < cells_freq.Count(); i++)
+                        {
+                            if (i + 1 > cells_freqn.Count() || cells_freq.ElementAt(i).CircleColor != cells_freqn.ElementAt(i).CircleColor)
+                            {
+                                stop = true; break;
+                            }
+                        }
+                    }
+
+                    DB_AGIN_Baccarat_Check_RstItem item = new DB_AGIN_Baccarat_Check_RstItem(freq_n, cells_freq.ToList(), cells_sub.ToList());
+                    if (IsValidRstItem(item))
+                    {
+                        items.Add(item);
+                    }
+                }
+            }
+            return items;
+        }
+        #endregion
+    }
+
+    public class DB_AGIN_Baccarat_Check_RstItem
+    {
+        #region For: Properties
+        public int NFreq { get; set; }
+        public List<DB_AGIN_Baccarat_Cell> CellsFreq { get; set; }
+        public List<DB_AGIN_Baccarat_Cell> CellsSub { get; set; }
+        public string ColorsFreq { get { return string.Join("", CellsFreq.Select(x => x.CircleColorBR)); } }
+        #endregion
+        #region For: Ctors
+        public DB_AGIN_Baccarat_Check_RstItem()
+        {
+            NFreq = 0;
+            CellsFreq = new List<DB_AGIN_Baccarat_Cell>();
+            CellsSub = new List<DB_AGIN_Baccarat_Cell>();
+        }
+
+        public DB_AGIN_Baccarat_Check_RstItem(int nFreq, List<DB_AGIN_Baccarat_Cell> cellsFreq, List<DB_AGIN_Baccarat_Cell> cellsSub)
+        {
+            NFreq = nFreq;
+            CellsFreq = cellsFreq;
+            CellsSub = cellsSub;
+        }
+        #endregion
     }
 }

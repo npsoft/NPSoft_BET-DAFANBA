@@ -7,9 +7,9 @@ DELETE FROM AGIN_RESULT1;
 DELETE FROM AGIN_RESULT2;
 SELECT COUNT(1) FROM AGIN;
 SELECT COUNT(1) FROM AGIN_TRACK;
-SELECT COUNT(1) FROM AGIN_SUMMARY; -- 4.211 record(s)
-SELECT COUNT(1) FROM AGIN_RESULT1; -- 34.452 record(s)
-SELECT COUNT(1) FROM AGIN_RESULT2; -- 268.107 record(s)
+SELECT COUNT(1) FROM AGIN_SUMMARY; -- 4.720 record(s)
+SELECT COUNT(1) FROM AGIN_RESULT1; -- 38.068 record(s)
+SELECT COUNT(1) FROM AGIN_RESULT2; -- 303.508 record(s)
 
 -- #
 ATTACH DATABASE 'D:\NPSoft_BET-DAFANBA\db\dbBet.db3' AS aux;
@@ -28,8 +28,16 @@ DETACH DATABASE aux;
 
 -- #
 SELECT
-    (SELECT MAX(AR.Times) FROM AGIN_RESULT1 AR WHERE AR.Type = 'pattern-01') [pattern01-max], -- 16
-    (SELECT MAX(AR.Times) FROM AGIN_RESULT1 AR WHERE AR.Type = 'pattern-02') [pattern02-max]; -- 07
+    AR.SubId,
+    AR.LatestOrder,
+    AR.FreqN,
+    AR.FreqL,
+    AR.FreqLSub,
+    AR.FreqColors,
+    (AR.FreqN * AR.FreqL + AR.FreqLSub) TotalL
+FROM AGIN_RESULT1 AR
+WHERE AR.FreqL = 1
+ORDER BY (AR.FreqN * AR.FreqL + AR.FreqLSub) DESC;
 
 SELECT AR.Type, AR.Times, COUNT(1) Frequency
 FROM AGIN_RESULT1 AR
@@ -71,6 +79,15 @@ SELECT
 FROM tmpARG ARG
 WHERE ARG.NumCircleRed > 5
     AND ARG.NumCircleBlue > 5;
+
+-- DELETE FROM AGIN_SUMMARY WHERE Id IN (2203, 7, 230, 556, 711, 2618, 1277, 3124, 223, 82, 1525);
+SELECT ASUM.Id, T.NumCircleRed, T.NumCircleBlue, ASUM.DataAnalysis
+FROM AGIN_SUMMARY ASUM
+    INNER JOIN (
+        SELECT ARG.SubId, ARG.NumCircleRed, ARG.NumCircleBlue
+        FROM tmpARG ARG
+        WHERE ARG.NumCircleRed <= 5 OR ARG.NumCircleBlue <= 5) T ON T.SubId = ASUM.Id
+ORDER BY (T.NumCircleRed + T.NumCircleBlue) ASC, ASUM.Id ASC;
 
 SELECT ARG.*
 FROM tmpARG ARG

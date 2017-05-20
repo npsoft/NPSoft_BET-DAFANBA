@@ -443,37 +443,28 @@ SELECT ASUM.* FROM AGIN_SUMMARY ASUM ORDER BY ASUM.Id ASC");
             {
                 cmd.Dispose();
             }
-            int pattern01_min = 5, pattern02_min = 2, idx = 1;
+            int idx = 1;
             List<List<object>> lst_vals = new List<List<object>>();
-            string cmd_text = string.Format(@"INSERT INTO AGIN_RESULT1 (SubId, LatestOrder, Type, Times, Tags) VALUES (?, ?, ?, ?, ?)");
+            string cmd_text = string.Format(@"INSERT INTO AGIN_RESULT1 (SubId, LatestOrder, FreqN, FreqL, FreqLSub, FreqColors) VALUES (?, ?, ?, ?, ?, ?)");
             foreach (DB_AGIN_Baccarat agin in agins)
             {
                 agin.DataAnalysis.UpdCoordinate();
                 int order = 0;
-                int pattern01_prev_len = 0, pattern02_prev_len = 0;
                 while (agin.DataAnalysis.LatestOrder > order++)
                 {
-                    Tuple<int, DB_AGIN_Baccarat_Cell> pattern01 = agin.ChkPattern01(order);
-                    if (pattern01_min - 1 < pattern01.Item1)
-                    {
-                        lst_vals.Add(new List<object>() { agin.Id, order, "pattern-01", pattern01.Item1, pattern01.Item2.CircleColor });
-                    }
-                    pattern01_prev_len = pattern01.Item1;
-
-                    Tuple<int, DB_AGIN_Baccarat_Cell, int, DB_AGIN_Baccarat_Cell, int> pattern02 = agin.ChkPattern02(0, order);
-                    if (pattern02_min > pattern02.Item1)
-                    {
-                        pattern02 = agin.ChkPattern02(1, order);
-                        if (pattern02_min > pattern02.Item1)
-                        {
-                            pattern02 = agin.ChkPattern02(2, order);
-                        }
-                    }
-                    if (pattern02_min - 1 < pattern02.Item1 && pattern02_prev_len < pattern02.Item1)
-                    {
-                        lst_vals.Add(new List<object>() { agin.Id, order, "pattern-02", pattern02.Item1, string.Format("{0}={1}|{2}={3}", pattern02.Item2.CircleColor, pattern02.Item3, pattern02.Item4.CircleColor, pattern02.Item5) });
-                    }
-                    pattern02_prev_len = pattern02.Item1;
+                    DB_AGIN_Baccarat_Check baccarat_check = new DB_AGIN_Baccarat_Check(agin, 9, 3, new KeyValuePair<int, int>[9] {
+                        new KeyValuePair<int, int>(1, 5),
+                        new KeyValuePair<int, int>(2, 6),
+                        new KeyValuePair<int, int>(3, 9),
+                        new KeyValuePair<int, int>(4, 12),
+                        new KeyValuePair<int, int>(5, 15),
+                        new KeyValuePair<int, int>(6, 18),
+                        new KeyValuePair<int, int>(7, 21),
+                        new KeyValuePair<int, int>(8, 24),
+                        new KeyValuePair<int, int>(9, 27)});
+                    baccarat_check.Search(order).ForEach(x => {
+                        lst_vals.Add(new List<object>() { agin.Id, order, x.NFreq, x.CellsFreq.Count, x.CellsSub.Count, x.ColorsFreq });
+                    });
                 }
                 System.Threading.Thread.Sleep(0);
                 System.Windows.Forms.Application.DoEvents();
