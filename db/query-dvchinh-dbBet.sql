@@ -32,6 +32,21 @@ FROM AGIN_RESULT1 AR
 GROUP BY AR.FreqL
 ORDER BY AR.FreqL ASC;
 
+SELECT AR.*
+FROM AGIN_RESULT1 AR
+WHERE AR.FreqN >= 3
+    AND (AR.FreqL = 1 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) > 11
+        OR AR.FreqL = 2 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) > 10
+        OR AR.FreqL = 3 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) > 14
+        OR AR.FreqL = 4 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) > 15
+        OR AR.FreqL = 5 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) > 16
+        OR AR.FreqL = 6 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) > 18
+        OR AR.FreqL = 7 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) > 21
+        OR AR.FreqL = 8 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) > 24
+        OR AR.FreqL > 8)
+ORDER BY (AR.FreqN * AR.FreqL + AR.FreqLSub) DESC
+LIMIT 0, 10000;
+
 -- #
 CREATE TEMPORARY TABLE tmpARG AS
 WITH FT_CTE AS (
@@ -55,15 +70,6 @@ SELECT
 FROM tmpARG ARG
 WHERE ARG.NumCircleRed > 5
     AND ARG.NumCircleBlue > 5;
-
--- DELETE FROM AGIN_SUMMARY WHERE Id IN (2203, 7, 230, 556, 711, 2618, 1277, 3124, 223, 82, 1525);
-SELECT ASUM.Id, T.NumCircleRed, T.NumCircleBlue, ASUM.DataAnalysis
-FROM AGIN_SUMMARY ASUM
-    INNER JOIN (
-        SELECT ARG.SubId, ARG.NumCircleRed, ARG.NumCircleBlue
-        FROM tmpARG ARG
-        WHERE ARG.NumCircleRed <= 5 OR ARG.NumCircleBlue <= 5) T ON T.SubId = ASUM.Id
-ORDER BY (T.NumCircleRed + T.NumCircleBlue) ASC, ASUM.Id ASC;
 
 SELECT ARG.*
 FROM tmpARG ARG
@@ -188,3 +194,86 @@ DROP TABLE tmpAR3;
 DROP TABLE tmpLOC;
 END TRANSACTION;
 -- END;
+
+-- #
+BEGIN;
+PRAGMA temp_store = 2;
+
+CREATE TEMP TABLE IF NOT EXISTS _Variables (Name TEXT PRIMARY KEY NOT NULL, Value TEXT);
+INSERT OR REPLACE INTO _Variables VALUES ('num-match', CAST(0 AS INT));
+INSERT OR REPLACE INTO _Variables VALUES ('color-match', CAST('' AS NVARCHAR(2147483647)));
+
+DROP TABLE IF EXISTS tmpAR2;
+CREATE TEMPORARY TABLE tmpAR2 AS
+WITH FT_CTE AS (
+    SELECT Id, SubId, LatestOrder,
+        CASE
+            WHEN Matches LIKE '%;circle-red;%' THEN 'circle-red'
+            WHEN Matches LIKE '%;circle-blue;%' THEN 'circle-blue'
+            ELSE NULL END Circle,
+        CASE
+            WHEN Matches LIKE '%;slash-green;%' THEN 'slash-green'
+            ELSE NULL END Slash,
+        CAST(0 AS INT) [Match]
+    FROM AGIN_RESULT2
+    WHERE SubId IN (
+        SELECT DISTINCT(AR2.SubId)
+        FROM AGIN_RESULT2 AR2
+            INNER JOIN AGIN_RESULT1 AR1 ON AR1.SubId = AR2.SubId
+        WHERE (AR2.Matches LIKE '%;circle-red;slash-green;%' OR AR2.Matches LIKE '%;circle-blue;slash-green;%')
+            AND AR1.FreqL = 1 AND (AR1.FreqN * AR1.FreqL + AR1.FreqLSub) > 9))
+SELECT * FROM FT_CTE;
+
+DROP TABLE IF EXISTS tmpAR2Loop;
+CREATE TEMP TABLE tmpAR2Loop (
+    Id INTEGER PRIMARY KEY NOT NULL,
+    SubId INTEGER NULL,
+    LatestOrder INT NULL,
+    Circle NVARCHAR(2147483647) NULL,
+    Slash NVARCHAR(2147483647) NULL
+);
+PRAGMA recursive_triggers = on;
+DROP TRIGGER IF EXISTS ttringAR2Loop;
+CREATE TEMP trigger ttringAR2Loop
+BEFORE INSERT ON tmpAR2Loop
+WHEN 1 = 1 BEGIN
+    /* v1.0: UPDATE tmpAR2 SET [Match] = CASE
+        WHEN EXISTS (SELECT 1 FROM tmpAR2 WHERE SubId = new.SubId AND LatestOrder = new.LatestOrder - 1 AND Circle = new.Circle AND [Match] <> 0 LIMIT 1) THEN
+            (SELECT [Match] FROM tmpAR2 WHERE SubId = new.SubId AND LatestOrder = new.LatestOrder - 1 LIMIT 1)
+        WHEN new.Circle IS NOT NULL AND new.Slash IS NOT NULL THEN
+            (SELECT COALESCE(Value, NULL) FROM _Variables WHERE Name = 'num-match' LIMIT 1) + 1
+        ELSE 0 END
+    WHERE Id = new.Id;
+    INSERT OR REPLACE INTO _Variables VALUES('num-match', (SELECT MAX([Match]) FROM tmpAR2));*/
+    UPDATE tmpAR2 SET [Match] = CASE
+        WHEN (SELECT COALESCE(Value, NULL) FROM _Variables WHERE Name = 'color-match' LIMIT 1) <> new.Circle
+            AND EXISTS (SELECT 1 FROM tmpAR2 WHERE SubId = new.SubId AND LatestOrder = new.LatestOrder - 1 AND [Match] <> 0 LIMIT 1) THEN
+            (SELECT [Match] FROM tmpAR2 WHERE SubId = new.SubId AND LatestOrder = new.LatestOrder - 1 LIMIT 1)
+        WHEN new.Circle IS NOT NULL AND new.Slash IS NOT NULL THEN
+            (SELECT COALESCE(Value, NULL) FROM _Variables WHERE Name = 'num-match' LIMIT 1) + 1
+        ELSE 0 END
+    WHERE Id = new.Id;
+    INSERT OR REPLACE INTO _Variables VALUES('num-match', (SELECT MAX([Match]) FROM tmpAR2));
+    INSERT OR REPLACE INTO _Variables VALUES('color-match', CASE
+        WHEN (SELECT COALESCE(Value, NULL) FROM _Variables WHERE Name = 'num-match' LIMIT 1) <> 0 THEN
+            (SELECT Circle FROM tmpAR2 WHERE [Match] = (SELECT COALESCE(Value, NULL) FROM _Variables WHERE Name = 'num-match' LIMIT 1) ORDER BY LatestOrder ASC LIMIT 1)
+        ELSE '' END);
+END;
+INSERT INTO tmpAR2Loop(Id, SubId, LatestOrder, Circle, Slash)
+SELECT Id, SubId, LatestOrder, Circle, Slash FROM tmpAR2 ORDER BY SubId ASC, LatestOrder;
+-- SELECT * FROM tmpAR2 ORDER BY SubId ASC, LatestOrder ASC;
+
+SELECT *
+FROM tmpAR2
+WHERE SubId IN (
+    SELECT MAX(SubId)
+    FROM tmpAR2
+    WHERE [Match] <> 0
+    GROUP BY [Match]
+    ORDER BY COUNT(1) DESC LIMIT 1)
+ORDER BY SubId ASC, LatestOrder ASC;
+
+DROP TABLE _Variables;
+DROP TABLE tmpAR2;
+DROP TABLE tmpAR2Loop;
+END;
