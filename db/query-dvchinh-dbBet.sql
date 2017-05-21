@@ -27,34 +27,10 @@ END TRANSACTION;
 DETACH DATABASE aux;
 
 -- #
-SELECT
-    AR.SubId,
-    AR.LatestOrder,
-    AR.FreqN,
-    AR.FreqL,
-    AR.FreqLSub,
-    AR.FreqColors,
-    (AR.FreqN * AR.FreqL + AR.FreqLSub) TotalL
+SELECT AR.FreqL, MAX(AR.FreqN * AR.FreqL + AR.FreqLSub) MaxL, COUNT(1) Times
 FROM AGIN_RESULT1 AR
-WHERE AR.FreqL = 1
-ORDER BY (AR.FreqN * AR.FreqL + AR.FreqLSub) DESC;
-
-SELECT AR.Type, AR.Times, COUNT(1) Frequency
-FROM AGIN_RESULT1 AR
-GROUP BY AR.Type, AR.Times
-ORDER BY AR.Type ASC, AR.Times DESC;
-
-SELECT AR.Type, AR.Times, AR.Tags, COUNT(1) Frequency
-FROM AGIN_RESULT1 AR
-WHERE AR.Type = 'pattern-01'
-GROUP BY AR.Type, AR.Times, AR.Tags
-ORDER BY AR.Type ASC, AR.Times DESC, AR.Tags ASC;
-
-SELECT AR.*
-FROM AGIN_RESULT1 AR
-WHERE AR.Type = 'pattern-02'
-    AND Times >= 5
-ORDER BY AR.Times DESC;
+GROUP BY AR.FreqL
+ORDER BY AR.FreqL ASC;
 
 -- #
 CREATE TEMPORARY TABLE tmpARG AS

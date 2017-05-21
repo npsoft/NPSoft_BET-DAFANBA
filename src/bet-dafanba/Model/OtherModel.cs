@@ -785,29 +785,22 @@ namespace SpiralEdge.Model
         #region For: Methods
         private bool IsDupFreq(IEnumerable<DB_AGIN_Baccarat_Cell> cellsFreq)
         {
-            int pos_mid = cellsFreq.Count() / 2;
-            if (0 == pos_mid) { return false; }
-            if (2 * pos_mid != cellsFreq.Count())
+            for (int freq_l = 1; freq_l <= cellsFreq.Count() / 2 && 0 == cellsFreq.Count() % freq_l; freq_l++)
             {
-                for (int i = 1; i < 2 * pos_mid + 1; i++)
+                bool is_dup = true; int freq_n = 0;
+                while (is_dup && cellsFreq.Count() > ++freq_n * freq_l)
                 {
-                    if (cellsFreq.ElementAt(0).CircleColor != cellsFreq.ElementAt(i).CircleColor)
+                    for (int i = 0; i < freq_l; i++)
                     {
-                        return false;
+                        if (cellsFreq.ElementAt(i).CircleColor != cellsFreq.ElementAt(freq_n * freq_l + i).CircleColor)
+                        {
+                            is_dup = false; break;
+                        }
                     }
                 }
+                if (is_dup) { return true; }
             }
-            else
-            {
-                for (int i = 0; i < pos_mid; i++)
-                {
-                    if (cellsFreq.ElementAt(i).CircleColor != cellsFreq.ElementAt(pos_mid + i).CircleColor)
-                    {
-                        return false;
-                    }
-                }
-            }
-            return true;
+            return false;
         }
 
         private bool IsValidRstItem(DB_AGIN_Baccarat_Check_RstItem rstItem)
