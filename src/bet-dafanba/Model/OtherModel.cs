@@ -633,7 +633,7 @@ namespace SpiralEdge.Model
                 new KeyValuePair<int, int>(1, 12), // max: 16
                 new KeyValuePair<int, int>(2, 11), // max: 15
                 new KeyValuePair<int, int>(3, 15), // max: 19
-                new KeyValuePair<int, int>(4, 15), // max: 19 (20)
+                new KeyValuePair<int, int>(4, 16), // max: 19 (20)
                 new KeyValuePair<int, int>(5, 17), // max: 21
                 new KeyValuePair<int, int>(6, 18), // max: 21
                 new KeyValuePair<int, int>(7, 21), // max: 23

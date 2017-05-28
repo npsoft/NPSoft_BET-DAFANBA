@@ -12,7 +12,7 @@ SELECT COUNT(1) FROM AGIN_RESULT1; -- 38.068 record(s)
 SELECT COUNT(1) FROM AGIN_RESULT2; -- 303.508 record(s)
 
 -- #
-ATTACH DATABASE 'D:\NPSoft_BET-DAFANBA\db\dbBet.db3' AS aux;
+ATTACH DATABASE 'I:\NPSoft_BET-DAFANBA\db\dbBet.db3' AS aux;
 -- SELECT * FROM aux.AGIN;
 -- SELECT * FROM aux.AGIN_TRACK;
 -- DELETE FROM aux.AGIN;
@@ -29,23 +29,32 @@ DETACH DATABASE aux;
 -- #
 SELECT AR.FreqL, MAX(AR.FreqN * AR.FreqL + AR.FreqLSub) MaxL, COUNT(1) Times
 FROM AGIN_RESULT1 AR
+WHERE AR.FreqN >= 3
+    /* v1: AND (
+        AR.FreqL = 1 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 13 OR
+        AR.FreqL = 2 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 12 OR
+        AR.FreqL = 3 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 16 OR
+        AR.FreqL = 4 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 17 OR
+        AR.FreqL = 5 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 18 OR
+        AR.FreqL = 6 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 18 OR
+        AR.FreqL = 7 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 21 OR
+        AR.FreqL = 8 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 24 OR
+        AR.FreqL = 9 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 27 OR
+        AR.FreqL >= 10)*/
+    /* v2: */        
+    AND (
+        AR.FreqL = 1 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 9 OR
+        AR.FreqL = 2 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 8 OR
+        AR.FreqL = 3 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 12 OR
+        AR.FreqL = 4 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 13 OR
+        AR.FreqL = 5 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 15 OR
+        AR.FreqL = 6 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 18 OR
+        AR.FreqL = 7 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 21 OR
+        AR.FreqL = 8 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 24 OR
+        AR.FreqL = 9 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 27 OR
+        AR.FreqL >= 10)                
 GROUP BY AR.FreqL
 ORDER BY AR.FreqL ASC;
-
-SELECT AR.*
-FROM AGIN_RESULT1 AR
-WHERE AR.FreqN >= 3
-    AND (AR.FreqL = 1 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) > 11
-        OR AR.FreqL = 2 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) > 10
-        OR AR.FreqL = 3 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) > 14
-        OR AR.FreqL = 4 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) > 15
-        OR AR.FreqL = 5 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) > 16
-        OR AR.FreqL = 6 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) > 18
-        OR AR.FreqL = 7 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) > 21
-        OR AR.FreqL = 8 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) > 24
-        OR AR.FreqL > 8)
-ORDER BY (AR.FreqN * AR.FreqL + AR.FreqLSub) DESC
-LIMIT 0, 10000;
 
 -- #
 CREATE TEMPORARY TABLE tmpARG AS
@@ -184,7 +193,6 @@ SELECT * FROM FT_CTE;
 SELECT T.*, ASUM.CoordinateX, ASUM.CoordinateY, ASUM.CreatedOn, ASUM.LastModifiedOn
 FROM tmpAR3 T
     INNER JOIN AGIN_SUMMARY ASUM ON ASUM.Id = T.SubId
-WHERE T.Field1 >= 5
 ORDER BY T.Field1 DESC;
 
 DROP TABLE _Variables;
