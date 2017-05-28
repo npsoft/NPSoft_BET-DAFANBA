@@ -21,14 +21,15 @@ namespace SpiralEdge.Model
         public DateTime LastModifiedOn { get; set; }
         public long LastModifiedBy { get; set; }
 
-        public bool AlertPattern01 { get; set; }
+        public List<DB_AGIN_Baccarat_Check_RstItem> AlertPattern01 { get; set; }
         public bool AlertPattern02 { get; set; }
-        public bool AlertPattern03 { get; set; }
         #endregion
         #region For: Ctors
         public DB_AGIN_Baccarat()
         {
             DataAnalysis = new DB_AGIN_Baccarat_Tbl();
+            AlertPattern01 = new List<DB_AGIN_Baccarat_Check_RstItem>();
+            AlertPattern02 = false;
         }
         #endregion
         #region For: Methods
@@ -47,138 +48,26 @@ namespace SpiralEdge.Model
             return baccarat;
         }
         
-        /// <summary>
-        /// Description: times(int), last(cell)
-        /// </summary>
-        public Tuple<int, DB_AGIN_Baccarat_Cell> ChkPattern01(int maxOrder = int.MaxValue)
+        public IEnumerable<DB_AGIN_Baccarat_Check_RstItem> ChkPattern01(dynamic config)
         {
-            List<DB_AGIN_Baccarat_Cell> cells = new List<DB_AGIN_Baccarat_Cell>();
-            DataAnalysis.Cells.ForEach(x => {
-                cells.AddRange(x.Where(y => 0 != y.Order && maxOrder >= y.Order));
-            });
-            cells = cells.OrderByDescending(x => x.Order).ToList();
-            #region For: Calculate values
-            int times = 0;
-            DB_AGIN_Baccarat_Cell last = null;
-            if (0 != cells.Count)
+            List<DB_AGIN_Baccarat_Check_RstItem> items = new DB_AGIN_Baccarat_Check(this, config).Search();
+            foreach (DB_AGIN_Baccarat_Check_RstItem item in items)
             {
-                last = cells[0];
-                string color = cells[0].CircleColor;
-                foreach (var cell in cells)
+                if (0 != AlertPattern01.Count(x =>
+                    x.CellsFreq.Count == item.CellsFreq.Count &&
+                    x.NFreq * x.CellsFreq.Count + x.CellsSub.Count == item.NFreq * item.CellsFreq.Count + item.CellsSub.Count))
                 {
-                    if (!cell.Matches.Contains(color))
-                    {
-                        break;
-                    }
-                    times++;
+                    item.Notify = false;
                 }
             }
-            return new Tuple<int, DB_AGIN_Baccarat_Cell>(times, last);
-            #endregion
-        }
-
-        /// <summary>
-        /// Description: times(int), last(cell), last-length(int), prev(cell), prev-length(int)
-        /// </summary>
-        public Tuple<int, DB_AGIN_Baccarat_Cell, int, DB_AGIN_Baccarat_Cell, int> ChkPattern02(int ignore, int maxOrder = int.MaxValue)
-        {
-            List<DB_AGIN_Baccarat_Cell> cells = new List<DB_AGIN_Baccarat_Cell>();
-            DataAnalysis.Cells.ForEach(x => {
-                cells.AddRange(x.Where(y => 0 != y.Order && maxOrder >= y.Order));
-            });
-            cells = cells.OrderByDescending(x => x.Order).ToList();
-            #region For: Ignore values
-            while (0 != ignore && 0 != cells.Count)
-            {
-                DB_AGIN_Baccarat_Cell star_cell = cells[0];
-                DB_AGIN_Baccarat_Cell next_cell = null;
-                string star_color = star_cell.CircleColor;
-                string next_color = "";
-                do
-                {
-                    cells.RemoveAt(0);
-                    next_cell = null; next_color = "";
-                    if (0 != cells.Count)
-                    {
-                        next_cell = cells[0];
-                        next_color = next_cell.CircleColor;
-                    }
-                }
-                while (star_color == next_color && 0 != cells.Count);
-                ignore--;
-            }
-            #endregion
-            #region For: Calculate values
-            int times = 0;
-            DB_AGIN_Baccarat_Cell last = null; string color_last = ""; int color_last_len = 0, color_last_len_tmp = 0;
-            DB_AGIN_Baccarat_Cell prev = null; string color_prev = ""; int color_prev_len = 0, color_prev_len_tmp = 0;
-            string color_curr = "", color_curr_prev = "";
-            for (int i = 0; i < cells.Count; i++)
-            {
-                DB_AGIN_Baccarat_Cell cell = cells[i];
-                color_curr = cell.CircleColor;
-                if ("" == color_curr) // For: It's T case, break loop
-                {
-                    break;
-                }
-                if ("" == color_last) // For: Assign color for last, initialize color
-                {
-                    last = cell;
-                    color_last = color_curr;
-                }
-                if ("" == color_prev && color_curr != color_last) // For: Assign color for previous, initialize color
-                {
-                    prev = cell;
-                    color_prev = color_curr;
-                }
-                if (color_curr == color_last)
-                {
-                    if ("" == color_prev) // For: Assign length for last, initialize length
-                    {
-                        color_last_len++;
-                    }
-                    color_last_len_tmp++;
-                }
-                if (color_curr == color_prev)
-                {
-                    if (0 == times) // For: Assign length for previous, initialize length
-                    {
-                        color_prev_len++;
-                    }
-                    color_prev_len_tmp++;
-                }
-                if (color_curr != color_curr_prev)
-                {
-                    if ("" != color_last && "" != color_prev) // For: Don't consider last pair, initialize pair
-                    {
-                        if (color_curr == color_last && color_prev_len != color_prev_len_tmp ||
-                            color_curr == color_prev && color_last_len != color_last_len_tmp) // For: Wrong length, break loop
-                        {
-                            break;
-                        }
-                        if (color_curr == color_last) // For: Previous pair, plus +1
-                        {
-                            times++;
-                            color_last_len_tmp = 1;
-                            color_prev_len_tmp = 0;
-                        }
-                    }
-                    color_curr_prev = color_curr;
-                }
-                if (cells.Count - 1 == i && color_curr == color_prev &&
-                    color_prev_len == color_prev_len_tmp && color_last_len == color_last_len_tmp) // For: Current pair, plus +1
-                {
-                    times++;
-                }
-            }
-            #endregion
-            return new Tuple<int, DB_AGIN_Baccarat_Cell, int, DB_AGIN_Baccarat_Cell, int>(times, last, color_last_len, prev, color_prev_len);
+            AlertPattern01 = items;
+            return items.Where(x => x.Notify);
         }
 
         /// <summary>
         /// Description: color(string), last(cell), number-red(int), number-blue(int)
         /// </summary>
-        public Tuple<string, DB_AGIN_Baccarat_Cell, int, int> ChkPattern03(dynamic config, int maxOrder = int.MaxValue)
+        public Tuple<string, DB_AGIN_Baccarat_Cell, int, int> ChkPattern02(dynamic config, int maxOrder = int.MaxValue)
         {
             List<DB_AGIN_Baccarat_Cell> cells = new List<DB_AGIN_Baccarat_Cell>();
             DataAnalysis.Cells.ForEach(x => {
@@ -258,28 +147,6 @@ namespace SpiralEdge.Model
             connHelper.ExecNonQueryCmdOptimize(paras, cmd);
         }
         
-        public void SaveDbResult1(string type, int times, int latestOrder, SQLiteHelper connHelper)
-        {
-            string cmd = string.Format(@"INSERT INTO AGIN_RESULT1 (SubId, LatestOrder, Type, Times) VALUES (?, ?, ?, ?)");
-            List<SQLiteParameter> paras = new List<SQLiteParameter>();
-            paras.Add(new SQLiteParameter() { Value = Id });
-            paras.Add(new SQLiteParameter() { Value = latestOrder });
-            paras.Add(new SQLiteParameter() { Value = type });
-            paras.Add(new SQLiteParameter() { Value = times });
-            connHelper.ExecNonQueryCmdOptimize(paras, cmd);
-        }
-
-        public void SaveDbResult2(int latestOrder, int numCircleRed, int numCircleBlue, SQLiteHelper connHelper)
-        {
-            string cmd = string.Format(@"INSERT INTO AGIN_RESULT2 (SubId, LatestOrder, NumCircleRed, NumCircleBlue) VALUES (?, ?, ?, ?)");
-            List<SQLiteParameter> paras = new List<SQLiteParameter>();
-            paras.Add(new SQLiteParameter() { Value = Id });
-            paras.Add(new SQLiteParameter() { Value = latestOrder });
-            paras.Add(new SQLiteParameter() { Value = numCircleRed });
-            paras.Add(new SQLiteParameter() { Value = numCircleBlue });
-            connHelper.ExecNonQueryCmdOptimize(paras, cmd);
-        }
-               
         public static long IdentityMax(SQLiteHelper connHelper)
         {
             long identity = 0;
@@ -763,15 +630,29 @@ namespace SpiralEdge.Model
             SubLMax = 9;
             FreqMin = 3;
             TotalLMin = new KeyValuePair<int, int>[9] {
-                new KeyValuePair<int, int>(1, 5),
-                new KeyValuePair<int, int>(2, 6),
-                new KeyValuePair<int, int>(3, 9),
-                new KeyValuePair<int, int>(4, 12),
-                new KeyValuePair<int, int>(5, 15),
-                new KeyValuePair<int, int>(6, 18),
-                new KeyValuePair<int, int>(7, 21),
-                new KeyValuePair<int, int>(8, 24),
+                new KeyValuePair<int, int>(1, 12), // max: 16
+                new KeyValuePair<int, int>(2, 11), // max: 15
+                new KeyValuePair<int, int>(3, 15), // max: 19
+                new KeyValuePair<int, int>(4, 15), // max: 19 (20)
+                new KeyValuePair<int, int>(5, 17), // max: 21
+                new KeyValuePair<int, int>(6, 18), // max: 21
+                new KeyValuePair<int, int>(7, 21), // max: 23
+                new KeyValuePair<int, int>(8, 24), // max: 25
                 new KeyValuePair<int, int>(9, 27)};
+        }
+        
+        public DB_AGIN_Baccarat_Check(DB_AGIN_Baccarat baccarat, dynamic config)
+        {
+            Baccarat = baccarat;
+            SubLMax = (int)JsonHelper.GetElBySelector(config, "freq-l-sub-max").Value;
+            FreqMin = (int)JsonHelper.GetElBySelector(config, "freq-n-min").Value;
+            var freq_l_min = JsonHelper.GetElBySelector(config, "freq-l-min");
+            TotalLMin = new KeyValuePair<int, int>[freq_l_min.Count];
+            for (int i = 0; i < TotalLMin.Length; i++)
+            {
+                var freq_l = JsonHelper.GetElBySelector(freq_l_min, string.Format("[{0}]", i));
+                TotalLMin[i] = new KeyValuePair<int, int>((int)JsonHelper.GetElBySelector(freq_l, "freq-l").Value, (int)JsonHelper.GetElBySelector(freq_l, "total-notify").Value);
+            }
         }
 
         public DB_AGIN_Baccarat_Check(DB_AGIN_Baccarat baccarat, int subLMax, int freqMin, KeyValuePair<int, int>[] totalLMin)
@@ -873,6 +754,7 @@ namespace SpiralEdge.Model
     {
         #region For: Properties
         public int NFreq { get; set; }
+        public bool Notify { get; set; }
         public List<DB_AGIN_Baccarat_Cell> CellsFreq { get; set; }
         public List<DB_AGIN_Baccarat_Cell> CellsSub { get; set; }
         public string ColorsFreq { get { return string.Join("", CellsFreq.Select(x => x.CircleColorBR)); } }
@@ -881,6 +763,7 @@ namespace SpiralEdge.Model
         public DB_AGIN_Baccarat_Check_RstItem()
         {
             NFreq = 0;
+            Notify = false;
             CellsFreq = new List<DB_AGIN_Baccarat_Cell>();
             CellsSub = new List<DB_AGIN_Baccarat_Cell>();
         }
@@ -888,6 +771,7 @@ namespace SpiralEdge.Model
         public DB_AGIN_Baccarat_Check_RstItem(int nFreq, List<DB_AGIN_Baccarat_Cell> cellsFreq, List<DB_AGIN_Baccarat_Cell> cellsSub)
         {
             NFreq = nFreq;
+            Notify = true;
             CellsFreq = cellsFreq;
             CellsSub = cellsSub;
         }
