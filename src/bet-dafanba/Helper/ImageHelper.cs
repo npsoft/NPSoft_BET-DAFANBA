@@ -327,14 +327,14 @@ namespace SpiralEdge.Helper
             #endregion
             #region For: bg-white, slash-green, number-black
             if (0.70 > PercentB && PercentB > 0.65 &&
-                0.80 > PercentG && PercentG > 0.75 &&
+                0.85 > PercentG && PercentG > 0.75 &&
                 0.75 > PercentR && PercentR > 0.70)
             {
                 Matches.AddRange(new List<string>() { "bg-white", "slash-green", "number-black" });
             }
             #endregion
             #region For: bg-white, circle-blue
-            if (0.80 > PercentB && PercentB > 0.70 &&
+            if (0.85 > PercentB && PercentB > 0.70 &&
                 0.65 > PercentG && PercentG > 0.55 &&
                 0.65 > PercentR && PercentR > 0.55)
             {
@@ -344,7 +344,7 @@ namespace SpiralEdge.Helper
             #region For: bg-white, circle-red
             if (0.65 > PercentB && PercentB > 0.55 &&
                 0.65 > PercentG && PercentG > 0.55 &&
-                0.85 > PercentR && PercentR > 0.80)
+                0.90 > PercentR && PercentR > 0.80)
             {
                 Matches.AddRange(new List<string>() { "bg-white", "circle-red" });
             }
