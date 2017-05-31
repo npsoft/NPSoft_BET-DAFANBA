@@ -125,7 +125,7 @@ namespace SpiralEdge.Helper
             #endregion
         }
         
-        public static void AnalysisImg_AGIN_3840x2160(string filePath, out AGIN_3840x2160_Baccarat output)
+        public static void AnalysisImg_AGIN_3840x2160(string filePath, out AGIN_3840x2160_Baccarat output, bool clear = true)
         {
             #region For: DirectoryInfo.Create()
             DirectoryInfo dir_info = new DirectoryInfo(Path.Combine(Path.GetDirectoryName(filePath), Path.GetFileNameWithoutExtension(filePath)));
@@ -163,7 +163,7 @@ namespace SpiralEdge.Helper
                     }
                 }
             }
-            dir_info.Delete(true);
+            if (clear) { dir_info.Delete(true); }
             #endregion
             #region For: Image.Dispose()
             if (null != img_org) { img_org.Dispose(); }
@@ -354,7 +354,7 @@ namespace SpiralEdge.Helper
                 #region For: Circles detection
                 var circles = EmguHelper.CircleFs(img, 1.0, 22.0, 200.0, 6.5, 8, 12);
                 if (0 == circles.Length) { circles = EmguHelper.CircleFs(img, 1.0, 22.0, 200.0, 6.5, 7, 12); }
-                if (0 == circles.Length) { circles = EmguHelper.CircleFs(img, 1.5, 22.0, 250.0, 20.0, 8, 12); }
+                if (0 == circles.Length) { circles = EmguHelper.CircleFs(img, 1.5, 22.0, 250.0, 20.0, 7, 12); }
                 #endregion
                 #region For: Slash's percentage | no need :-s
                 /* -: string file_name_rotate = string.Format("{0}-rotate{1}", Path.GetFileNameWithoutExtension(path), Path.GetExtension(path));

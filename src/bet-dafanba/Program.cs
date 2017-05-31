@@ -30,12 +30,12 @@ namespace SpiralEdge
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 Application.Run(new frmMain());
-               /* -:  Config = new ConfigModel(true);
+                /* -: Config = new ConfigModel(true);
                 Config.Analysis1_AGIN();
                 Config.Analysis2_AGIN();*/
                 /* -: AGIN_3840x2160_Baccarat output = null;
-                string file_path = @"D:\NPSoft_BET-DAFANBA\doc\log-production\agin-170524-170235-972.png";
-                ImageHelper.AnalysisImg_AGIN_3840x2160(file_path, out output);*/
+                string file_path = @"D:\NPSoft_BET-DAFANBA\doc\log-production\agin-170530-211406-266.png";
+                ImageHelper.AnalysisImg_AGIN_3840x2160(file_path, out output, false);*/
             }
             catch (Exception ex)
             {

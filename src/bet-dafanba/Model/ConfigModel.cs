@@ -168,7 +168,7 @@ WHERE Id IN (SELECT MAX(Id) FROM AGIN GROUP BY CoordinateX, CoordinateY)");
                     {
                         DB_AGIN_Baccarat agin_latest = LatestAGINs.Where(x => x.CoordinateX == agin_img.CoordinateX && x.CoordinateY == agin_img.CoordinateY).FirstOrDefault();
                         #region For: Save/Clean baccarat
-                        if (!new int[2] { 0, 204 }.Contains(agin_img.DataAnalysis.TotalInvalid))
+                        if (!new int[3] { 0, 203, 204 }.Contains(agin_img.DataAnalysis.TotalInvalid))
                         {
                             agin_img.SaveDbTrack(ConnHelper);
                         }
@@ -258,17 +258,17 @@ WHERE Id IN (SELECT MAX(Id) FROM AGIN GROUP BY CoordinateX, CoordinateY)");
         {
             Log.Log(string.Format("Information\t:: [BACCARAT PATTERN 01] Alert processing has been started."));
             #region For: Write log
-            Log.Log(string.Format("Information\t:: [ coordinate = ({0},{1}), type = {2}{3} + {4}, length = {5}, attachment = {6} ]",
+            Log.Log(string.Format("Information\t:: [ coordinate = ({0},{1}), type = {2}{3}{4}, length = {5}, attachment = {6} ]",
                 x, y, freqColors, "{" + freqN + "}", freqColors.Substring(0, freqLSub), freqN * freqL + freqLSub, attachment));
             #endregion
             #region For: Send email(s)
-            string subject = string.Format("[AGIN - 01] ({0},{1}) = {2}{3} + {4} = {5} | {6:yyyy-MM-dd HH:mm:ss}",
+            string subject = string.Format("[AGIN - 01] ({0},{1}) = {2}{3}{4} = {5} | {6:yyyy-MM-dd HH:mm:ss}",
                 x, y, freqColors, "{" + freqN + "}", freqColors.Substring(0, freqLSub), freqN * freqL + freqLSub, DateTime.Now);
             string content = string.Format(@"
 Hi you,<br/><br/>
 Please review alert for AGIN | {6:yyyy-MM-dd HH:mm:ss}:<br/>
 <ul style='padding:0'>
-    <li>[ coordinate = ({0},{1}), type = {2}{3} + {4}, length = {5} ]</li>
+    <li>[ coordinate = ({0},{1}), type = {2}{3}{4}, length = {5} ]</li>
 </ul><br/>
 Best regards!",
 x, y, freqColors, "{" + freqN + "}", freqColors.Substring(0, freqLSub), freqN * freqL + freqLSub, DateTime.Now);
