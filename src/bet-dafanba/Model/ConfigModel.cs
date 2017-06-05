@@ -420,16 +420,17 @@ SELECT ASUM.* FROM AGIN_SUMMARY ASUM ORDER BY ASUM.Id ASC");
                 int order = 0;
                 while (agin.DataAnalysis.LatestOrder > order++)
                 {
-                    DB_AGIN_Baccarat_Check baccarat_check = new DB_AGIN_Baccarat_Check(agin, 9, 3, new KeyValuePair<int, int>[9] {
-                        new KeyValuePair<int, int>(1, 5),
-                        new KeyValuePair<int, int>(2, 6),
-                        new KeyValuePair<int, int>(3, 9),
-                        new KeyValuePair<int, int>(4, 12),
+                    DB_AGIN_Baccarat_Check baccarat_check = new DB_AGIN_Baccarat_Check(agin, 9, 3, new KeyValuePair<int, int>[10] {
+                        new KeyValuePair<int, int>(1, 9),
+                        new KeyValuePair<int, int>(2, 8),
+                        new KeyValuePair<int, int>(3, 14),
+                        new KeyValuePair<int, int>(4, 13),
                         new KeyValuePair<int, int>(5, 15),
                         new KeyValuePair<int, int>(6, 18),
                         new KeyValuePair<int, int>(7, 21),
                         new KeyValuePair<int, int>(8, 24),
-                        new KeyValuePair<int, int>(9, 27)});
+                        new KeyValuePair<int, int>(9, 27),
+                        new KeyValuePair<int, int>(10, 30)});
                     baccarat_check.Search(order).ForEach(x => {
                         lst_vals.Add(new List<object>() { agin.Id, order, x.NFreq, x.CellsFreq.Count, x.CellsSub.Count, x.ColorsFreq });
                     });

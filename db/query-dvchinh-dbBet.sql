@@ -7,9 +7,9 @@ DELETE FROM AGIN_RESULT1;
 DELETE FROM AGIN_RESULT2;
 SELECT COUNT(1) FROM AGIN;
 SELECT COUNT(1) FROM AGIN_TRACK;
-SELECT COUNT(1) FROM AGIN_SUMMARY; -- 5.836 record(s)
-SELECT COUNT(1) FROM AGIN_RESULT1; -- 46.945 record(s)
-SELECT COUNT(1) FROM AGIN_RESULT2; -- 372.658 record(s)
+SELECT COUNT(1) FROM AGIN_SUMMARY; -- 6.405 record(s)
+SELECT COUNT(1) FROM AGIN_RESULT1; -- 7.573 record(s)
+SELECT COUNT(1) FROM AGIN_RESULT2; -- 409.367 record(s)
 
 -- #
 -- SELECT * FROM aux.AGIN;
@@ -34,7 +34,7 @@ WHERE AR.FreqN >= 3
     AND (
         AR.FreqL = 1 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 13 OR
         AR.FreqL = 2 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 12 OR
-        AR.FreqL = 3 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 16 OR
+        AR.FreqL = 3 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 18 OR
         AR.FreqL = 4 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 17 OR
         AR.FreqL = 5 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 18 OR
         AR.FreqL = 6 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 20 OR
@@ -47,7 +47,7 @@ WHERE AR.FreqN >= 3
     AND (
         AR.FreqL = 1 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 9 OR
         AR.FreqL = 2 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 8 OR
-        AR.FreqL = 3 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 12 OR
+        AR.FreqL = 3 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 14 OR
         AR.FreqL = 4 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 13 OR
         AR.FreqL = 5 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 15 OR
         AR.FreqL = 6 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 18 OR
@@ -73,7 +73,7 @@ WITH FT_CTE AS (
 SELECT * FROM FT_CTE;
 -- SELECT COUNT(1) FROM tmpARG;
 
--- num-cricle-red > 05 & num-circle-blue > 05: 0.4090, 2.8888, 0.3461, 2.4444 ~ 9/22, 26/9, 9/26, 22/9
+-- num-cricle-red > 05 & num-circle-blue > 05: 0.3913, 2.8888, 0.3461, 2.5555 ~ 18/46, 26/9, 9/26, 46/18
 SELECT
       MIN(ARG.PNumCircleRB)
     , MAX(ARG.PNumCircleRB)
@@ -87,17 +87,17 @@ SELECT ARG.*
 FROM tmpARG ARG
 WHERE ARG.NumCircleRed > 5
     AND ARG.NumCircleBlue > 5
-    AND substr(ARG.PNumCircleBR, 0, 7) = '2.4444';
+    AND substr(ARG.PNumCircleBR, 0, 7) = '2.5555';
 
 -- BEGIN;
 PRAGMA temp_store = 2;
 BEGIN TRANSACTION;
 
 CREATE TEMP TABLE IF NOT EXISTS _Variables (Name TEXT PRIMARY KEY NOT NULL, Value TEXT);
-INSERT OR REPLACE INTO _Variables VALUES ('min-p-num-circle-rb', CAST(9 AS DOUBLE) / 22);
+INSERT OR REPLACE INTO _Variables VALUES ('min-p-num-circle-rb', CAST(18 AS DOUBLE) / 46);
 INSERT OR REPLACE INTO _Variables VALUES ('max-p-num-circle-rb', CAST(26 AS DOUBLE) / 9);
 INSERT OR REPLACE INTO _Variables VALUES ('min-p-num-circle-br', CAST(9 AS DOUBLE) / 26);
-INSERT OR REPLACE INTO _Variables VALUES ('max-p-num-circle-br', CAST(22 AS DOUBLE) / 9);
+INSERT OR REPLACE INTO _Variables VALUES ('max-p-num-circle-br', CAST(46 AS DOUBLE) / 18);
 INSERT OR REPLACE INTO _Variables VALUES ('num-match', CAST(0 AS INT));
 -- SELECT * FROM _Variables;
 
@@ -197,6 +197,11 @@ SELECT T.*, ASUM.CoordinateX, ASUM.CoordinateY, ASUM.CreatedOn, ASUM.LastModifie
 FROM tmpAR3 T
     INNER JOIN AGIN_SUMMARY ASUM ON ASUM.Id = T.SubId
 ORDER BY T.Field1 DESC;
+
+SELECT *
+FROM tmpAR1
+WHERE Match = 201
+ORDER BY LatestOrder ASC;
 
 DROP TABLE _Variables;
 DROP TABLE tmpAR1;
