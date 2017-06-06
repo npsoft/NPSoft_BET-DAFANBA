@@ -21,15 +21,13 @@ namespace SpiralEdge.Model
         public DateTime LastModifiedOn { get; set; }
         public long LastModifiedBy { get; set; }
 
-        public List<DB_AGIN_Baccarat_Check_RstItem> AlertPattern01 { get; set; }
-        public bool AlertPattern02 { get; set; }
+        public List<DB_AGIN_Baccarat_Check_RstItem> AlertPattern { get; set; }
         #endregion
         #region For: Ctors
         public DB_AGIN_Baccarat()
         {
             DataAnalysis = new DB_AGIN_Baccarat_Tbl();
-            AlertPattern01 = new List<DB_AGIN_Baccarat_Check_RstItem>();
-            AlertPattern02 = false;
+            AlertPattern = new List<DB_AGIN_Baccarat_Check_RstItem>();
         }
         #endregion
         #region For: Methods
@@ -48,53 +46,20 @@ namespace SpiralEdge.Model
             return baccarat;
         }
         
-        public IEnumerable<DB_AGIN_Baccarat_Check_RstItem> ChkPattern01(dynamic config)
+        public IEnumerable<DB_AGIN_Baccarat_Check_RstItem> ChkPattern(dynamic config)
         {
             List<DB_AGIN_Baccarat_Check_RstItem> items = new DB_AGIN_Baccarat_Check(this, config).Search();
             foreach (DB_AGIN_Baccarat_Check_RstItem item in items)
             {
-                if (0 != AlertPattern01.Count(x =>
+                if (0 != AlertPattern.Count(x =>
                     x.CellsFreq.Count == item.CellsFreq.Count &&
                     x.NFreq * x.CellsFreq.Count + x.CellsSub.Count == item.NFreq * item.CellsFreq.Count + item.CellsSub.Count))
                 {
                     item.Notify = false;
                 }
             }
-            AlertPattern01 = items;
+            AlertPattern = items;
             return items.Where(x => x.Notify);
-        }
-
-        /// <summary>
-        /// Description: color(string), last(cell), number-red(int), number-blue(int)
-        /// </summary>
-        public Tuple<string, DB_AGIN_Baccarat_Cell, int, int> ChkPattern02(dynamic config, int maxOrder = int.MaxValue)
-        {
-            List<DB_AGIN_Baccarat_Cell> cells = new List<DB_AGIN_Baccarat_Cell>();
-            DataAnalysis.Cells.ForEach(x => {
-                cells.AddRange(x.Where(y => 0 != y.Order && maxOrder >= y.Order));
-            });
-            cells = cells.OrderByDescending(x => x.Order).ToList();
-            #region For: Calculate values
-            string color = "";
-            DB_AGIN_Baccarat_Cell last = null;
-            int num_red = cells.Count(x => x.Matches.Contains("circle-red"));
-            int num_blue = cells.Count(x => x.Matches.Contains("circle-blue"));
-            if (0 != cells.Count)
-            {
-                last = cells[0];
-                if (JsonHelper.GetElBySelector(config, "min-order").Value <= last.Order &&
-                    JsonHelper.GetElBySelector(config, "min-circle-red").Value <= num_red &&
-                    JsonHelper.GetElBySelector(config, "min-circle-blue").Value <= num_blue)
-                {
-                    double p_circle_rb = (double)num_red / num_blue;
-                    double p_circle_br = 1 / p_circle_rb;
-                    color =
-                        JsonHelper.GetElBySelector(config, "p-circle-rb-min").Value > p_circle_rb || JsonHelper.GetElBySelector(config, "p-circle-br-max").Value < p_circle_br ? "circle-red" :
-                        JsonHelper.GetElBySelector(config, "p-circle-rb-max").Value < p_circle_rb || JsonHelper.GetElBySelector(config, "p-circle-br-min").Value > p_circle_br ? "circle-blue" : color;
-                }
-            }
-            return new Tuple<string, DB_AGIN_Baccarat_Cell, int, int>(color, last, num_red, num_blue);
-            #endregion
         }
 
         public void SaveDb(SQLiteHelper connHelper)

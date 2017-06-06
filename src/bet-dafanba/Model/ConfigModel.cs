@@ -38,8 +38,7 @@ namespace SpiralEdge.Model
         public string CONFIG_DAFANBA_URL_LIVEDEALER { get; set; }
         public string CONFIG_DAFANBA_DIR_PRINT { get; set; }
         public int CONFIG_DAFANBA_INTERVAL_CAPTURE_AG { get; set; }
-        public dynamic CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN01 { get; set; }
-        public dynamic CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02 { get; set; }
+        public dynamic CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN { get; set; }
         #endregion
         #region For: Configuration for schedule, settings
         #endregion
@@ -82,12 +81,7 @@ namespace SpiralEdge.Model
             CONFIG_DAFANBA_URL_LIVEDEALER = ConfigurationManager.AppSettings["Dafanba_Url_LiveDealer"];
             CONFIG_DAFANBA_DIR_PRINT = ConfigurationManager.AppSettings["Dafanba_Dir_Print"];
             CONFIG_DAFANBA_INTERVAL_CAPTURE_AG = int.Parse(ConfigurationManager.AppSettings["Dafanba_Interval_Capture_AG"]) * 1000;
-            CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN01 = JsonConvert.DeserializeObject(ConfigurationManager.AppSettings["Dafanba_Alert_Baccarat_Pattern01"]);
-            CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02 = JsonConvert.DeserializeObject(ConfigurationManager.AppSettings["Dafanba_Alert_Baccarat_Pattern02"]);
-            CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02["p-circle-rb-min"] = (double)JsonHelper.GetElBySelector(CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02, "p-circle-rb-min-n").Value / JsonHelper.GetElBySelector(CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02, "p-circle-rb-min-d").Value;
-            CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02["p-circle-rb-max"] = (double)JsonHelper.GetElBySelector(CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02, "p-circle-rb-max-n").Value / JsonHelper.GetElBySelector(CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02, "p-circle-rb-max-d").Value;
-            CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02["p-circle-br-min"] = (double)JsonHelper.GetElBySelector(CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02, "p-circle-br-min-n").Value / JsonHelper.GetElBySelector(CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02, "p-circle-br-min-d").Value;
-            CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02["p-circle-br-max"] = (double)JsonHelper.GetElBySelector(CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02, "p-circle-br-max-n").Value / JsonHelper.GetElBySelector(CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02, "p-circle-br-max-d").Value;
+            CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN = JsonConvert.DeserializeObject(ConfigurationManager.AppSettings["Dafanba_Alert_Baccarat_Pattern"]);
             #endregion
             #region For: Initialize for schedule, settings
             #endregion
@@ -201,14 +195,6 @@ WHERE Id IN (SELECT MAX(Id) FROM AGIN GROUP BY CoordinateX, CoordinateY)");
                         {
                             if (null != agin_latest)
                             {
-                                #region For: Alert | Baccarat pattern #02 | Fail
-                                Tuple<string, DB_AGIN_Baccarat_Cell, int, int> pattern02_fail = agin_latest.ChkPattern02(CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02, int.MaxValue);
-                                if (!string.IsNullOrEmpty(pattern02_fail.Item1) && agin_latest.AlertPattern02)
-                                {
-                                    AlertBaccaratPattern02_Fail(agin_latest.CoordinateX, agin_latest.CoordinateY, pattern02_fail.Item3, pattern02_fail.Item4, agin_latest.Id,
-                                        Path.Combine(CONFIG_DAFANBA_DIR_PRINT, agin_latest.FileNames.Split(new string[1] { ";" }, StringSplitOptions.RemoveEmptyEntries).Last()));
-                                }
-                                #endregion
                                 LatestAGINs.Remove(agin_latest);
                             }
                             LatestAGINs.Add(agin_img);
@@ -225,24 +211,12 @@ WHERE Id IN (SELECT MAX(Id) FROM AGIN GROUP BY CoordinateX, CoordinateY)");
                         agin_latest.SaveDb(ConnHelper);
                         #endregion
                         #region For: Alert via pattern(s)
-                        #region For: Baccarat pattern #01
-                        IEnumerable<DB_AGIN_Baccarat_Check_RstItem> pattern01 = agin_latest.ChkPattern01(CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN01);
-                        foreach (DB_AGIN_Baccarat_Check_RstItem item in pattern01)
+                        #region For: Baccarat pattern
+                        IEnumerable<DB_AGIN_Baccarat_Check_RstItem> pattern = agin_latest.ChkPattern(CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN);
+                        foreach (DB_AGIN_Baccarat_Check_RstItem item in pattern)
                         {
-                            AlertBaccaratPattern01(agin_latest.CoordinateX, agin_latest.CoordinateY, item.NFreq, item.CellsFreq.Count, item.CellsSub.Count, item.ColorsFreq, file_path);
+                            AlertBaccaratPattern(agin_latest.CoordinateX, agin_latest.CoordinateY, item.NFreq, item.CellsFreq.Count, item.CellsSub.Count, item.ColorsFreq, file_path);
                         }
-                        #endregion
-                        #region For: Baccarat pattern #02
-                        Tuple<string, DB_AGIN_Baccarat_Cell, int, int> pattern02 = agin_latest.ChkPattern02(CONFIG_DAFANBA_ALERT_BACCARAT_PATTERN02, int.MaxValue);
-                        if (!string.IsNullOrEmpty(pattern02.Item1) && !agin_latest.AlertPattern02)
-                        {
-                            AlertBaccaratPattern02_Open(agin_latest.CoordinateX, agin_latest.CoordinateY, pattern02.Item2.CoordinateX, pattern02.Item2.CoordinateY, pattern02.Item3, pattern02.Item4, agin_latest.Id, pattern02.Item1, file_path);
-                        }
-                        if (string.IsNullOrEmpty(pattern02.Item1) && agin_latest.AlertPattern02)
-                        {
-                            AlertBaccaratPattern02_Close(agin_latest.CoordinateX, agin_latest.CoordinateY, pattern02.Item2.CoordinateX, pattern02.Item2.CoordinateY, pattern02.Item3, pattern02.Item4, agin_latest.Id, file_path);
-                        }
-                        agin_latest.AlertPattern02 = !string.IsNullOrEmpty(pattern02.Item1);
                         #endregion
                         #endregion
                     }
@@ -254,15 +228,15 @@ WHERE Id IN (SELECT MAX(Id) FROM AGIN GROUP BY CoordinateX, CoordinateY)");
             }
         }
 
-        public void AlertBaccaratPattern01(int x, int y, int freqN, int freqL, int freqLSub, string freqColors, string attachment)
+        public void AlertBaccaratPattern(int x, int y, int freqN, int freqL, int freqLSub, string freqColors, string attachment)
         {
-            Log.Log(string.Format("Information\t:: [BACCARAT PATTERN 01] Alert processing has been started."));
+            Log.Log(string.Format("Information\t:: [BACCARAT PATTERN] Alert processing has been started."));
             #region For: Write log
             Log.Log(string.Format("Information\t:: [ coordinate = ({0},{1}), type = {2}{3}{4}, length = {5}, attachment = {6} ]",
                 x, y, freqColors, "{" + freqN + "}", freqColors.Substring(0, freqLSub), freqN * freqL + freqLSub, attachment));
             #endregion
             #region For: Send email(s)
-            string subject = string.Format("[AGIN - 01] ({0},{1}) = {2}{3}{4} = {5} | {6:yyyy-MM-dd HH:mm:ss}",
+            string subject = string.Format("[AGIN] ({0},{1}) = {2}{3}{4} = {5} | {6:yyyy-MM-dd HH:mm:ss}",
                 x, y, freqColors, "{" + freqN + "}", freqColors.Substring(0, freqLSub), freqN * freqL + freqLSub, DateTime.Now);
             string content = string.Format(@"
 Hi you,<br/><br/>
@@ -278,79 +252,7 @@ x, y, freqColors, "{" + freqN + "}", freqColors.Substring(0, freqLSub), freqN * 
             string send_email = mail_helper.SendEmail(CONFIG_EMAIL_RECEIVED, subject, content, attachments, display_name);
             Log.Log(string.Format("Information\t:: [ send email(s) = {0} ]", send_email));
             #endregion
-            Log.Log(string.Format("Information\t:: [BACCARAT PATTERN 01] Alert processing has been completed."));
-        }
-        
-        public void AlertBaccaratPattern02_Open(int x, int y, int lastX, int lastY, int numRed, int numBlue, long id, string color, string attachment)
-        {
-            Log.Log(string.Format("Information\t:: [BACCARAT PATTERN 02] OPEN - Alert processing has been started."));
-            #region For: Write log
-            Log.Log(string.Format("Information\t:: [ id = {0} → open → {1}, coordinate = ({2},{3}) → ({4},{5}), number-red = {6}, number-blue = {7}, attachment = {8} ]", id, color, x, y, lastX, lastY, numRed, numBlue, attachment));
-            #endregion
-            #region For: Send email(s)
-            string subject = string.Format("[AGIN - 02] {0} | OPEN → {1} | ({2},{3}) → ({4},{5})", id, color, x, y, lastX, lastY);
-            string content = string.Format(@"
-Hi you,<br/><br/>
-Please review alert for AGIN | {8:yyyy-MM-dd HH:mm:ss}:<br/>
-<ul style='padding:0'>
-    <li>[ id = {0} &rarr; open &rarr; {1}, coordinate = ({2},{3}) &rarr; ({4},{5}), number-red = {6}, number-blue = {7} ]</li>
-</ul><br/>
-Best regards!", id, color, x, y, lastX, lastY, numRed, numBlue, DateTime.Now);
-            string[] attachments = new string[1] { attachment };
-            string display_name = "BET TOOL";
-            MailHelper mail_helper = new MailHelper(CONFIG_EMAIL_USER, CONFIG_EMAIL_PASS);
-            string send_email = mail_helper.SendEmail(new string[1] { "npe.etc@gmail.com" }/*CONFIG_EMAIL_RECEIVED*/, subject, content, attachments, display_name);
-            Log.Log(string.Format("Information\t:: [ send email(s) = {0} ]", send_email));
-            #endregion
-            Log.Log(string.Format("Information\t:: [BACCARAT PATTERN 02] OPEN - Alert processing has been completed."));
-        }
-
-        public void AlertBaccaratPattern02_Close(int x, int y, int lastX, int lastY, int numRed, int numBlue, long id, string attachment)
-        {
-            Log.Log(string.Format("Information\t:: [BACCARAT PATTERN 02] CLOSE - Alert processing has been started."));
-            #region For: Write log
-            Log.Log(string.Format("Information\t:: [ id = {0} → close, coordinate = ({1},{2}) → ({3},{4}), number-red = {5}, number-blue = {6}, attachment = {7} ]", id, x, y, lastX, lastY, numRed, numBlue, attachment));
-            #endregion
-            #region For: Send email(s)
-            string subject = string.Format("[AGIN - 02] {0} | CLOSE | ({1},{2}) → ({3},{4})", id, x, y, lastX, lastY);
-            string content = string.Format(@"
-Hi you,<br/><br/>
-Please review alert for AGIN | {7:yyyy-MM-dd HH:mm:ss}:<br/>
-<ul style='padding:0'>
-    <li>[ id = {0} &rarr; close, coordinate = ({1},{2}) &rarr; ({3},{4}), number-red = {5}, number-blue = {6} ]</li>
-</ul>
-Best regards!", id, x, y, lastX, lastY, numRed, numBlue, DateTime.Now);
-            string[] attachments = new string[1] { attachment };
-            string display_name = "BET TOOL";
-            MailHelper mail_helper = new MailHelper(CONFIG_EMAIL_USER, CONFIG_EMAIL_PASS);
-            string send_email = mail_helper.SendEmail(new string[1] { "npe.etc@gmail.com" }/*CONFIG_EMAIL_RECEIVED*/, subject, content, attachments, display_name);
-            Log.Log(string.Format("Information\t:: [ send email(s) = {0} ]", send_email));
-            #endregion
-            Log.Log(string.Format("Information\t:: [BACCARAT PATTERN 02] CLOSE - Alert processing has been completed."));
-        }
-
-        public void AlertBaccaratPattern02_Fail(int x, int y, int numRed, int numBlue, long id, string attachment)
-        {
-            Log.Log(string.Format("Information\t:: [BACCARAT PATTERN 02] FAIL - Alert processing has been started."));
-            #region For: Write log
-            Log.Log(string.Format("Information\t:: [ id = {0} → fail, coordinate = ({1},{2}), number-red = {3}, number-blue = {4}, attachment = {5} ]", id, x, y, numRed, numBlue, attachment));
-            #endregion
-            #region For: Send email(s)
-            string subject = string.Format("[AGIN - 02] {0} | FAIL | ({1},{2}) → {3}-r / {4}-b", id, x, y, numRed, numBlue);
-            string content = string.Format(@"
-Hi you,<br/><br/>
-Please review alert for AGIN | {5:yyyy-MM-dd HH:mm:ss}:<br/>
-<ul style='padding:0'>
-    <li>[ id = {0} &rarr; fail, coordinate = ({1},{2}), number-red = {3}, number-blue = {4} ]</li>
-</ul>
-Best regards!", id, x, y, numRed, numBlue, DateTime.Now);
-            string[] attachments = new string[1] { attachment };
-            string display_name = "BET TOOL";
-            MailHelper mail_helper = new MailHelper(CONFIG_EMAIL_USER, CONFIG_EMAIL_PASS);
-            string send_email = mail_helper.SendEmail(new string[1] { "npe.etc@gmail.com" }/*CONFIG_EMAIL_RECEIVED*/, subject, content, attachments, display_name);
-            Log.Log(string.Format("Information\t:: [ send email(s) = {0} ]", send_email));
-            #endregion
-            Log.Log(string.Format("Information\t:: [BACCARAT PATTERN 02] FAIL - Alert processing has been completed."));
+            Log.Log(string.Format("Information\t:: [BACCARAT PATTERN] Alert processing has been completed."));
         }
 
         public void SendEmail(string mainContent = null)
@@ -420,17 +322,22 @@ SELECT ASUM.* FROM AGIN_SUMMARY ASUM ORDER BY ASUM.Id ASC");
                 int order = 0;
                 while (agin.DataAnalysis.LatestOrder > order++)
                 {
-                    DB_AGIN_Baccarat_Check baccarat_check = new DB_AGIN_Baccarat_Check(agin, 9, 3, new KeyValuePair<int, int>[10] {
+                    DB_AGIN_Baccarat_Check baccarat_check = new DB_AGIN_Baccarat_Check(agin, 15, 2, new KeyValuePair<int, int>[15] {
                         new KeyValuePair<int, int>(1, 9),
                         new KeyValuePair<int, int>(2, 8),
                         new KeyValuePair<int, int>(3, 14),
                         new KeyValuePair<int, int>(4, 13),
-                        new KeyValuePair<int, int>(5, 15),
-                        new KeyValuePair<int, int>(6, 18),
-                        new KeyValuePair<int, int>(7, 21),
-                        new KeyValuePair<int, int>(8, 24),
-                        new KeyValuePair<int, int>(9, 27),
-                        new KeyValuePair<int, int>(10, 30)});
+                        new KeyValuePair<int, int>(5, 14),
+                        new KeyValuePair<int, int>(6, 16),
+                        new KeyValuePair<int, int>(7, 16),
+                        new KeyValuePair<int, int>(8, 18),
+                        new KeyValuePair<int, int>(9, 21),
+                        new KeyValuePair<int, int>(10, 23),
+                        new KeyValuePair<int, int>(11, 26),
+                        new KeyValuePair<int, int>(12, 29),
+                        new KeyValuePair<int, int>(13, 32),
+                        new KeyValuePair<int, int>(14, 35),
+                        new KeyValuePair<int, int>(15, 38)});
                     baccarat_check.Search(order).ForEach(x => {
                         lst_vals.Add(new List<object>() { agin.Id, order, x.NFreq, x.CellsFreq.Count, x.CellsSub.Count, x.ColorsFreq });
                     });
