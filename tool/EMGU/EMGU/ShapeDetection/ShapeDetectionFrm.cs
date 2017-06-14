@@ -19,7 +19,7 @@ namespace EMGU
         public ShapDetectionFrm()
         {
             InitializeComponent();
-            fileNameTextBox.Text = @"D:\NPSoft_BET-DAFANBA\doc\log-production\agin-170606-222722-492\baccarat-1-2\table-level-1\cell-15-1.png";
+            fileNameTextBox.Text = @"D:\NPSoft_BET-DAFANBA\doc\log-production\agin-170607-030028-380\baccarat-1-1\table-level-1\cell-1-3.png";
         }
         #endregion
         #region For: Events
@@ -131,8 +131,8 @@ namespace EMGU
                 }
                 if (0 == circles.Length)
                 {
-                    circles = CvInvoke.HoughCircles(uimg, HoughType.Gradient, 1.5, 22.0, 200.0, 20.0, 7, 12);
-                    System.Diagnostics.Debug.Print(string.Format("== 1.5 - 22.0 - 250.0 - 20.0 - 7 - 12"));
+                    circles = CvInvoke.HoughCircles(uimg, HoughType.Gradient, 1.5, 22.0, 200.0, 19.0, 7, 12);
+                    System.Diagnostics.Debug.Print(string.Format("== 1.5 - 22.0 - 200.0 - 19.0 - 7 - 12"));
                 }
                 watch.Stop();
                 sb.Append(string.Format(" | Hough circles - {0} ms; Count - {1}", watch.ElapsedMilliseconds, circles.Length));

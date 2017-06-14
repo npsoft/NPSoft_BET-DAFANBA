@@ -322,7 +322,7 @@ SELECT ASUM.* FROM AGIN_SUMMARY ASUM ORDER BY ASUM.Id ASC");
                 int order = 0;
                 while (agin.DataAnalysis.LatestOrder > order++)
                 {
-                    DB_AGIN_Baccarat_Check baccarat_check = new DB_AGIN_Baccarat_Check(agin, 15, 2, new KeyValuePair<int, int>[15] {
+                    DB_AGIN_Baccarat_Check baccarat_check = new DB_AGIN_Baccarat_Check(agin, 25, 2, new KeyValuePair<int, int>[15] {
                         new KeyValuePair<int, int>(1, 9),
                         new KeyValuePair<int, int>(2, 8),
                         new KeyValuePair<int, int>(3, 14),

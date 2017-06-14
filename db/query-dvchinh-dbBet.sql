@@ -7,9 +7,9 @@ DELETE FROM AGIN_RESULT1;
 DELETE FROM AGIN_RESULT2;
 SELECT COUNT(1) FROM AGIN;
 SELECT COUNT(1) FROM AGIN_TRACK;
-SELECT COUNT(1) FROM AGIN_SUMMARY; -- 6.567 record(s)
-SELECT COUNT(1) FROM AGIN_RESULT1; -- 10.635 record(s)
-SELECT COUNT(1) FROM AGIN_RESULT2;
+SELECT COUNT(1) FROM AGIN_SUMMARY; -- 7.360 record(s)
+SELECT COUNT(1) FROM AGIN_RESULT1; -- 8.514 record(s)
+SELECT COUNT(1) FROM AGIN_RESULT2; -- 471.043 record(s)
 
 -- #
 -- SELECT * FROM aux.AGIN;
@@ -29,42 +29,41 @@ DETACH DATABASE aux;
 -- #
 SELECT AR.FreqL, MAX(AR.FreqN * AR.FreqL + AR.FreqLSub) MaxL, COUNT(1) Times
 FROM AGIN_RESULT1 AR
-WHERE AR.FreqN >= 2
+WHERE AR.FreqN >= 3
     /* v1:*/
     AND (
         AR.FreqL = 1 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 13 OR
         AR.FreqL = 2 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 12 OR
-        AR.FreqL = 3 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 18 OR
+        AR.FreqL = 3 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 20 OR
         AR.FreqL = 4 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 17 OR
         AR.FreqL = 5 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 18 OR
         AR.FreqL = 6 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 20 OR
-        AR.FreqL = 7 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 20 OR
-        AR.FreqL = 8 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 22 OR
-        AR.FreqL = 9 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 25 OR
-        AR.FreqL = 10 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 27 OR
-        AR.FreqL = 11 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 30 OR
-        AR.FreqL = 12 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 33 OR
-        AR.FreqL = 13 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 36 OR
-        AR.FreqL = 14 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 39 OR
-        AR.FreqL = 15 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 42 OR
-        AR.FreqL >= 16)
+        AR.FreqL = 7 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 21 OR
+        AR.FreqL = 8 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 24 OR
+        AR.FreqL = 9 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 27 OR
+        AR.FreqL = 10 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 30 OR
+        AR.FreqL >= 11)
     /* v2:
     AND (
         AR.FreqL = 1 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 9 OR
         AR.FreqL = 2 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 8 OR
-        AR.FreqL = 3 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 14 OR
+        AR.FreqL = 3 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 16 OR
         AR.FreqL = 4 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 13 OR
-        AR.FreqL = 5 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 14 OR
-        AR.FreqL = 6 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 16 OR
-        AR.FreqL = 7 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 16 OR
-        AR.FreqL = 8 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 18 OR
-        AR.FreqL = 9 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 21 OR
-        AR.FreqL = 10 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 23 OR
-        AR.FreqL = 11 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 26 OR
-        AR.FreqL = 12 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 29 OR
-        AR.FreqL = 13 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 32 OR
-        AR.FreqL = 14 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 35 OR
-        AR.FreqL = 15 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 38 OR
-        AR.FreqL >= 16)*/
+        AR.FreqL = 5 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 15 OR
+        AR.FreqL = 6 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 18 OR
+        AR.FreqL = 7 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 21 OR
+        AR.FreqL = 8 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 24 OR
+        AR.FreqL = 9 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 27 OR
+        AR.FreqL = 10 AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 30 OR
+        AR.FreqL >= 11)*/
+GROUP BY AR.FreqL
+ORDER BY AR.FreqL ASC;
+
+SELECT AR.FreqL, COUNT(1) Times
+FROM AGIN_RESULT1 AR
+    INNER JOIN (
+        SELECT FreqL, MAX(FreqN * FreqL + FreqLSub) MaxL
+        FROM AGIN_RESULT1
+        GROUP BY FreqL) T ON T.FreqL = AR.FreqL AND T.MaxL = AR.FreqN * AR.FreqL + AR.FreqLSub
 GROUP BY AR.FreqL
 ORDER BY AR.FreqL ASC;
