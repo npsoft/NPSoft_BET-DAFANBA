@@ -26,13 +26,13 @@ namespace SpiralEdge
             try
             {
                 /* -: AllocConsole();*/
-                Config = new ConfigModel(true);
+                /* -: Config = new ConfigModel(true);
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new frmMain());
-                /* -: Config = new ConfigModel(true);
+                Application.Run(new frmMain());*/
+                Config = new ConfigModel(true);
                 Config.Analysis1_AGIN();
-                Config.Analysis2_AGIN();*/
+                // -: Config.Analysis2_AGIN();
                 /* -: AGIN_3840x2160_Baccarat output = null;
                 string file_path = @"D:\NPSoft_BET-DAFANBA\doc\log-production\agin-170607-030028-380.png";
                 ImageHelper.AnalysisImg_AGIN_3840x2160(file_path, out output, false);*/

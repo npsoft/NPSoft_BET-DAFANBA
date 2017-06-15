@@ -7,9 +7,9 @@ DELETE FROM AGIN_RESULT1;
 DELETE FROM AGIN_RESULT2;
 SELECT COUNT(1) FROM AGIN;
 SELECT COUNT(1) FROM AGIN_TRACK;
-SELECT COUNT(1) FROM AGIN_SUMMARY; -- 7.360 record(s)
-SELECT COUNT(1) FROM AGIN_RESULT1; -- 8.514 record(s)
-SELECT COUNT(1) FROM AGIN_RESULT2; -- 471.043 record(s)
+SELECT COUNT(1) FROM AGIN_SUMMARY; -- 7.665 record(s)
+SELECT COUNT(1) FROM AGIN_RESULT1; -- 0 record(s)
+SELECT COUNT(1) FROM AGIN_RESULT2; -- 0 record(s)
 
 -- #
 -- SELECT * FROM aux.AGIN;
@@ -67,3 +67,32 @@ FROM AGIN_RESULT1 AR
         GROUP BY FreqL) T ON T.FreqL = AR.FreqL AND T.MaxL = AR.FreqN * AR.FreqL + AR.FreqLSub
 GROUP BY AR.FreqL
 ORDER BY AR.FreqL ASC;
+
+SELECT AR.FreqL, AR.FreqColors, AR.FreqN * AR.FreqL + AR.FreqLSub TotalL
+    , ASUM.CreatedOn, ASUM.LastModifiedOn, substr(ASUM.CreatedOn, 11, 3) CreatedHH, substr(ASUM.LastModifiedOn, 11, 3) LastModifiedHH
+FROM AGIN_RESULT1 AR
+    INNER JOIN AGIN_SUMMARY ASUM ON ASUM.Id = AR.SubId
+    INNER JOIN (
+        SELECT FreqL, MAX(FreqN * FreqL + FreqLSub) MaxL
+        FROM AGIN_RESULT1
+        GROUP BY FreqL) T ON T.FreqL = AR.FreqL AND T.MaxL = AR.FreqN * AR.FreqL + AR.FreqLSub
+ORDER BY AR.FreqL ASC, ASUM.CreatedOn ASC;
+
+-- FreqL = 1, MaxL = 16: [00], 01, 02, 03, 04, 05, 06, 07, [08], [09], [10], [11], 12, 13, [14], [15], 16, 17, 18, 19, 20, 21, 22, [23]
+-- FreqL = 1, MaxL = 15: [00], 01, 02, 03, 04, 05, [06], [07], [08], [09], [10], [11], [12], 13, [14], [15], [16], 17, 18, 19, [20], [21], [22], [23]
+-- FreqL = 1, MaxL = 14: [00], 01, 02, [03], [04], [05], [06], [07], [08], [09], [10], [11], [12], 13, [14], [15], [16], 17, [18], 19, [20], [21], [22], [23]
+SELECT AR.FreqL, AR.FreqColors, AR.FreqN * AR.FreqL + AR.FreqLSub TotalL
+    , ASUM.CreatedOn, ASUM.LastModifiedOn, substr(ASUM.CreatedOn, 11, 3) CreatedHH, substr(ASUM.LastModifiedOn, 11, 3) LastModifiedHH
+FROM AGIN_RESULT1 AR
+    INNER JOIN AGIN_SUMMARY ASUM ON ASUM.Id = AR.SubId
+    INNER JOIN (
+        SELECT 1 FreqL,  13 MaxL) T ON T.FreqL = AR.FreqL AND T.MaxL = AR.FreqN * AR.FreqL + AR.FreqLSub
+ORDER BY AR.FreqL ASC, ASUM.CreatedOn ASC, ASUM.LastModifiedOn ASC;
+
+SELECT AR.*, substr(ASUM.CreatedOn, 12, 2)
+FROM AGIN_RESULT1 AR
+    INNER JOIN AGIN_SUMMARY ASUM ON ASUM.Id = AR.SubId
+WHERE AR.FreqL = 1
+    AND (AR.FreqN * AR.FreqL + AR.FreqLSub) >= 9
+    AND substr(ASUM.CreatedOn, 12, 2) IN ('01', '02', '13', '17', '19')
+    AND substr(ASUM.LastModifiedOn, 12, 2) IN ('01', '02', '13', '17', '19')
