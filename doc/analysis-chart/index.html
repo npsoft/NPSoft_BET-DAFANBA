@@ -1,0 +1,368 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<title>...</title>
+		<link rel="shotcut icon" href="..."/>
+        <meta name="Keywords" content="..." />
+        <meta name="Description" content="..." />
+        <meta name="author" content="..." />
+        <script src="data/analysis3-agin-minutes-30.js"></script>
+        <script src="scripts/jquery-2.0.2.js"></script>
+        <!-- Sta: Linq -->
+        <script src="scripts/linq/linq.js"></script>
+        <script src="scripts/linq/jquery.linq.js"></script>
+        <!-- End: Linq -->
+        <!-- Sta: jQuery.jqplot -->
+        <link href="scripts/plugins/jquery.jqplot.min.css" rel="stylesheet" />
+        <link href="scripts/plugins/examples.min.css" rel="stylesheet" />
+        <!--[if lt IE 9]><script src="/scripts/plugins/excanvas.js"></script><![endif]-->
+        <script src="scripts/plugins/jquery.jqplot.min.js"></script>
+        <script src="scripts/plugins/syntaxhighlighter/scripts/shCore.min.js"></script>
+        <script src="scripts/plugins/syntaxhighlighter/scripts/shBrushJScript.min.js"></script>
+        <script src="scripts/plugins/syntaxhighlighter/scripts/shBrushXml.min.js"></script>
+        <script src="scripts/plugins/jqplot.pieRenderer.min.js"></script>
+        <script src="scripts/plugins/jqplot.dateAxisRenderer.min.js"></script>
+        <script src="scripts/plugins/jqplot.cursor.min.js"></script>
+        <script src="scripts/plugins/jqplot.highlighter.min.js"></script>
+        <script src="scripts/plugins/jqplot.pointLabels.js"></script>
+        <!-- End: jQuery.jqplot -->
+		<style>
+            #chart {
+                width: 1500px;
+                height: 500px;
+            }
+
+            .jqplot-target {
+                font-size: 13pt !important;
+            }
+
+            .jqplot-axis {
+                font-weight: bold;
+                color: #000000;
+            }
+
+            table.jqplot-table-legend {
+                top: 5px !important;
+                left: 38px !important;
+                min-width: 285px;
+            }
+
+            tr.jqplot-table-legend {
+                float: none;
+            }
+
+            td.jqplot-table-legend {
+                padding: 5px 0 0 0;
+            }
+
+            .jqplot-table-legend-swatch-outline {
+                margin: 0 0 0 5px;
+            }
+
+            tr.jqplot-table-legend:nth-child(1) .jqplot-table-legend-swatch-outline {
+                margin-top: 2px;
+            }
+
+            .jqplot-highlighter-tooltip {
+                z-index: 2;
+                background-color: #FFFFFF !important;
+            }
+        </style>
+		<script>
+            if (!String.prototype.format) {
+                String.prototype.format = function () {
+                    var args = arguments;
+                    return this.replace(/{(\d+)}/g, function (match, number) {
+                        return typeof args[number] != 'undefined'
+                          ? args[number]
+                          : match
+                        ;
+                    });
+                };
+            }
+
+            if (typeof Number.prototype.format === "undefined") {
+                Number.prototype.format = function (precision) {
+                    if (!isFinite(this)) {
+                        return this.toString();
+                    }
+                    var a = this.toFixed(precision).split(".");
+                    a[0] = a[0].replace(/\d(?=(\d{3})+$)/g, "$&,");
+                    var ret = a.join(".");
+                    if (ret.endsWith(".00")) {
+                        ret = ret.substring(0, ret.length - 3);
+                    }
+                    return ret;
+                }
+            }
+
+            function LeftPad(number, targetLength) {
+                var output = number + '';
+                while (output.length < targetLength) {
+                    output = '0' + output;
+                }
+                return output;
+            };
+
+            function ParseTime(_data) {
+                if (typeof _data !== "undefined") {
+                    // Template: Date object
+                    if (typeof _data == "object") {
+                        return _data;
+                    }
+                    // Template: Number object
+                    if (typeof _data == "number") {
+                        return new Date(_data);
+                    }
+                    // Template: String object {
+                    if (typeof _data == "string") {
+                        // Template: "\/Date(INTEGER)\/"
+                        if (/^\/Date\(\d+\)\/$/g.test(_data)) {
+                            var str = _data.replace(/\/Date\((-?\d+)\)\//, '$1');
+                            return new Date(parseInt(str));
+                        }
+                        // Template: "\/Date(INTEGER[+|-]INTEGER)\/"
+                        if (/^\/Date\(\d+[\+\-]\d+\)\/$/g.test(_data)) {
+                            var isPlus = true;
+                            var idx = _data.indexOf("+");
+                            if (/^\/Date\(\d+\-\d+\)\/$/g.test(_data)) {
+                                isPlus = false;
+                                idx = _data.indexOf("-");
+                            }
+                            var offset = parseInt(_data.substr(idx + 1, 2)) * 60 + parseInt(_data.substr(idx + 3, 2));
+                            var time = parseInt(_data.replace(/[\+\-]\d{4}/, "").replace(/\/Date\((-?\d+)\)\//, '$1'));
+                            return new Date(new Date(time).getTime() + ((new Date()).getTimezoneOffset() - (isPlus ? -offset : offset)) * 60 * 1000);
+                        }
+                        // Template: "MM/dd/yyyy"
+                        if (/^(0?[1-9]|1[012])[\/](0?[1-9]|[12][0-9]|3[01])[\/]([1-9]\d{3})$/.test(_data)) {
+                            var arr = _data.split("/");
+                            var y = parseInt(arr[2]);
+                            var M = parseInt(arr[0]);
+                            var d = parseInt(arr[1]);
+                            var dt = new Date(y, M, 1, 0, 0, -1);
+                            return d > dt.getDate() ? null : new Date(y, M - 1, d, 0, 0, 0, 0);
+                        }
+                        // Template: "MM/dd/yyyy HH:mm:ss"
+                        if (/^(0?[1-9]|1[012])[\/](0?[1-9]|[12][0-9]|3[01])[\/]([1-9]\d{3}) ((0?|1)[0-9]|2[0-3]):((0?|[1-5])[0-9]):((0?|[1-5])[0-9])$/.test(_data)) {
+                            var arr = _data.split(" ");
+                            var arr1 = arr[0].split("/");
+                            var arr2 = arr[1].split(":")
+                            var y = parseInt(arr1[2]);
+                            var M = parseInt(arr1[0]);
+                            var d = parseInt(arr1[1]);
+                            var H = parseInt(arr2[0]);
+                            var m = parseInt(arr2[1]);
+                            var s = parseInt(arr2[2]);
+                            var dt = new Date(y, M, 1, 0, 0, -1);
+                            return d > dt.getDate() ? null : new Date(y, M - 1, d, H, m, s, 0);
+                        }
+                        // Template: "yyyy-MM-dd HH:mm:ss"
+                        if (/^([1-9]\d{3})[-](0?[1-9]|1[012])[-](0?[1-9]|[12][0-9]|3[01]) ((0?|1)[0-9]|2[0-3]):((0?|[1-5])[0-9]):((0?|[1-5])[0-9])$/.test(_data)) {
+                            var arr = _data.split(" ");
+                            var arr1 = arr[0].split("-");
+                            var arr2 = arr[1].split(":")
+                            var y = parseInt(arr1[0]);
+                            var M = parseInt(arr1[1]);
+                            var d = parseInt(arr1[2]);
+                            var H = parseInt(arr2[0]);
+                            var m = parseInt(arr2[1]);
+                            var s = parseInt(arr2[2]);
+                            var dt = new Date(y, M, 1, 0, 0, -1);
+                            return d > dt.getDate() ? null : new Date(y, M - 1, d, H, m, s, 0);
+                        }
+                    }
+                }
+                return null;
+            };
+        </script>
+        <script>
+            data.forEach(function (element, index, array) {
+                element.LastModified = ParseTime(element.LastModified);
+            });
+
+            var data_HHmm = Enumerable.From(data).GroupBy(
+                "{ FreqL: $.FreqL, FreqLTotal: $.FreqLTotal, Hour: $.LastModified.getHours(), Minute: $.LastModified.getMinutes() }",
+                null,
+                function (key, g) {
+                    return {
+                        FreqL: key.FreqL,
+                        FreqLTotal: key.FreqLTotal,
+                        LastModified: new Date(2017, 11, 1, key.Hour, key.Minute, 0, 0),
+                        Times: g.Sum("$.Times")
+                    };
+                },
+                "String($.FreqL) + '|' + String($.FreqLTotal) + '|' + String($.Hour * 60 + $.Minute)"
+            ).ToArray();
+
+            function SearchPointSuspicious(_data) {
+                var patterns = [];
+                var freql_min = 1, freql_max = 10;
+                var freqltotal_min = 1, freqltotal_max = 50;
+                var lq_from = Enumerable.From(_data);
+                for (var freql_i = freql_min; freql_i <= freql_max; freql_i++) {
+                    for (var freqltotal_i = freqltotal_min; freqltotal_i <= freqltotal_max; freqltotal_i++) {
+                        var lq_where = lq_from.Where(function (x) { return x.FreqL == freql_i && x.FreqLTotal == freqltotal_i; });
+                        if (0 == lq_where.Count()) { continue; }
+                        patterns.push({
+                            FreqL: freql_i,
+                            FreqLTotal: freqltotal_i,
+                            Points: lq_where.Select(function (x) { return { Modified: x.LastModified, Times: x.Times, Suspicious: null } }).ToArray()
+                        });
+                    }
+                }
+                for (var freql_i = freql_min; freql_i <= freql_max; freql_i++) {
+                    for (var freqltotal_i = freqltotal_min; freqltotal_i <= freqltotal_max; freqltotal_i++) {
+                        var pattern_curr = Enumerable.From(patterns).Where(function (x) { return x.FreqL == freql_i && x.FreqLTotal == freqltotal_i; }).FirstOrDefault();
+                        if (null == pattern_curr) { continue; }
+                        var pattern_next = Enumerable.From(patterns).Where(function (x) { return x.FreqL == freql_i && x.FreqLTotal == freqltotal_i + 1; }).FirstOrDefault();
+                        if (null == pattern_next) { continue; }
+                        pattern_curr.Points.forEach(function (ele_curr, index, array) {
+                            var ele_next = Enumerable.From(pattern_next.Points).Where(function (x) { return x.Modified.getTime() == ele_curr.Modified.getTime(); }).FirstOrDefault();
+                            ele_curr.Suspicious = Math.round(((null != ele_next ? ele_next.Times : 0) / ele_curr.Times) * 100) / 100;
+                        });
+                    }
+                }
+                patterns.forEach(function (pattern, index, array) {
+                    pattern.Points.forEach(function (point, index, array) {
+                        if (null != point.Suspicious && (point.Suspicious > 0.60 || point.Suspicious < 0.40)) {
+                            console.log("FreqL = {0}, FreqLTotal = {1}, Hour = {2}, Minute = {3} ,Suspicious = {4}".format(
+                                LeftPad(pattern.FreqL, 2), LeftPad(pattern.FreqLTotal, 2),
+                                LeftPad(point.Modified.getHours(), 2), LeftPad(point.Modified.getMinutes(), 2), point.Suspicious));
+                        }
+                    });
+                });
+            };
+
+            function ToStringDateChart(_data) {
+                if (typeof _data !== "object" || _data == null) {
+                    return "";
+                }
+                var y = _data.getFullYear();
+                var m = _data.getMonth() + 1;
+                var d = _data.getDate();
+                var H = _data.getHours();
+                var M = _data.getMinutes();
+                var s = _data.getSeconds();
+                return y.toString().substr(2, 2) +
+                    "/" +
+                    (m > 9 ? m.toString() : "0" + m.toString()) +
+                    "/" +
+                    (d > 9 ? d.toString() : "0" + d.toString()) +
+                    " " +
+                    (H > 9 ? H.toString() : "0" + H.toString()) +
+                    ":" +
+                    (M > 9 ? M.toString() : "0" + M.toString());
+            };
+
+            function FetchData(_data) {
+                var chart = {
+                    MinX: null, MaxX: null, MinY: null, MaxY: null,
+                    Lines: []
+                };
+                var lq_from = Enumerable.From(_data);
+                for (var freql = 1; freql <= 1; freql++) {
+                    for (var freqltotal = 17; freqltotal <= 18; freqltotal++) {
+                        var lq_where = lq_from.Where(function (x) { return x.FreqL == freql && x.FreqLTotal == freqltotal; });
+                        if (0 != lq_where.Count()) {
+                            var min_x = lq_where.Min(function (x) { return x.LastModified; });
+                            var max_x = lq_where.Max(function (x) { return x.LastModified; });
+                            var min_y = lq_where.Min(function (x) { return x.Times });
+                            var max_y = lq_where.Max(function (x) { return x.Times });
+                            var sum = lq_where.Sum(function (x) { return x.Times; });
+                            var arr = lq_where
+                                .OrderBy(function (x) { return x.LastModified; })
+                                .Select(function (x) { return [ x.LastModified, x.Times ]; })
+                                .ToArray();
+                            if (17 != freqltotal) {
+                                min_y = min_y * 2;
+                                max_y = max_y * 2;
+                                arr = lq_where
+                                    .OrderBy(function (x) { return x.LastModified; })
+                                    .Select(function (x) { return [ x.LastModified, x.Times * 2 ]; })
+                                    .ToArray();
+                            }
+                            chart.MinX = null == chart.MinX || null != min_x && min_x < chart.MinX ? min_x : chart.MinX;
+                            chart.MaxX = null == chart.MaxX || null != max_x && max_x > chart.MaxX ? max_x : chart.MaxX;
+                            chart.MinY = null == chart.MinY || null != min_y && min_y < chart.MinY ? min_y : chart.MinY;
+                            chart.MaxY = null == chart.MaxY || null != max_y && max_y > chart.MaxY ? max_y : chart.MaxY;
+                            chart.Lines.push({
+                                Data: arr,
+                                Label: {
+                                    label: "FreqL = {0}, FreqLTotal = {1}, Times = {2}".format(freql, LeftPad(freqltotal, 2), LeftPad(sum, 6)),
+                                    pointLabels: { show: false },
+                                    markerOptions: { size: 10 } }
+                            });
+                        }
+                    }
+                }
+                return chart;
+            };
+
+            function RenderChart(_data) {
+                $("#chart").empty();
+                if (0 == _data.Lines.length) {
+                    return false;
+                }
+                var colors = [];
+                var lq_from = Enumerable.From(_data.Lines);
+                var plot = $.jqplot('chart', lq_from.Select(function (x) { return x.Data }).ToArray(), {
+                    series: lq_from.Select(function (x) { return x.Label }).ToArray(),
+                    seriesColor: colors,
+                    // series: [{ showMarker: ArrRst.length > 30 ? false : true /* lines: { show: false }, points: { show: false } */}],
+                    // seriesColors: ['orange'],
+                    // grid: { hoverable: false, clickable: false },
+                    axes: {
+                        xaxis: {
+                            renderer: $.jqplot.DateAxisRenderer,
+                            tickOptions: {
+                                // formatString: '%m/%d/%y'
+                                formatString: '%m/%d %H:%M'
+                            },
+                            min: _data.MinX,
+                            max: _data.MaxX,
+                            pad: 0,
+                            // numberTicks: 4
+                        },
+                        yaxis: {
+                            tickOptions: {
+                                formatString: '%.0f'
+                            },
+                            min: 0, // _data.MinY,
+                            // max: _data.MaxY,
+                            tickInterval: _data.MaxY < 4 ? 1 : null
+                        }
+                    },
+                    legend: {
+                        show: true,
+                        placement: 'outside',
+                        // rendererOptions: {
+                        //     numberRows: 1
+                        // },
+                        location: 's',
+                        marginTop: '15px'
+                    },
+                    highlighter: {
+                        show: true,
+                        tooltipLocation: 'n',
+                        tooltipContentEditor: (function (ev, seriesIndex, pointIndex) {
+                            // plot.series[seriesIndex].label, plot.series[seriesIndex].color, plot.data[seriesIndex][pointIndex]
+                            var s_x = ToStringDateChart(plot.data[seriesIndex][pointIndex][0]);
+                            var s_y = plot.data[seriesIndex][pointIndex][1];
+                            return "<b>" + s_x + ' &raquo; ' + s_y + ' times' + "</b>";
+                        })
+                    }
+                });
+            };
+
+            jQuery(document).ready(function ($) {
+                var chart = FetchData(data_HHmm);
+                RenderChart(chart);
+            });
+        </script>
+	</head>
+	<body>
+        <div id="chart"></div>
+    </body>
+</html>

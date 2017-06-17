@@ -322,8 +322,8 @@ SELECT ASUM.* FROM AGIN_SUMMARY ASUM ORDER BY ASUM.Id ASC");
                 int order = 0;
                 while (agin.DataAnalysis.LatestOrder > order++)
                 {
-                    DB_AGIN_Baccarat_Check baccarat_check = new DB_AGIN_Baccarat_Check(agin, 10, 3, new KeyValuePair<int, int>[10] {
-                        new KeyValuePair<int, int>(1, 3),
+                    DB_AGIN_Baccarat_Check baccarat_check = new DB_AGIN_Baccarat_Check(agin, 10, 1, new KeyValuePair<int, int>[10] {
+                        new KeyValuePair<int, int>(1, 1),
                         new KeyValuePair<int, int>(2, 6),
                         new KeyValuePair<int, int>(3, 9),
                         new KeyValuePair<int, int>(4, 12),
@@ -413,6 +413,115 @@ SELECT ASUM.* FROM AGIN_SUMMARY ASUM ORDER BY ASUM.Id ASC");
                 Console.WriteLine(string.Format("Information\t:: {0:P}", (double)idx++ / agins.Count));
             }
             ConnHelper.ExecNonQueryCmdOptimizeMany(lst_vals, cmd_text);
+        }
+
+        public void Analysis3_AGIN()
+        {
+            SQLiteCommand cmd = ConnHelper.ConnDb.CreateCommand();
+            try
+            {
+                #region SQLiteCommand: Initialize
+                #region cmd.CommandText = string.Format(@"")
+                cmd.CommandText = string.Format(@"
+PRAGMA foreign_keys=off;
+PRAGMA temp_store=2;
+BEGIN TRANSACTION;
+
+CREATE TEMP TABLE IF NOT EXISTS _Variables (Name TEXT PRIMARY KEY NOT NULL, Value TEXT);
+
+DROP TABLE IF EXISTS tmpMaxOrder;
+CREATE TEMPORARY TABLE tmpMaxOrder AS
+WITH FT_CTE AS (
+    SELECT SubId, MAX(LatestOrder) MaxOrder FROM AGIN_RESULT2 GROUP BY SubId)
+SELECT * FROM FT_CTE;
+
+DROP TABLE IF EXISTS tmpDistAVG;
+CREATE TEMPORARY TABLE tmpDistAVG AS
+WITH FT_CTE AS (
+    SELECT ASUM.Id
+        , MO.MaxOrder
+        , CAST(60 AS INT) DistAVG
+        , ASUM.LastModifiedOn LastModified
+        , strftime('%s', ASUM.LastModifiedOn) LastModifiedUnix
+    FROM AGIN_SUMMARY ASUM
+        INNER JOIN tmpMaxOrder MO ON MO.SubId = ASUM.Id)
+SELECT * FROM FT_CTE;
+
+DROP TABLE IF EXISTS tmpAR1;
+CREATE TEMPORARY TABLE tmpAR1 AS
+WITH FT_CTE AS (
+    SELECT AR.Id, AR.SubId, AR.LatestOrder
+        , AR.FreqN, AR.FreqL, AR.FreqLSub, AR.FreqColors
+        , AR.FreqN * AR.FreqL + AR.FreqLSub FreqLTotal
+        , ((DA.LastModifiedUnix - (DA.MaxOrder - AR.LatestOrder) * DA.DistAVG) / 1800) * 1800 LastModifiedUnix
+    FROM AGIN_RESULT1 AR
+        INNER JOIN tmpDistAVG DA ON DA.Id = AR.SubId)
+SELECT * FROM FT_CTE;
+
+INSERT OR REPLACE INTO _Variables VALUES ('min-latest-modified-unix', (SELECT MIN(LastModifiedUnix) FROM tmpAR1));
+INSERT OR REPLACE INTO _Variables VALUES ('max-latest-modified-unix', (SELECT MAX(LastModifiedUnix) FROM tmpAR1));
+UPDATE _Variables SET Value =
+    ((SELECT CAST(COALESCE(Value, NULL) AS INT) FROM _Variables WHERE Name = 'min-latest-modified-unix' LIMIT 1) / 1800) * 1800
+WHERE Name = 'min-latest-modified-unix';
+UPDATE _Variables SET Value = (CASE
+    WHEN CAST((SELECT CAST(COALESCE(Value, NULL) AS INT) FROM _Variables WHERE Name = 'max-latest-modified-unix' LIMIT 1) AS DOUBLE) / 60 <> 0 THEN
+        ((SELECT CAST(COALESCE(Value, NULL) AS INT) FROM _Variables WHERE Name = 'max-latest-modified-unix' LIMIT 1) / 1800 + 1) * 1800
+    ELSE
+        (SELECT CAST(COALESCE(Value, NULL) AS INT) FROM _Variables WHERE Name = 'max-latest-modified-unix' LIMIT 1)
+    END)
+WHERE Name = 'max-latest-modified-unix';
+DROP TABLE IF EXISTS tmpTime;
+CREATE TEMPORARY TABLE tmpTime AS
+WITH FT_CTE AS (
+    WITH RECURSIVE recursiveTime (time)
+    AS (
+        SELECT (SELECT CAST(COALESCE(Value, NULL) AS INT) FROM _Variables WHERE Name = 'min-latest-modified-unix' LIMIT 1)
+        UNION ALL
+        SELECT time + 1800 FROM recursiveTime WHERE time < (SELECT CAST(COALESCE(Value, NULL) AS INT) FROM _Variables WHERE Name = 'max-latest-modified-unix' LIMIT 1))
+    SELECT datetime(time, 'unixepoch') LastModified, time LastModifiedUnix FROM recursiveTime)
+SELECT * FROM FT_CTE;
+
+DROP TABLE IF EXISTS tmpAR1Cus;
+CREATE TEMPORARY TABLE tmpAR1Cus AS
+WITH FT_CTE AS (
+    SELECT AR.FreqL, AR.FreqLTotal, T.LastModified, COUNT(1) Times
+    FROM tmpAR1 AR
+        INNER JOIN tmpTime T ON AR.LastModifiedUnix = T.LastModifiedUnix
+    GROUP BY AR.FreqL, AR.FreqLTotal, T.LastModified)
+SELECT * FROM FT_CTE;
+
+COMMIT;
+PRAGMA foreign_keys=on;
+SELECT * FROM tmpAR1Cus;");
+                #endregion
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandTimeout = CONFIG_CONN_TIMEOUT;
+                #endregion
+                #region SQLiteCommand: Parameters
+                #endregion
+                #region SQLiteCommand: Connection
+                DataSet ds = ConnHelper.ExecCmd(cmd);
+                #endregion
+                #region For: Retrieve
+                DataTable dt = ds.Tables[0].Copy();
+                string path = Path.Combine(CONFIG_PATH_CONFIG, string.Format("analysis3-agin-{0:yyMMddHHmmss}.js", CONFIG_REPORT_TIME));
+                FileHelper.WriteFileWithSW(path, "var data = " + JsonConvert.SerializeObject(dt) + ";");
+                #endregion
+                #region For: Clean
+                dt.Clear();
+                ds.Clear();
+                dt.Dispose();
+                ds.Dispose();
+                #endregion
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(string.Format("{0}{1}", ex.Message, ex.StackTrace), ex);
+            }
+            finally
+            {
+                cmd.Dispose();
+            }
         }
 
         public static List<string> ToCols(DataTable dt)

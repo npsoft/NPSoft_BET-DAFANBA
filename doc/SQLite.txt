@@ -1,5 +1,7 @@
 ﻿BLOB | INTEGER | INT | REAL | CHAR(50) | VARCHAR | TEXT
 --
+LENGTH(';agin-170328-091146-072.png;') = 28
+--
 vacuum;
 --
 ATTACH DATABASE 'I:\NPSoft_BET-DAFANBA\db\dbBet_17032x.db3' AS aux_17032x;
@@ -106,7 +108,12 @@ END TRANSACTION;
 --
 SELECT AT.*, strftime('%m/%d/%Y', substr(AT.CreatedOn, 0, 20)) FROM AGIN_TRACK AT ORDER BY AT.Id ASC LIMIT 0, 10;
 SELECT last_insert_rowid();
---
+--WITH RECURSIVE fibo (curr, next)
+AS (
+    SELECT 1, 1
+    UNION ALL
+    SELECT next, curr + next FROM fibi LIMIT 10)
+SELECT curr, next Result FROM fibo;
 CREATE TEMPORARY TABLE tmpARG AS
 WITH FT_CTE AS (
     SELECT AR.SubId
