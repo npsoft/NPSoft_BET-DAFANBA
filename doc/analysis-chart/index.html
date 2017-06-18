@@ -225,7 +225,9 @@
                     }
                 }
                 patterns.forEach(function (pattern, index, array) {
-                    pattern.Points.forEach(function (point, index, array) {
+                    Enumerable.From(pattern.Points)
+						.OrderBy(function (x) { return x.Modified; })
+						.ToArray().forEach(function (point, index, array) {
                         if (null != point.Suspicious && (point.Suspicious > 0.60 || point.Suspicious < 0.40)) {
                             console.log("FreqL = {0}, FreqLTotal = {1}, Hour = {2}, Minute = {3} ,Suspicious = {4}".format(
                                 LeftPad(pattern.FreqL, 2), LeftPad(pattern.FreqLTotal, 2),
