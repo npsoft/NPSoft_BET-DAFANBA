@@ -7,9 +7,9 @@ DELETE FROM AGIN_RESULT1;
 DELETE FROM AGIN_RESULT2;
 SELECT COUNT(1) FROM AGIN;
 SELECT COUNT(1) FROM AGIN_TRACK;
-SELECT COUNT(1) FROM AGIN_SUMMARY; -- 7.665 record(s)
-SELECT COUNT(1) FROM AGIN_RESULT1; -- 1.337.903 record(s)
-SELECT COUNT(1) FROM AGIN_RESULT2; -- 490.760 record(s)
+SELECT COUNT(1) FROM AGIN_SUMMARY; -- 8.233 record(s)
+SELECT COUNT(1) FROM AGIN_RESULT1; -- 1.437.672 record(s)
+SELECT COUNT(1) FROM AGIN_RESULT2; -- 527.725 record(s)
 
 -- #
 -- SELECT * FROM aux.AGIN;
@@ -118,7 +118,8 @@ WITH FT_CTE AS (
         , ASUM.LastModifiedOn LastModified
         , strftime('%s', ASUM.LastModifiedOn) LastModifiedUnix
     FROM AGIN_SUMMARY ASUM
-        INNER JOIN tmpMaxOrder MO ON MO.SubId = ASUM.Id)
+        INNER JOIN tmpMaxOrder MO ON MO.SubId = ASUM.Id
+    WHERE ASUM.Id > 7713)
 SELECT * FROM FT_CTE;
 
 DROP TABLE IF EXISTS tmpAR1;
@@ -127,7 +128,7 @@ WITH FT_CTE AS (
     SELECT AR.Id, AR.SubId, AR.LatestOrder
         , AR.FreqN, AR.FreqL, AR.FreqLSub, AR.FreqColors
         , AR.FreqN * AR.FreqL + AR.FreqLSub FreqLTotal
-        , ((DA.LastModifiedUnix - (DA.MaxOrder - AR.LatestOrder) * DA.DistAVG) / 60) * 60 LastModifiedUnix
+        , ((DA.LastModifiedUnix - (DA.MaxOrder - AR.LatestOrder) * DA.DistAVG) / 1800) * 1800 LastModifiedUnix
     FROM AGIN_RESULT1 AR
         INNER JOIN tmpDistAVG DA ON DA.Id = AR.SubId)
 SELECT * FROM FT_CTE;
@@ -135,11 +136,11 @@ SELECT * FROM FT_CTE;
 INSERT OR REPLACE INTO _Variables VALUES ('min-latest-modified-unix', (SELECT MIN(LastModifiedUnix) FROM tmpAR1));
 INSERT OR REPLACE INTO _Variables VALUES ('max-latest-modified-unix', (SELECT MAX(LastModifiedUnix) FROM tmpAR1));
 UPDATE _Variables SET Value =
-    ((SELECT CAST(COALESCE(Value, NULL) AS INT) FROM _Variables WHERE Name = 'min-latest-modified-unix' LIMIT 1) / 60) * 60
+    ((SELECT CAST(COALESCE(Value, NULL) AS INT) FROM _Variables WHERE Name = 'min-latest-modified-unix' LIMIT 1) / 1800) * 1800
 WHERE Name = 'min-latest-modified-unix';
 UPDATE _Variables SET Value = (CASE
-    WHEN CAST((SELECT CAST(COALESCE(Value, NULL) AS INT) FROM _Variables WHERE Name = 'max-latest-modified-unix' LIMIT 1) AS DOUBLE) / 60 <> 0 THEN
-        ((SELECT CAST(COALESCE(Value, NULL) AS INT) FROM _Variables WHERE Name = 'max-latest-modified-unix' LIMIT 1) / 60 + 1) * 60
+    WHEN CAST((SELECT CAST(COALESCE(Value, NULL) AS INT) FROM _Variables WHERE Name = 'max-latest-modified-unix' LIMIT 1) AS DOUBLE) / 1800 <> 0 THEN
+        ((SELECT CAST(COALESCE(Value, NULL) AS INT) FROM _Variables WHERE Name = 'max-latest-modified-unix' LIMIT 1) / 1800 + 1) * 1800
     ELSE
         (SELECT CAST(COALESCE(Value, NULL) AS INT) FROM _Variables WHERE Name = 'max-latest-modified-unix' LIMIT 1)
     END)
@@ -151,7 +152,7 @@ WITH FT_CTE AS (
     AS (
         SELECT (SELECT CAST(COALESCE(Value, NULL) AS INT) FROM _Variables WHERE Name = 'min-latest-modified-unix' LIMIT 1)
         UNION ALL
-        SELECT time + 60 FROM recursiveTime WHERE time < (SELECT CAST(COALESCE(Value, NULL) AS INT) FROM _Variables WHERE Name = 'max-latest-modified-unix' LIMIT 1))
+        SELECT time + 1800 FROM recursiveTime WHERE time < (SELECT CAST(COALESCE(Value, NULL) AS INT) FROM _Variables WHERE Name = 'max-latest-modified-unix' LIMIT 1))
     SELECT datetime(time, 'unixepoch') LastModified, time LastModifiedUnix FROM recursiveTime)
 SELECT * FROM FT_CTE;
 
@@ -166,7 +167,14 @@ SELECT * FROM FT_CTE;
 
 COMMIT;
 PRAGMA foreign_keys=on;
-SELECT MIN(Times), MAX(Times), MIN(LastModified), MAX(LastModified) FROM tmpAR1Cus WHERE FreqL < 11;
+/* -:
+SELECT T.*
+FROM (SELECT AR.FreqL, AR.FreqLTotal, strftime('%H:%M', T.LastModified) LastModified, COUNT(1) Times
+    FROM tmpAR1 AR
+        INNER JOIN tmpTime T ON AR.LastModifiedUnix = T.LastModifiedUnix
+    GROUP BY AR.FreqL, AR.FreqLTotal, strftime('%H:%M', T.LastModified)) T
+WHERE T.FreqL = 1 AND T.FreqLTotal = 18
+ORDER BY T.LastModified ASC;*/
 /* -: AVG = 54, MAX = 130, MIN = 45
 SELECT AVG(DistSeconds) DistSecondsAVG, MAX(DistSeconds) DistSecondsMAX, MIN(DistSeconds) DistSecondsMIN
     FROM (
