@@ -168,13 +168,22 @@ SELECT * FROM FT_CTE;
 COMMIT;
 PRAGMA foreign_keys=on;
 /* -:
-SELECT T.*
-FROM (SELECT AR.FreqL, AR.FreqLTotal, strftime('%H:%M', T.LastModified) LastModified, COUNT(1) Times
+DROP TABLE IF EXISTS tmpAnalysis;
+CREATE TEMPORARY TABLE tmpAnalysis AS
+WITH FT_CTE AS (
+    SELECT AR.FreqL, AR.FreqLTotal, strftime('%H:%M', T.LastModified) LastModified, COUNT(1) Times
     FROM tmpAR1 AR
         INNER JOIN tmpTime T ON AR.LastModifiedUnix = T.LastModifiedUnix
-    GROUP BY AR.FreqL, AR.FreqLTotal, strftime('%H:%M', T.LastModified)) T
-WHERE T.FreqL = 1 AND T.FreqLTotal = 18
-ORDER BY T.LastModified ASC;*/
+    GROUP BY AR.FreqL, AR.FreqLTotal, strftime('%H:%M', T.LastModified))
+SELECT * FROM FT_CTE;
+
+SELECT A.FreqL, A.FreqLTotal, A.LastModified
+    , A.Times - 2 * (CASE WHEN AN.Times IS NOT NULL THEN AN.Times ELSE 0 END) ProfitD
+    , 2 * (CASE WHEN AN.Times IS NOT NULL THEN AN.Times ELSE 0 END) - A.Times ProfitU
+FROM tmpAnalysis A
+    LEFT JOIN tmpAnalysis AN ON AN.LastModified = A.LastModified AND AN.FreqL = A.FreqL AND AN.FreqLTotal = A.FreqLTotal + 1
+WHERE A.FreqL = 1 AND A.FreqLTotal = 18 AND ProfitD <> 0
+ORDER BY A.LastModified ASC;*/
 /* -: AVG = 54, MAX = 130, MIN = 45
 SELECT AVG(DistSeconds) DistSecondsAVG, MAX(DistSeconds) DistSecondsMAX, MIN(DistSeconds) DistSecondsMIN
     FROM (
