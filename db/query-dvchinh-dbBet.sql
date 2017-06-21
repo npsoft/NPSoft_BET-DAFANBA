@@ -119,7 +119,7 @@ WITH FT_CTE AS (
         , strftime('%s', ASUM.LastModifiedOn) LastModifiedUnix
     FROM AGIN_SUMMARY ASUM
         INNER JOIN tmpMaxOrder MO ON MO.SubId = ASUM.Id
-    WHERE ASUM.Id > 7713)
+    WHERE ASUM.Id > 0)
 SELECT * FROM FT_CTE;
 
 DROP TABLE IF EXISTS tmpAR1;
@@ -177,6 +177,17 @@ WITH FT_CTE AS (
     GROUP BY AR.FreqL, AR.FreqLTotal, strftime('%H:%M', T.LastModified))
 SELECT * FROM FT_CTE;
 
+SELECT A.FreqL, A.FreqLTotal, T.LastModified, A.Times
+FROM (
+    SELECT strftime('%H:%M', LastModified) LastModified
+    FROM tmpTime
+    GROUP BY strftime('%H:%M', LastModified)) T
+    LEFT JOIN (
+    SELECT FreqL, FreqlTotal, LastModified, Times
+    FROM tmpAnalysis
+    WHERE FreqL = 1 AND FreqLTotal = 12) A ON A.LastModified = T.LastModified
+ORDER BY T.LastModified ASC;*/
+/* -:
 SELECT A.FreqL, A.FreqLTotal, A.LastModified
     , A.Times - 2 * (CASE WHEN AN.Times IS NOT NULL THEN AN.Times ELSE 0 END) ProfitD
     , 2 * (CASE WHEN AN.Times IS NOT NULL THEN AN.Times ELSE 0 END) - A.Times ProfitU
