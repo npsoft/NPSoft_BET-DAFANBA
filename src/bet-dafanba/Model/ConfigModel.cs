@@ -280,7 +280,7 @@ x, y, freqColors, "{" + freqN + "}", freqColors.Substring(0, freqLSub), freqN * 
                 #region SQLiteCommand: Initialize
                 #region cmd.CommandText = string.Format(@"")
                 cmd.CommandText = string.Format(@"
-SELECT ASUM.* FROM AGIN_SUMMARY ASUM WHERE ASUM.Id > 7713 ORDER BY ASUM.Id ASC");
+SELECT ASUM.* FROM AGIN_SUMMARY ASUM WHERE ASUM.Id > 8281 ORDER BY ASUM.Id ASC");
                 #endregion
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandTimeout = CONFIG_CONN_TIMEOUT;
@@ -354,7 +354,7 @@ SELECT ASUM.* FROM AGIN_SUMMARY ASUM WHERE ASUM.Id > 7713 ORDER BY ASUM.Id ASC")
                 #region SQLiteCommand: Initialize
                 #region cmd.CommandText = string.Format(@"")
                 cmd.CommandText = string.Format(@"
-SELECT ASUM.* FROM AGIN_SUMMARY ASUM WHERE ASUM.Id > 7713 ORDER BY ASUM.Id ASC");
+SELECT ASUM.* FROM AGIN_SUMMARY ASUM WHERE ASUM.Id > 8281 ORDER BY ASUM.Id ASC");
                 #endregion
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandTimeout = CONFIG_CONN_TIMEOUT;
